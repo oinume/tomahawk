@@ -1,0 +1,5 @@
+DEPENDENCIES
+  - argparse
+  - multiprocessing
+  - pexpect
+  - nose

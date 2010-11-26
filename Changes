@@ -1,0 +1,4 @@
+0.1.0  2010.11.26
+  - The first release of python version.
+  - Brand new option: -p (--parallel)
+  - -C option is now obsoleted. Use -c

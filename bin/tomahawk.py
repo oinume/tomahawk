@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import signal
+import sys
+import bootstrap
+
+parent, bin_dir = bootstrap.set_lib_path(__file__)
+
+import argparse
+from tomahawk.command_line import Context
+from tomahawk.constants import DEFAULT_EXPECT_TIMEOUT
+from tomahawk.log import create_logger
+from tomahawk.main import Main
+from tomahawk.utils import shutdown_by_signal
+
+# Trap SIGINT(Ctrl-C) to quit executing a command
+signal.signal(signal.SIGINT, shutdown_by_signal)
+
+def create_argument_parser():
+    p = argparse.ArgumentParser(
+        prog = os.path.basename(__file__),
+        description = 'A simple command executor for many hosts.',
+        conflict_handler = 'resolve'
+    )
+
+    p.add_argument(
+        'command', metavar='command', nargs='+',
+        help='command executed on remote hosts.',
+    )
+    p.add_argument(
+        '-h', '--hosts', metavar='HOST',
+        help='host names for executing a command.',
+    )
+    p.add_argument(
+        '-f', '--hosts-files', metavar='HOST_FILE',
+        help='hosts files listed host names.'
+    )
+    p.add_argument(
+        '--ssh-user', help='ssh user.'
+    )
+    p.add_argument(
+        '-o', '--ssh-options', help='ssh options.'
+    )
+    p.add_argument(
+        '-c', '--continue-on-error', action='store_true', default=None,
+        help='Command exectuion continues whatever any errors.'
+    )
+    p.add_argument(
+        '-p', '--parallel', metavar='NUM', type=int, default=1,
+        help='Thread numbers for parallel command execution. (default: 1)'
+    )
+    p.add_argument(
+        '-l', '--prompt-login-password', action='store_true',
+        help='Prompt a password for ssh authentication.'
+    )
+    p.add_argument(
+        '-s', '--prompt-sudo-password', action='store_true',
+        help='Prompt a password for sudo.'
+    )
+    p.add_argument(
+        '--expect-timeout', metavar='SECONDS', type=int, default=DEFAULT_EXPECT_TIMEOUT,
+        help='Specify expect timeout in seconds. (default: %d)' % (DEFAULT_EXPECT_TIMEOUT)
+    )
+    p.add_argument(
+        '-d', '--delay', type=int, default=0,
+        help='Command delay time in seconds. (default: 0)'
+    )
+    p.add_argument(
+        '-D', '--debug', action='store_true', default=False,
+        help='Set debug output enabled.',
+    )
+    p.add_argument(
+        '--profile', action='store_true', help='enable profiling.'
+    )
+    return p
+
+if __name__ == '__main__':
+    arg_parser = create_argument_parser()
+    options = arg_parser.parse_args()
+    log = create_logger(options.debug)
+    log.debug('options = ' + str(options))
+    log.debug('arguments = ' + str(options.command))
+    context = Context(
+        bin_dir,
+        options.command,
+        options,
+        arg_parser,
+    )
+
+    #from tomahawk.utils import read_login_password
+    #password = read_login_password()
+    #print "password = ", password
+
+    if options.profile:
+        import cProfile
+        import pstats
+        file = 'tomahawk.prof.%d' % (os.getpid())
+        prof = cProfile.run("Main(context, log).run()", file)
+        p = pstats.Stats(file)
+        p.strip_dirs()
+        p.sort_stats('time', 'calls')
+        p.print_stats()
+    else:
+        sys.exit(Main(context, log).run())
