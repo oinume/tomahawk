@@ -1,5 +1,11 @@
 How to install
   tar xvzf tomahawk-x.y.z.tar.gz
+  cd tomahawk-x.y.z
+  python setup.py install
+  
+  or
+  
+  tar xvzf tomahawk-x.y.z.tar.gz
   mv tomahawk-x.y.z /your/path/tomahawk
   export PATH=$PATH:/your/path/tomahawk/bin
 
