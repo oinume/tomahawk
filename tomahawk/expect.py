@@ -23,27 +23,29 @@ class CommandWithExpect(object):
 
         #print "command = " + self.command
         login_expect = "^(.+'s password:?\s*|Enter passphrase.+)"
-        sudo_expect1 = "^([Pp]assword:?\s*|パスワード:\s*)" # TODO: japanese character expected as utf-8
-        sudo_expect2 = "^\[sudo\] password for.+$"
+        sudo_expect1 = '^([Pp]assword:?\s*|パスワード:\s*)' # TODO: japanese character expected as utf-8
+        sudo_expect2 = '^\[sudo\] password for.+$'
         try:
             index = child.expect([ login_expect, sudo_expect1, sudo_expect2 ])
             if index == 0: # login_expect
                 if self.login_password is None:
                     # SSH authentication required but login_password is not input,
                     # so notify --prompt-login-password option
-                    print >> stderr, "[warn] Use --prompt-login-password for ssh authentication."
+                    print >> stderr, '[warn] Use --prompt-login-password for ssh authentication.'
                     child.sendline()
                     child.expect(EOF)
                     child.kill(0)
                 else:
                     child.sendline(self.login_password)
                     child.expect(EOF)
-            elif index in (1, 2): # sudo_expect
-                print "sudo expect. index = " + str(index)
-                child.sendline(self.sudo_password)
+            elif index in (1, 2): # might be sudo_expect
+                #print "sudo expect. index = " + str(index)
+                # Because some OSes (like MacOS) prompt 'Password:' for SSH authentication,
+                # send login_password if sudo_password isn't provided
+                child.sendline(self.sudo_password or self.login_password)
                 child.expect(EOF)
             else:
-                raise RuntimeError("Should not reach here")
+                raise RuntimeError('Should not reach here')
 
         except EOF:
             pass

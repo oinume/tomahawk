@@ -6,6 +6,7 @@ import signal
 import sys
 import tomahawk_bootstrap
 
+# Add TOMAHAWK_HOME, TOMAHAWK_HOME/lib to sys.path
 parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
 
 import argparse

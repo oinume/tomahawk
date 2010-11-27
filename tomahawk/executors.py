@@ -54,7 +54,7 @@ class BaseExecutor(object):
         self.hosts = hosts
         self.login_password = login_password
         self.sudo_password = sudo_password
-        self.raise_error = not options.continue_on_error if options.continue_on_error is None else True
+        self.raise_error = False if options.continue_on_error else True
         self.process_pool = None
 
     def initialize_process_pool(self, parallel=1):
