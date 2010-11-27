@@ -117,7 +117,7 @@ class CommandExecutor(BaseExecutor):
                     if self.raise_error:
                         #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
                         print >> stderr, '[error] Command "%s" failed on host "%s"' % (command, host)
-                        return False
+                        return 1
 
             if options.delay != 0:
                 sleep(options.delay)
@@ -128,9 +128,9 @@ class CommandExecutor(BaseExecutor):
                 hosts += '  %s\n' % (h)
             hosts = hosts.rstrip()
             print >> stderr, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
-            return False
+            return 1
         
-        return True
+        return 0
 
 class RsyncExecutor(BaseExecutor):
     # TODO: test
@@ -200,7 +200,7 @@ class RsyncExecutor(BaseExecutor):
                 if self.raise_error:
                     #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
                     print >> stderr, '[error] "%s" failed on host "%s"' % (c, host)
-                    return False
+                    return 1
                 
             if options.delay != 0:
                 sleep(options.delay)
@@ -211,8 +211,6 @@ class RsyncExecutor(BaseExecutor):
                     hosts += '  %s\n' % (h)
                 hosts.rstrip()
                 print >> stderr, '[error] "%s" failed on following hosts\n%s' % (c, hosts)
-                return False
+                return 1
 
-        return True
-
-
+        return 0
