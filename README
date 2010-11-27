@@ -1,6 +1,7 @@
 A simple ssh wrapper for executing commands for many hosts.
 
-* EXAMPLES
+EXAMPLES
+--------
 
 $ tomahawk.py -h host1,host2,host3 uptime
 
