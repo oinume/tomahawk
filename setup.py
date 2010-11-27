@@ -27,10 +27,14 @@ setup(
     zip_safe = False,
     platforms = 'unix',
     install_requires = [
-        'argparse>=1.1',
-        'multiprocessing>=2.6.1.1',
+        'argparse',
+        'multiprocessing',
         'pexpect>=2.4',
     ],
+    test_require = [
+        'nose'
+    ],
+    test_suite = 'nose.collector',
     classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
