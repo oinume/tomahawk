@@ -4,9 +4,9 @@
 import os
 import signal
 import sys
-import bootstrap
+import tomahawk_bootstrap
 
-parent, bin_dir = bootstrap.set_lib_path(__file__)
+parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
 
 import argparse
 from tomahawk.command_line import Context
