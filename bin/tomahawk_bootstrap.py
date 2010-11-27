@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 
 def set_lib_path(file):
     parent, bin_dir = os.path.split(os.path.dirname(os.path.abspath(file)))
