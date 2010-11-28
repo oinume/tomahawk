@@ -31,15 +31,15 @@ def create_argument_parser():
         help='command executed on remote hosts.',
     )
     p.add_argument(
-        '-h', '--hosts', metavar='HOST',
-        help='host names for executing a command.',
+        '-h', '--hosts', metavar='HOSTS',
+        help='host names for sending commands. (splited with ",")',
     )
     p.add_argument(
         '-f', '--hosts-files', metavar='HOST_FILE',
-        help='hosts files listed host names.'
+        help='hosts files which listed host names. (splited with ",")'
     )
     p.add_argument(
-        '--ssh-user', help='ssh user.'
+        '-u', '--ssh-user', help='ssh user.'
     )
     p.add_argument(
         '-o', '--ssh-options', help='ssh options.'
