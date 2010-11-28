@@ -61,18 +61,6 @@ class BaseExecutor(object):
         if self.process_pool is None:
             self.process_pool = Pool(processes=parallel)
 
-    def execute_ssh_command(self, command, login_password, sudo_password, expect_timeout):
-        return self.process_pool.apply_async(
-            _command,
-            [ command, login_password, sudo_password, expect_timeout ]
-        ).get(timeout = expect_timeout)
-
-    def execute_rsync_command(self, command, login_password, expect_timeout):
-        return self.process_pool.apply_async(
-            _rsync,
-            [ command, login_password, expect_timeout ]
-        ).get(timeout = expect_timeout)
-
     def __del__(self):
         if self.process_pool is not None:
             self.process_pool.close()
@@ -89,15 +77,33 @@ class CommandExecutor(BaseExecutor):
         ssh_options += '-l ' + ssh_user
         self.initialize_process_pool(options.parallel)
 
-        error_hosts = []
+        async_results = []
         for host in self.hosts:
             for command in commands:
                 # execute a command with shell because we want to use pipe(|) and so on.
                 c = 'ssh %s %s "/bin/sh -c \'%s\'"' % (ssh_options, host, command)
                 # host, command, ssh_user, ssh_option, login_password, sudo_password
-                exit_status, command_output = self.execute_ssh_command(
-                    c, self.login_password, self.sudo_password, options.expect_timeout
+                async_result = self.process_pool.apply_async(
+                    _command,
+                    [ c, self.login_password, self.sudo_password, options.expect_timeout ]
                 )
+                async_results.append({ 'host': host, 'async_result': async_result })
+
+                if options.delay != 0:
+                    sleep(options.delay)
+
+        hosts_count = len(self.hosts)
+        finished = 0
+        error_hosts = []
+        while finished < hosts_count:
+            for dict in async_results:
+                async_result = dict['async_result']
+                if not async_result.ready():
+                    continue
+
+                exit_status, command_output = async_result.get(timeout = options.expect_timeout)
+                async_results.remove(dict)
+                finished += 1
 
                 output_params = {
                     'user': ssh_user,
@@ -119,8 +125,6 @@ class CommandExecutor(BaseExecutor):
                         print >> stderr, '[error] Command "%s" failed on host "%s"' % (command, host)
                         return 1
 
-            if options.delay != 0:
-                sleep(options.delay)
 
         if len(error_hosts) != 0:
             hosts = ''
@@ -164,6 +168,7 @@ class RsyncExecutor(BaseExecutor):
                 source,
             )
 
+        async_results = []
         error_hosts = []
         for host in self.hosts:
             c = ''
@@ -185,30 +190,43 @@ class RsyncExecutor(BaseExecutor):
                         # if file doesn't exist
                         destination += '__' + host
                 c = rsync_template % (host, destination)
-                
+            
             self.log.debug('command = "%s"' % (c))
-            exit_status, command_output = self.execute_rsync_command(
-                c, self.login_password, options.expect_timeout
+
+            async_result = self.process_pool.apply_async(
+                _rsync,
+                [ c, self.login_password, options.expect_timeout ]
             )
-            output = '%% %s\n%s' % (c, command_output)
-            if exit_status == 0:
-                print output, '\n'
-            else:
-                output += '[error] rsync failed ! (status = %d)' % exit_status
-                print output, '\n'
-                error_hosts.append(host)
-                if self.raise_error:
-                    #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
-                    print >> stderr, '[error] "%s" failed on host "%s"' % (c, host)
-                    return 1
-                
+            async_results.append({ 'host': host, 'async_result': async_result })
+
             if options.delay != 0:
                 sleep(options.delay)
 
-            if len(error_hosts) != 0:
-                hosts = ''
-                for h in error_hosts:
-                    hosts += '  %s\n' % (h)
+        finished = 0
+        hosts_count = len(self.hosts)
+        while finished < hosts_count:
+            for dict in async_results:
+                async_result = dict['async_result']
+                exit_status, command_output = async_result.get(timeout = options.expect_timeout)
+                async_results.remove(dict)
+                finished += 1
+
+                output = '%% %s\n%s' % (c, command_output)
+                if exit_status == 0:
+                    print output, '\n'
+                else:
+                    output += '[error] rsync failed ! (status = %d)' % exit_status
+                    print output, '\n'
+                    error_hosts.append(host)
+                    if self.raise_error:
+                        #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
+                        print >> stderr, '[error] "%s" failed on host "%s"' % (c, host)
+                        return 1
+
+        if len(error_hosts) != 0:
+            hosts = ''
+            for h in error_hosts:
+                hosts += '  %s\n' % (h)
                 hosts.rstrip()
                 print >> stderr, '[error] "%s" failed on following hosts\n%s' % (c, hosts)
                 return 1
