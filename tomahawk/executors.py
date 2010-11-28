@@ -97,6 +97,7 @@ class CommandExecutor(BaseExecutor):
         error_hosts = []
         while finished < hosts_count:
             for dict in async_results:
+                host = dict['host']
                 async_result = dict['async_result']
                 if not async_result.ready():
                     continue
@@ -206,6 +207,7 @@ class RsyncExecutor(BaseExecutor):
         hosts_count = len(self.hosts)
         while finished < hosts_count:
             for dict in async_results:
+                host = dict['host']
                 async_result = dict['async_result']
                 exit_status, command_output = async_result.get(timeout = options.expect_timeout)
                 async_results.remove(dict)
