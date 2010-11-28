@@ -95,6 +95,7 @@ if __name__ == '__main__':
     #print "password = ", password
 
     if options.profile:
+        # TODO: dynamically import
         import cProfile
         import pstats
         file = 'tomahawk.prof.%d' % (os.getpid())

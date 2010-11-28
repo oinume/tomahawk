@@ -99,6 +99,7 @@ if __name__ == '__main__':
     )
 
     if options.profile:
+        # TODO: dynamically import
         import cProfile
         import pstats
         file = '%s.prof.%d' % (os.path.basename(__file__), os.getpid())
