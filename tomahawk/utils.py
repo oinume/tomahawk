@@ -4,7 +4,8 @@ import sys
 
 def shutdown_by_signal(signum, frame):
     print
-    print 'Shutting down by signal "%d".' % signum;
+    print 'Shutting down by signal %d.' % signum;
+    # TODO: this function called twice
     sys.exit(signum);
 
 def read_login_password():
