@@ -20,3 +20,4 @@ $ tomahawk_rsync.py -h host1,host2,host3 test.py /tmp/test.py
 
 --> 'test.py' is copied to host1, host2 and host3.
 
+See more usages: https://github.com/oinume/tomahawk/wiki
