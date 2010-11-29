@@ -1,3 +1,10 @@
+Requirements
+  - python >= 2.5
+  - argparse
+  - multiprocessing
+  - pexpect
+  - nose
+
 How to install
   tar xvzf tomahawk-x.y.z.tar.gz
   cd tomahawk-x.y.z
@@ -9,8 +16,3 @@ How to install
   mv tomahawk-x.y.z /your/path/tomahawk
   export PATH=$PATH:/your/path/tomahawk/bin
 
-Pre-requirements
-  - argparse
-  - multiprocessing
-  - pexpect
-  - nose
