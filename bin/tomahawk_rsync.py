@@ -40,7 +40,7 @@ def create_argument_parser():
         help='hosts files listed host names.'
     )
     p.add_argument(
-        '--rsync-user', help='rsync user.'
+        '-u', '--rsync-user', help='rsync user.'
     )
     p.add_argument(
         '-o', '--rsync-options', help='rsync options. (default: "-avz")'
