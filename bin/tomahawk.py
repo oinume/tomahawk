@@ -90,10 +90,6 @@ if __name__ == '__main__':
         arg_parser,
     )
 
-    #from tomahawk.utils import read_login_password
-    #password = read_login_password()
-    #print "password = ", password
-
     if options.profile:
         # TODO: dynamically import
         import cProfile
