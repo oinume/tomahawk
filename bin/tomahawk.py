@@ -50,7 +50,7 @@ def create_argument_parser():
     )
     p.add_argument(
         '-p', '--parallel', metavar='NUM', type=int, default=1,
-        help='Thread numbers for parallel command execution. (default: 1)'
+        help='Process numbers for parallel command execution. (default: 1)'
     )
     p.add_argument(
         '-l', '--prompt-login-password', action='store_true',
