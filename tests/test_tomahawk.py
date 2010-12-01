@@ -3,16 +3,25 @@ import os
 from subprocess import call, PIPE, Popen
 import utils
 
-TOMAHAWK_PATH = os.path.join(utils.get_bin_dir(__file__), 'tomahawk.py')
+TOMAHAWK_PATH = os.path.join(utils.get_bin_dir(__file__), 'tomahawk')
+TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def test_basic():
+def test_01_basic():
     status = call(
         [ TOMAHAWK_PATH, '--hosts=localhost,localhost', 'uptime' ],
         stdout = PIPE, stderr = PIPE
     )
     assert_equal(status, 0, 'execute (basic)')
 
-def test_continue_on_error():
+def test_02_hosts_files():
+    hosts_files = os.path.join(TESTS_DIR, 'localhost_2.hosts')
+    status = call(
+        [ TOMAHAWK_PATH, '--hosts-files=' + hosts_files, 'uptime' ],
+        stdout = PIPE, stderr = PIPE
+    )
+    assert_equal(status, 0, 'execute (--hosts-files)')
+
+def test_03_continue_on_error():
     p = Popen(
         [ TOMAHAWK_PATH, '--hosts=localhost,localhost', 'doesnotexist' ],
         stdout = PIPE, stderr = PIPE

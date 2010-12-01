@@ -8,7 +8,7 @@ def get_long_description():
         f = open(file)
         long_description = ''.join(f.readlines())
     except IOError:
-        print path + ': Failed to open file.'
+        print file + ': Failed to open file.'
     finally:
         f.close()
     return long_description
@@ -23,7 +23,7 @@ setup(
     description = 'A simple ssh wrapper for executing commands for many hosts.',
     long_description = get_long_description(),
     packages = [ 'tomahawk' ],
-    scripts = [ os.path.join('bin', p) for p in [ 'tomahawk_bootstrap.py', 'tomahawk.py', 'tomahawk_rsync.py' ] ],
+    scripts = [ os.path.join('bin', p) for p in [ 'tomahawk_bootstrap.py', 'tomahawk', 'tomahawk_rsync' ] ],
     zip_safe = False,
     platforms = 'unix',
     install_requires = [
@@ -43,6 +43,7 @@ setup(
         'Operating System :: UNIX',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.5',
+        'Programming Language :: Python :: 2.6',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Clustering',
         'Topic :: System :: Systems Administration',

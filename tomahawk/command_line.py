@@ -25,8 +25,9 @@ class BaseMain(object):
     def __init__(self, context, log=None):
         self.context = context
         if log is None:
-            log = create_logger(context.options.debug)
-        self.log = log
+            self.log = create_logger(context.options.debug)
+        else:
+            self.log = log
 
     def run(self):
         raise Exception("Implement by sub-class")
@@ -44,13 +45,15 @@ class BaseMain(object):
         # regexp: [^\\],
         if options.hosts is not None:
             list = options.hosts.split(',')
-            hosts += list
+            for host in list:
+                host.strip()
+                hosts.append(host)
         elif options.hosts_files is not None:
             list = options.hosts_files.split(',')
             for file in list:
                 for line in open(file):
                     host = line.strip()
-                    if host.startswith('#'):
+                    if host == '' or host.startswith('#'):
                         continue
                     hosts.append(host)
         else:
