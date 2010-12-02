@@ -73,7 +73,9 @@ class CommandExecutor(BaseExecutor):
 
         options = self.context.options
         ssh_user = options.ssh_user or getuser()
-        ssh_options = options.ssh_options or ''
+        ssh_options = ''
+        if options.ssh_options:
+            ssh_options = options.ssh_options + ' '
         ssh_options += '-l ' + ssh_user
         self.initialize_process_pool(options.parallel)
 
