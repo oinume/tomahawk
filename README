@@ -16,7 +16,7 @@ kazuhiro@host2 % uptime
 kazuhiro@host3 % uptime
 22:41:29 up 30 days,  5:26,  3 users,  load average: 3.11, 3.13, 3.11 
 
-$ tomahawk_rsync -h host1,host2,host3 test.py /tmp/test.py
+$ tomahawk-rsync -h host1,host2,host3 test.py /tmp/test.py
 
 --> 'test.py' is copied to host1, host2 and host3.
 

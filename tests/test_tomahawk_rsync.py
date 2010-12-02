@@ -4,7 +4,7 @@ import tempfile
 from subprocess import call, PIPE
 import utils
 
-TOMAHAWK_RSYNC_PATH = os.path.join(utils.get_bin_dir(__file__), 'tomahawk_rsync.py')
+TOMAHAWK_RSYNC_PATH = os.path.join(utils.get_bin_dir(__file__), 'tomahawk-rsync')
 TMP_DIR = os.path.join(utils.get_home_dir(__file__), 'tmp')
 if not os.path.exists(TMP_DIR):
     os.mkdir(TMP_DIR)

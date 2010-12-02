@@ -23,7 +23,7 @@ setup(
     description = 'A simple ssh wrapper for executing commands for many hosts.',
     long_description = get_long_description(),
     packages = [ 'tomahawk' ],
-    scripts = [ os.path.join('bin', p) for p in [ 'tomahawk_bootstrap.py', 'tomahawk', 'tomahawk_rsync' ] ],
+    scripts = [ os.path.join('bin', p) for p in [ 'tomahawk_bootstrap.py', 'tomahawk', 'tomahawk-rsync' ] ],
     zip_safe = False,
     platforms = 'unix',
     install_requires = [
