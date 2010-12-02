@@ -8,7 +8,7 @@ def get_long_description():
         f = open(file)
         long_description = ''.join(f.readlines())
     except IOError:
-        print file + ': Failed to open file.'
+        print 'Failed to open file "%s".' % (file)
     finally:
         f.close()
     return long_description
@@ -17,7 +17,7 @@ setup(
     name = 'tomahawk',
     version = '0.1.0',
     url = 'http://github.com/oinume/tomahawk/',
-    license = 'GPL',
+    license = 'LGPL',
     author = 'Kazuhiro Oinuma',
     author_email = 'oinume@gmail.com',
     description = 'A simple ssh wrapper for executing commands for many hosts.',
@@ -48,5 +48,4 @@ setup(
         'Topic :: System :: Clustering',
         'Topic :: System :: Systems Administration',
     ],
-    #test_suite='__main__.run_tests'
 )
