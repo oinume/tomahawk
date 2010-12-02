@@ -1,3 +1,7 @@
+0.1.1  2010.12.02
+  - Renamed. tomahawk.py -> tomahawk, tomahawk-rsync.py -> tomahawk-rsync
+  - Fixed many bugs
+
 0.1.0  2010.11.26
   - The first release of python version.
   - Brand new option: -p (--parallel)
