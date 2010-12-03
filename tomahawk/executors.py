@@ -9,19 +9,29 @@ from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import read_login_password, read_sudo_password
 
 def _command(command, login_password, sudo_password, expect_timeout):
-    #print '_command() :' + command
-#    if login_password is not None or sudo_password is not None:
+    """
+    Execute a command.
+    """
     return CommandWithExpect(command, login_password, sudo_password, expect_timeout).execute()
 
 def _rsync(command, login_password, expect_timeout):
+    """
+    Execute rsync
+    """
     return CommandWithExpect(command, login_password, None, expect_timeout).execute()
 
 class BaseExecutor(object):
     """
+    A base class for CommandExecutor, RsyncExecutor
     """
-    
     def __init__(self, context, log, hosts=[], **kwargs):
         """
+        Constructor
+        
+        Args:
+        context -- context
+        log -- log
+        hosts -- target hosts
         """
         if context is None:
             raise RuntimeError('Argument "context" required.')
@@ -55,18 +65,24 @@ class BaseExecutor(object):
         self.login_password = login_password
         self.sudo_password = sudo_password
         self.raise_error = False if options.continue_on_error else True
-        self.process_pool = None
-
-    def initialize_process_pool(self, parallel=1):
-        if self.process_pool is None:
-            self.process_pool = Pool(processes=parallel)
-
-    def __del__(self):
+        self.process_pool = Pool(processes = options.parallel)
+        
+    def destory_process_pool(self):
         if self.process_pool is not None:
             self.process_pool.close()
 
+    def __del__(self):
+        self.destory_process_pool()
 
 class CommandExecutor(BaseExecutor):
+    """
+    Execute commands.
+
+    Args:
+    commands -- commands to execute.
+    
+    Returns: when rsync succeeds, return 0. When errors, return 1
+    """
     def execute(self, commands):
         if len(commands) == 0:
             raise RuntimeError('1st argument "commands" length is 0')
@@ -77,7 +93,6 @@ class CommandExecutor(BaseExecutor):
         if options.ssh_options:
             ssh_options = options.ssh_options + ' '
         ssh_options += '-l ' + ssh_user
-        self.initialize_process_pool(options.parallel)
 
         async_results = []
         for host in self.hosts:
@@ -140,7 +155,15 @@ class CommandExecutor(BaseExecutor):
         return 0
 
 class RsyncExecutor(BaseExecutor):
-    # TODO: test
+    """
+    Execute rsync.
+    
+    Args:
+    source -- source file/dir
+    destination -- destination file/dir
+    
+    Returns: when rsync succeeds, return 0. When errors, return 1
+    """
     def execute(self, source, destination):
         if source is None:
             raise RuntimeError('1st argument "source" must not be None')
@@ -153,8 +176,6 @@ class RsyncExecutor(BaseExecutor):
         mirror_mode = options.mirror_mode or 'push'
         if mirror_mode not in ('push', 'pull'):
             raise RuntimeError('Invalid mirror_mode: ' + mirror_mode)
-
-        self.initialize_process_pool(options.parallel)
 
         rsync_template = ''
         if mirror_mode == 'push':

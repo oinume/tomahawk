@@ -5,6 +5,9 @@ from sys import stderr
 from tomahawk.constants import DEFAULT_EXPECT_TIMEOUT
 
 class CommandWithExpect(object):
+    """
+    A command executor through expect.
+    """
     def __init__(self, command, login_password, sudo_password, timeout = DEFAULT_EXPECT_TIMEOUT):
         self.command = command
         self.login_password = login_password
@@ -12,6 +15,11 @@ class CommandWithExpect(object):
         self.timeout = timeout
 
     def execute(self):
+        """
+        Execute a command with expect.
+        
+        Returns: command result status, output string
+        """
         output = StringIO()
         child = spawn(
             self.command,

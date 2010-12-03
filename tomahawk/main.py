@@ -3,6 +3,9 @@ from tomahawk.command_line import BaseMain
 from tomahawk.executors import CommandExecutor, RsyncExecutor
 
 class Main(BaseMain):
+    """
+    Main class for tomahawk
+    """
     def run(self):
         context = self.context
         hosts = self.check_hosts()
@@ -13,6 +16,9 @@ class Main(BaseMain):
 
 
 class RsyncMain(BaseMain):
+    """
+    Main class for tomahawk-rsync
+    """
     def run(self):
         context = self.context
         hosts = self.check_hosts()
