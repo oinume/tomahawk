@@ -1,4 +1,7 @@
-0.1.1  2010.12.02
+0.1.2 2010.12.06
+  - Fixed a bug tomahawk prints a password to stdout.
+
+0.1.1 2010.12.02
   - Renamed. tomahawk.py -> tomahawk, tomahawk-rsync.py -> tomahawk-rsync
   - Fixed many bugs
 
