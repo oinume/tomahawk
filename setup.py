@@ -15,7 +15,7 @@ def get_long_description():
 
 setup(
     name = 'tomahawk',
-    version = '0.1.1',
+    version = '0.1.2',
     url = 'http://github.com/oinume/tomahawk/',
     license = 'LGPL',
     author = 'Kazuhiro Oinuma',
