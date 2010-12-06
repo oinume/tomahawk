@@ -16,7 +16,7 @@ class CommandWithExpect(object):
         child = spawn(
             self.command,
             timeout = self.timeout,
-            logfile = output
+            logfile = output # TODO: logfile -> child.before() or child.after()
         )
         #child.logfile_send = file('/tmp/expect_send', 'w')
         #child.logfile = sys.stdout
@@ -53,13 +53,23 @@ class CommandWithExpect(object):
         except TIMEOUT:
             pass
             #print "timeout"
-        
+
         child.close()
         exit_status = child.exitstatus
         #print "exit_status = %d" % exit_status
 
-        output_text = output.getvalue()
-        #print "output = '%s'" % output_text
+        output_tmp = output.getvalue()
+        output_text = ''
+        password = self.login_password or self.sudo_password
+        if password is not None:
+            for line in output_tmp.splitlines():
+                if line.endswith(password):
+                    continue
+                output_text += line + '\n'
+        else:
+            output_text = output_tmp
+
+#        print "output = '%s'" % output_text
         output.close()
 
         return exit_status, output_text.strip()
