@@ -1,3 +1,7 @@
+0.2.0 2010.12.07
+  - Feature: When environment "TOMAHAWK_ENV" is "production", tomahawk confirms command execution.
+  - Feature: --version option is now available.
+
 0.1.2 2010.12.06
   - Fixed a bug tomahawk prints a password to stdout.
 
