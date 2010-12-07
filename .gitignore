@@ -1,2 +1,4 @@
 TODO
 *.pyc
+tomahawk.egg-info/
+dist/
