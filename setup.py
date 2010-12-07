@@ -1,5 +1,6 @@
 from setuptools import setup
 import os
+from tomahawk.constants import VERSION
 
 def get_long_description():
     file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README')
@@ -15,7 +16,7 @@ def get_long_description():
 
 setup(
     name = 'tomahawk',
-    version = '0.1.1',
+    version = VERSION,
     url = 'http://github.com/oinume/tomahawk/',
     license = 'LGPL',
     author = 'Kazuhiro Oinuma',

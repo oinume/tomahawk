@@ -11,7 +11,7 @@ parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
 
 import argparse
 from tomahawk.command_line import Context
-from tomahawk.constants import DEFAULT_EXPECT_TIMEOUT
+from tomahawk.constants import VERSION, DEFAULT_EXPECT_TIMEOUT
 from tomahawk.log import create_logger
 from tomahawk.main import Main
 from tomahawk.utils import shutdown_by_signal
@@ -74,6 +74,9 @@ def create_argument_parser():
     )
     p.add_argument(
         '--profile', action='store_true', help='enable profiling.'
+    )
+    p.add_argument(
+        '--version', action='version', version='%(prog)s ' + VERSION
     )
     return p
 
