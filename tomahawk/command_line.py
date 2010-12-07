@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 from tomahawk.log import create_logger
 
@@ -62,3 +63,14 @@ class BaseMain(object):
             sys.exit(2)
 
         return hosts
+
+    def confirm_execution_on_production(self, message):
+        if os.environ.get('TOMAHAWK_ENV') != 'production':
+            return
+
+        input = raw_input(message)
+        if input == 'yes':
+            print
+        else:
+            print 'Command execution was cancelled.'
+            sys.exit(0)

@@ -2,3 +2,4 @@ TODO
 *.pyc
 tomahawk.egg-info/
 dist/
+tmp/hello*

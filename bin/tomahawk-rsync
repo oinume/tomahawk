@@ -10,7 +10,11 @@ parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
 
 import argparse
 from tomahawk.command_line import RsyncContext
-from tomahawk.constants import VERSION, DEFAULT_EXPECT_TIMEOUT
+from tomahawk.constants import (
+    VERSION,
+    DEFAULT_EXPECT_TIMEOUT,
+    DEFAULT_RSYNC_OPTIONS
+)
 from tomahawk.log import create_logger
 from tomahawk.main import RsyncMain
 from tomahawk.utils import shutdown_by_signal
@@ -43,7 +47,8 @@ def create_argument_parser():
         '-u', '--rsync-user', help='rsync user.'
     )
     p.add_argument(
-        '-o', '--rsync-options', help='rsync options. (default: "-avz")'
+        '-o', '--rsync-options', default=DEFAULT_RSYNC_OPTIONS,
+        help='rsync options. (default: "-avz")'
     )
     p.add_argument(
         '-m', '--mirror-mode',
