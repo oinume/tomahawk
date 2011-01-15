@@ -102,15 +102,14 @@ if __name__ == '__main__':
         bin_dir,
         options.source,
         options.destination,
-        options,
+        options.__dict__,
         arg_parser,
     )
 
     if options.profile:
-        # TODO: dynamically import
-        import cProfile
-        import pstats
         file = '%s.prof.%d' % (os.path.basename(__file__), os.getpid())
+        cProfile = __import__('cProfile')
+        pstats = __import__('pstats')
         prof = cProfile.run("RsyncMain(context, log).run()", file)
         p = pstats.Stats(file)
         p.strip_dirs()

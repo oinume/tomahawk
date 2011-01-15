@@ -26,7 +26,7 @@ class BaseMain(object):
     def __init__(self, context, log=None):
         self.context = context
         if log is None:
-            self.log = create_logger(context.options.debug)
+            self.log = create_logger(context.options.get('debug'))
         else:
             self.log = log
 
@@ -35,7 +35,7 @@ class BaseMain(object):
 
     def check_hosts(self):
         options = self.context.options
-        if options.hosts is not None and options.hosts_files is not None:
+        if options.get('hosts') is not None and options.get('hosts_files') is not None:
             self.log.error('Cannot specify both options --hosts and --hosts-files.')
             self.log.error(self.context.arg_parser.format_usage())
             sys.exit(2)
@@ -44,13 +44,13 @@ class BaseMain(object):
         hosts = []
         # TODO: \, escape handling
         # regexp: [^\\],
-        if options.hosts is not None:
-            list = options.hosts.split(',')
+        if options.get('hosts'):
+            list = options['hosts'].split(',')
             for host in list:
                 host.strip()
                 hosts.append(host)
-        elif options.hosts_files is not None:
-            list = options.hosts_files.split(',')
+        elif options.get('hosts_files'):
+            list = options['hosts_files'].split(',')
             for file in list:
                 for line in open(file):
                     host = line.strip()

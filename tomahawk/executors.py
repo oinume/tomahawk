@@ -44,14 +44,14 @@ class BaseExecutor(object):
         login_password = None
         if 'login_password' in kwargs:
             login_password = kwargs['login_password']
-        elif options.prompt_login_password:
+        elif options.get('prompt_login_password'):
             login_password = read_login_password()
             newline = True
         
         sudo_password = None
         if 'sudo_password' in kwargs:
             sudo_password = kwargs['sudo_password']
-        elif options.__dict__.get('prompt_sudo_password') \
+        elif options.get('prompt_sudo_password') \
                 or (context.arguments is not None and context.arguments[0].startswith('sudo')):
             sudo_password = read_sudo_password()
             newline = True
@@ -64,8 +64,8 @@ class BaseExecutor(object):
         self.hosts = hosts
         self.login_password = login_password
         self.sudo_password = sudo_password
-        self.raise_error = False if options.continue_on_error else True
-        self.process_pool = Pool(processes = options.parallel)
+        self.raise_error = False if options['continue_on_error'] else True
+        self.process_pool = Pool(processes = options['parallel'])
         
     def destory_process_pool(self):
         if self.process_pool is not None:
@@ -88,10 +88,10 @@ class CommandExecutor(BaseExecutor):
             raise RuntimeError('1st argument "commands" length is 0')
 
         options = self.context.options
-        ssh_user = options.ssh_user or getuser()
+        ssh_user = options.get('ssh_user') or getuser()
         ssh_options = ''
-        if options.ssh_options:
-            ssh_options = options.ssh_options + ' '
+        if options.get('ssh_options'):
+            ssh_options = options['ssh_options'] + ' '
         ssh_options += '-l ' + ssh_user
 
         async_results = []
@@ -102,12 +102,12 @@ class CommandExecutor(BaseExecutor):
                 # host, command, ssh_user, ssh_option, login_password, sudo_password
                 async_result = self.process_pool.apply_async(
                     _command,
-                    [ c, self.login_password, self.sudo_password, options.expect_timeout ]
+                    [ c, self.login_password, self.sudo_password, options['expect_timeout'] ]
                 )
                 async_results.append({ 'host': host, 'async_result': async_result })
 
-                if options.delay != 0:
-                    sleep(options.delay)
+                if options['delay'] != 0:
+                    sleep(options['delay'])
 
         hosts_count = len(self.hosts)
         finished = 0
@@ -119,7 +119,7 @@ class CommandExecutor(BaseExecutor):
                 if not async_result.ready():
                     continue
 
-                exit_status, command_output = async_result.get(timeout = options.expect_timeout)
+                exit_status, command_output = async_result.get(timeout = options['expect_timeout'])
                 async_results.remove(dict)
                 finished += 1
 
@@ -171,9 +171,9 @@ class RsyncExecutor(BaseExecutor):
             raise RuntimeError('2nd argument "destination" must not be None')
 
         options = self.context.options
-        rsync_user = options.rsync_user or getuser()
-        rsync_options = options.rsync_options or DEFAULT_RSYNC_OPTIONS
-        mirror_mode = options.mirror_mode or 'push'
+        rsync_user = options.get('rsync_user') or getuser()
+        rsync_options = options.get('rsync_options') or DEFAULT_RSYNC_OPTIONS
+        mirror_mode = options.get('mirror_mode') or 'push'
         if mirror_mode not in ('push', 'pull'):
             raise RuntimeError('Invalid mirror_mode: ' + mirror_mode)
 
@@ -199,7 +199,7 @@ class RsyncExecutor(BaseExecutor):
             if mirror_mode == 'push':
                 c = rsync_template % (host)
             else: # pull
-                if options.append_host_suffix:
+                if options.get('append_host_suffix'):
                     if path.exists(destination):
                         if path.isdir(destination):
                             # if destination is a directory, gets a source filename and appends a host suffix
@@ -219,12 +219,12 @@ class RsyncExecutor(BaseExecutor):
 
             async_result = self.process_pool.apply_async(
                 _rsync,
-                [ c, self.login_password, options.expect_timeout ]
+                [ c, self.login_password, options['expect_timeout'] ]
             )
             async_results.append({ 'host': host, 'async_result': async_result })
 
-            if options.delay != 0:
-                sleep(options.delay)
+            if options['delay'] != 0:
+                sleep(options['delay'])
 
         finished = 0
         hosts_count = len(self.hosts)
@@ -232,7 +232,7 @@ class RsyncExecutor(BaseExecutor):
             for dict in async_results:
                 host = dict['host']
                 async_result = dict['async_result']
-                exit_status, command_output = async_result.get(timeout = options.expect_timeout)
+                exit_status, command_output = async_result.get(timeout = options['expect_timeout'])
                 async_results.remove(dict)
                 finished += 1
 

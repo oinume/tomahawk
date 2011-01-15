@@ -9,6 +9,9 @@ TMP_DIR = os.path.join(utils.get_home_dir(__file__), 'tmp')
 if not os.path.exists(TMP_DIR):
     os.mkdir(TMP_DIR)
 
+env = os.environ
+del env['TOMAHAWK_ENV']
+
 def test_01_basic():
     hello_file = os.path.join(TMP_DIR, 'hello')
     hello_file_copied = os.path.join(TMP_DIR, 'hello.copied')
@@ -17,7 +20,7 @@ def test_01_basic():
     handle = open(hello_file, 'w')
     handle.write('hello world')
     handle.close()
-    
+
     status = call(
         [ TOMAHAWK_RSYNC_PATH, '--hosts=localhost', hello_file, hello_file_copied ],
         stdout = PIPE, stderr = PIPE

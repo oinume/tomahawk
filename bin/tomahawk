@@ -17,6 +17,7 @@ from tomahawk.main import Main
 from tomahawk.utils import shutdown_by_signal
 
 # Trap SIGINT(Ctrl-C) to quit executing a command
+# TODO: KeyboardInterrupt
 signal.signal(signal.SIGINT, shutdown_by_signal)
 
 def create_argument_parser():
@@ -81,6 +82,8 @@ def create_argument_parser():
     return p
 
 if __name__ == '__main__':
+#    TODO: 
+#    Main(__file__, bin_dir).run()
     arg_parser = create_argument_parser()
     options = arg_parser.parse_args()
     log = create_logger(options.debug)
@@ -89,15 +92,14 @@ if __name__ == '__main__':
     context = Context(
         bin_dir,
         options.command,
-        options,
+        options.__dict__,
         arg_parser,
     )
 
     if options.profile:
-        # TODO: dynamically import
-        import cProfile
-        import pstats
         file = 'tomahawk.prof.%d' % (os.getpid())
+        cProfile = __import__('cProfile')
+        pstats = __import__('pstats')
         prof = cProfile.run("Main(context, log).run()", file)
         p = pstats.Stats(file)
         p.strip_dirs()
