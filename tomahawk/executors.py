@@ -104,7 +104,7 @@ class CommandExecutor(BaseExecutor):
                     _command,
                     [ c, self.login_password, self.sudo_password, options['expect_timeout'] ]
                 )
-                async_results.append({ 'host': host, 'async_result': async_result })
+                async_results.append({ 'host': host, 'command': command, 'async_result': async_result })
 
                 if options['delay'] != 0:
                     sleep(options['delay'])
@@ -126,7 +126,7 @@ class CommandExecutor(BaseExecutor):
                 output_params = {
                     'user': ssh_user,
                     'host': host,
-                    'command': command,
+                    'command': dict['command'],
                     'output': command_output
                 }
                 # output template
@@ -221,7 +221,7 @@ class RsyncExecutor(BaseExecutor):
                 _rsync,
                 [ c, self.login_password, options['expect_timeout'] ]
             )
-            async_results.append({ 'host': host, 'async_result': async_result })
+            async_results.append({ 'host': host, 'command': c, 'async_result': async_result })
 
             if options['delay'] != 0:
                 sleep(options['delay'])
@@ -236,7 +236,7 @@ class RsyncExecutor(BaseExecutor):
                 async_results.remove(dict)
                 finished += 1
 
-                output = '%% %s\n%s' % (c, command_output)
+                output = '%% %s\n%s' % (dict['command'], command_output)
                 if exit_status == 0:
                     print output, '\n'
                 else:
