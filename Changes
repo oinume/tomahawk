@@ -1,3 +1,6 @@
+0.2.2 2011.01.25
+  - Bug fix: when tomahawk-rsync -m pull specified, always appends hostname to local filename.
+
 0.2.1 2011.01.24
   - Bug fix: tomahawk-rsync always outputs same hostname.
 

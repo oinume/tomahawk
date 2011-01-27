@@ -55,10 +55,10 @@ def create_argument_parser():
         '-m', '--mirror-mode',
         help='"push" or "pull". "pull" means copy files remote -> local (default: "push")'
     )
-    p.add_argument(
-        '-a', '--append-host-suffix', action='store_true', default=True,
-        help='Append host name to destination file/dir (only when "--mirror-mode=pull").'
-    )
+#    p.add_argument(
+#        '-a', '--append-host-suffix', action='store_true', default=True,
+#        help='Append host name to destination file/dir (only when "--mirror-mode=pull").'
+#    )
     p.add_argument(
         '-c', '--continue-on-error', action='store_true', default=None,
         help='Command exectuion continues whatever any errors.'
