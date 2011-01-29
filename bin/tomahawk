@@ -29,15 +29,18 @@ def create_argument_parser():
 
     p.add_argument(
         'command', metavar='command', nargs='+',
-        help='command executed on remote hosts.',
+        help='Command executed on remote hosts.',
     )
     p.add_argument(
         '-h', '--hosts', metavar='HOSTS',
-        help='host names for sending commands. (splited with ",")',
+        help='Host names for sending commands. (splited with ",")',
     )
     p.add_argument(
         '-f', '--hosts-files', metavar='HOST_FILE',
-        help='hosts files which listed host names. (splited with ",")'
+        help='Hosts files which listed host names. (splited with ",")'
+    )
+    p.add_argument(
+        '--ssh', default='ssh', help='ssh program. (default: "ssh")'
     )
     p.add_argument(
         '-u', '--ssh-user', help='ssh user.'
@@ -67,7 +70,7 @@ def create_argument_parser():
     )
     p.add_argument(
         '--expect-encoding', metavar='ENCODING', default=DEFAULT_EXPECT_ENCODING,
-        help='Specify expect encoding for password prompt. (default: %s)' % (DEFAULT_EXPECT_ENCODING)
+        help='Expect encoding for password prompt. (default: %s)' % (DEFAULT_EXPECT_ENCODING)
     )
     p.add_argument(
         '-d', '--delay', type=int, default=0,
@@ -75,10 +78,10 @@ def create_argument_parser():
     )
     p.add_argument(
         '-D', '--debug', action='store_true', default=False,
-        help='Set debug output enabled.',
+        help='Enable debug output.',
     )
     p.add_argument(
-        '--profile', action='store_true', help='enable profiling.'
+        '--profile', action='store_true', help='Enable profiling.'
     )
     p.add_argument(
         '--version', action='version', version='%(prog)s ' + VERSION

@@ -7,6 +7,14 @@ import utils
 
 TOMAHAWK_PATH = os.path.join(utils.get_bin_dir(__file__), 'tomahawk')
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
+MOCK_SSH_PATH = os.path.join(TESTS_DIR, 'mock_ssh.py')
+
+#def test_00_ssh():
+#    status = call(
+#        [ TOMAHAWK_PATH, '--hosts=localhost,localhost', '--ssh=' + MOCK_SSH_PATH, 'uptime' ],
+#        stdout = PIPE, stderr = PIPE
+#    )
+#    assert_equal(status, 0, 'execute (mock_ssh)')
 
 def test_01_basic():
     status = call(

@@ -88,6 +88,8 @@ class CommandExecutor(BaseExecutor):
             raise RuntimeError('1st argument "commands" length is 0')
 
         options = self.context.options
+        ssh = options.get('ssh') or 'ssh'
+        
         ssh_user = options.get('ssh_user') or getuser()
         ssh_options = ''
         if options.get('ssh_options'):
@@ -98,7 +100,7 @@ class CommandExecutor(BaseExecutor):
         for host in self.hosts:
             for command in commands:
                 # execute a command with shell because we want to use pipe(|) and so on.
-                c = 'ssh %s %s "/bin/sh -c \'%s\'"' % (ssh_options, host, command)
+                c = '%s %s %s "/bin/sh -c \'%s\'"' % (ssh, ssh_options, host, command)
                 # host, command, ssh_user, ssh_option, login_password, sudo_password
                 async_result = self.process_pool.apply_async(
                     _command,
