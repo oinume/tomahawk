@@ -5,6 +5,7 @@ from subprocess import call, PIPE, Popen
 import sys
 import utils
 
+# TODO: mock_ssh.py --prompt enabled, so we can test -s -l options.
 TOMAHAWK_PATH = os.path.join(utils.get_bin_dir(__file__), 'tomahawk')
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 MOCK_SSH_OPTION = '--ssh=' + os.path.join(TESTS_DIR, 'bin', 'mock_ssh.py')
