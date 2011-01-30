@@ -21,20 +21,24 @@ class CommandWithExpect(object):
         Returns: command result status, output string
         """
         output = StringIO()
+        print("##### self.command = " + self.command)
         child = spawn(
             self.command,
             timeout = self.timeout,
-            logfile = output # TODO: logfile -> child.before() or child.after()
+         #   logfile = output # TODO: logfile -> child.before() or child.after()
+            logfile = stderr
         )
         #child.logfile_send = file('/tmp/expect_send', 'w')
         #child.logfile = sys.stdout
 
         #print "command = " + self.command
-        login_expect = "^(.+'s password:?\s*|Enter passphrase.+)"
+        login_expect = r"^(.+'s password:?\s*|Enter passphrase.+)"
+        sudo_expect0 = r'^[Pp]assword:?\s*$'
         sudo_expect1 = '^([Pp]assword:?\s*|パスワード:\s*)' # TODO: japanese character expected as utf-8
         sudo_expect2 = '^\[sudo\] password for.+$'
         try:
-            index = child.expect([ login_expect, sudo_expect1, sudo_expect2 ])
+            print("##### before child.expect()")
+            index = child.expect([ login_expect, sudo_expect0, sudo_expect1, sudo_expect2 ])
             if index == 0: # login_expect
                 if self.login_password is None:
                     # SSH authentication required but login_password is not input,
@@ -46,7 +50,7 @@ class CommandWithExpect(object):
                 else:
                     child.sendline(self.login_password)
                     child.expect(EOF)
-            elif index in (1, 2): # might be sudo_expect
+            elif index in (1, 2, 3): # might be sudo_expect
                 #print "sudo expect. index = " + str(index)
                 # Because some OSes (like MacOS) prompt 'Password:' for SSH authentication,
                 # send login_password if sudo_password isn't provided
@@ -56,11 +60,11 @@ class CommandWithExpect(object):
                 raise RuntimeError('Should not reach here')
 
         except EOF:
+            print "##### except EOF"
             pass
-            #print "EOF"
         except TIMEOUT:
+            print "##### except TIMEOUT"
             pass
-            #print "timeout"
 
         child.close()
         exit_status = child.exitstatus

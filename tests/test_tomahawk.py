@@ -8,14 +8,8 @@ import utils
 # TODO: mock_ssh.py --prompt enabled, so we can test -s -l options.
 TOMAHAWK_PATH = os.path.join(utils.get_bin_dir(__file__), 'tomahawk')
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
-MOCK_SSH_OPTION = '--ssh=' + os.path.join(TESTS_DIR, 'bin', 'mock_ssh.py')
-
-#def test_00_ssh():
-#    status = call(
-#        [ TOMAHAWK_PATH, MOCK_SSH_OPTION, '--hosts=localhost,localhost', 'uptime' ],
-#        stdout = PIPE, stderr = PIPE
-#    )
-#    assert_equal(status, 0, 'execute (mock_ssh)')
+MOCK_SSH_PATH = os.path.join(TESTS_DIR, 'bin', 'mock_ssh.py')
+MOCK_SSH_OPTION = '--ssh=' + MOCK_SSH_PATH
 
 def test_01_basic():
     status = call(
@@ -47,6 +41,7 @@ def test_03_continue_on_error():
     # error_c's length must be longer because the command continues even when error
     ok_(len(error_c) > len(error), 'execute (--continue-on-error)')
 
+# TODO: ssh_options should be deprecated.
 def test_04_ssh_options():
     status = call(
         [ TOMAHAWK_PATH, MOCK_SSH_OPTION, '--hosts=localhost,localhost', "--ssh-options=-c arcfour", 'uptime' ],
@@ -54,7 +49,19 @@ def test_04_ssh_options():
     )
     assert_equal(status, 0, 'execute (--ssh-options)')
 
-def test_05_confirm_execution_on_production():
+def test_05_prompt_sudo_password():
+    status = call(
+        [
+            TOMAHAWK_PATH,
+            "--ssh=%s --prompt='Password: '" % (MOCK_SSH_PATH),
+            '--hosts=localhost',
+            'uptime'
+        ],
+#        stdout = PIPE, stderr = PIPE
+    )
+    assert_equal(status, 0, 'execute (--ssh)')
+
+def test_10_confirm_execution_on_production():
     command = '%s %s --hosts=localhost,localhost uptime' % (TOMAHAWK_PATH, MOCK_SSH_OPTION)
     env = os.environ
     env['TOMAHAWK_ENV'] = 'production'
