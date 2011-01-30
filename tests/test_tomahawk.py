@@ -7,18 +7,18 @@ import utils
 
 TOMAHAWK_PATH = os.path.join(utils.get_bin_dir(__file__), 'tomahawk')
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
-MOCK_SSH_PATH = os.path.join(TESTS_DIR, 'mock_ssh.py')
+MOCK_SSH_OPTION = '--ssh=' + os.path.join(TESTS_DIR, 'bin', 'mock_ssh.py')
 
 #def test_00_ssh():
 #    status = call(
-#        [ TOMAHAWK_PATH, '--hosts=localhost,localhost', '--ssh=' + MOCK_SSH_PATH, 'uptime' ],
+#        [ TOMAHAWK_PATH, MOCK_SSH_OPTION, '--hosts=localhost,localhost', 'uptime' ],
 #        stdout = PIPE, stderr = PIPE
 #    )
 #    assert_equal(status, 0, 'execute (mock_ssh)')
 
 def test_01_basic():
     status = call(
-        [ TOMAHAWK_PATH, '--hosts=localhost,localhost', 'uptime' ],
+        [ TOMAHAWK_PATH, MOCK_SSH_OPTION, '--hosts=localhost,localhost', 'uptime' ],
 #        stdout = PIPE, stderr = PIPE
     )
     assert_equal(status, 0, 'execute (basic)')
@@ -26,20 +26,20 @@ def test_01_basic():
 def test_02_hosts_files():
     hosts_files = os.path.join(TESTS_DIR, 'localhost_2.hosts')
     status = call(
-        [ TOMAHAWK_PATH, '--hosts-files=' + hosts_files, 'uptime' ],
+        [ TOMAHAWK_PATH, MOCK_SSH_OPTION, '--hosts-files=' + hosts_files, 'uptime' ],
 #        stdout = PIPE, stderr = PIPE
     )
     assert_equal(status, 0, 'execute (--hosts-files)')
 
 def test_03_continue_on_error():
     p = Popen(
-        [ TOMAHAWK_PATH, '--hosts=localhost,localhost', 'doesnotexist' ],
+        [ TOMAHAWK_PATH, MOCK_SSH_OPTION, '--hosts=localhost,localhost', 'doesnotexist' ],
         stdout = PIPE, stderr = PIPE
     )
     out, error = p.communicate()
 
     p_with_c = Popen(
-        [ TOMAHAWK_PATH, '--hosts=localhost,localhost', '-c', 'doesnotexist' ],
+        [ TOMAHAWK_PATH, MOCK_SSH_OPTION, '--hosts=localhost,localhost', '-c', 'doesnotexist' ],
         stdout = PIPE, stderr = PIPE
     )
     out_c, error_c = p_with_c.communicate()
@@ -48,13 +48,13 @@ def test_03_continue_on_error():
 
 def test_04_ssh_options():
     status = call(
-        [ TOMAHAWK_PATH, '--hosts=localhost,localhost', "--ssh-options=-c arcfour", 'uptime' ],
+        [ TOMAHAWK_PATH, MOCK_SSH_OPTION, '--hosts=localhost,localhost', "--ssh-options=-c arcfour", 'uptime' ],
 #        stdout = PIPE, stderr = PIPE
     )
     assert_equal(status, 0, 'execute (--ssh-options)')
 
 def test_05_confirm_execution_on_production():
-    command = TOMAHAWK_PATH + ' --hosts=localhost,localhost uptime'
+    command = '%s %s --hosts=localhost,localhost uptime' % (TOMAHAWK_PATH, MOCK_SSH_OPTION)
     env = os.environ
     env['TOMAHAWK_ENV'] = 'production'
     child = pexpect.spawn(
