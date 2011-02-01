@@ -199,21 +199,21 @@ class RsyncExecutor(BaseExecutor):
             if mirror_mode == 'push':
                 c = rsync_template % (host)
             else: # pull
-                if options.append_host_suffix:
-                    if path.exists(destination):
-                        if path.isdir(destination):
-                            # if destination is a directory, gets a source filename and appends a host suffix
-                            file_name = path.basename(source)
-                            if not destination.endswith('/'):
-                                destination += '/'
-                            destination += '%s__%s' % (file_name, host)
-                        else:
-                            # if destination is a file, simply appends a host suffix
-                            destination += '__' + host
+                dest = destination
+                if path.exists(destination):
+                    if path.isdir(destination):
+                        # if destination is a directory, gets a source filename and appends a host suffix
+                        file_name = path.basename(source)
+                        if not destination.endswith('/'):
+                            dest += '/'
+                        dest += '%s__%s' % (file_name, host)
                     else:
-                        # if file doesn't exist
-                        destination += '__' + host
-                c = rsync_template % (host, destination)
+                        # if destination is a file, simply appends a host suffix
+                        dest += '__' + host
+                else:
+                    # if file doesn't exist
+                    dest += '__' + host
+                c = rsync_template % (host, dest)
             
             self.log.debug('command = "%s"' % (c))
 
