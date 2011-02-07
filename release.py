@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+print("This script is not executable.")
+sys.exit(0)
+
 # version input
 # Changes
 # tomahawk/constants.py VERSION = '0.2.2'
@@ -8,7 +11,6 @@
 
 from tomahawk.constants import VERSION
 
-new_version = raw_input("Relase version [%s]: " % (VERSION))
+new_version = raw_input("Release version [%s]: " % (VERSION))
+
 #tomahawk.
-
-
