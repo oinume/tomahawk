@@ -88,15 +88,11 @@ class CommandExecutor(BaseExecutor):
             raise RuntimeError('1st argument "commands" length is 0')
 
         options = self.context.options
-        command_args = []
         ssh_user = options.ssh_user or getuser()
         ssh_options = ''
         if options.ssh_options:
             ssh_options = options.ssh_options + ' '
         ssh_options += '-l ' + ssh_user
-
-        for arg in ssh_options.split(' '):
-            command_args.append(arg.strip())
 
         async_results = []
         for host in self.hosts:
