@@ -31,8 +31,7 @@ class CommandWithExpect(object):
         #child.logfile_send = file('/tmp/expect_send', 'w')
         #child.logfile = sys.stdout
 
-#        print "command = " + self.command
-#        print "command_args = " + str(self.command_args)
+        # print "%s %s" % (self.command, str(self.command_args))
 
         login_expect = "^(.+'s password:?\s*|Enter passphrase.+)"
         sudo_expect1 = '^([Pp]assword:?\s*|パスワード:\s*)' # TODO: japanese character expected as utf-8

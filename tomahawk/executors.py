@@ -101,12 +101,15 @@ class CommandExecutor(BaseExecutor):
         async_results = []
         for host in self.hosts:
             for command in commands:
+                command_args = []
+                for option in ssh_options.split(' '):
+                    #  remove left and right whitespaces
+                    command_args.append(option.strip())
+                command_args.append(host)
+                c = command.replace('"', '\\"')
                 # execute a command with shell because we want to use pipe(|) and so on.
-                # c = 'ssh %s %s "/bin/sh -c \'%s\'"' % (ssh_options, host, command)
-                c = command
-                c = c.replace('-', '\-')
-                c = c.replace('"', '\\"')
-                command_args.extend([ host, '/bin/sh -c "%s"' % (c) ])
+                command_args.extend([ '/bin/sh', '-c', '"%s"' % (c) ])
+
                 # host, command, ssh_user, ssh_option, login_password, sudo_password
                 async_result = self.process_pool.apply_async(
                     _command,
