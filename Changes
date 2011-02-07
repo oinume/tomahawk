@@ -1,3 +1,6 @@
+0.2.3 2011.02.07
+  - Bug fix: #2 Shell quote problem. See https://github.com/oinume/tomahawk/issues/closed#issue/2
+
 0.2.2 2011.01.25
   - Bug fix: when tomahawk-rsync -m pull specified, always appends hostname to local filename.
 
