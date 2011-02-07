@@ -8,11 +8,11 @@ from tomahawk.constants import DEFAULT_RSYNC_OPTIONS
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import read_login_password, read_sudo_password
 
-def _command(command, login_password, sudo_password, expect_timeout):
+def _command(command, command_args, login_password, sudo_password, expect_timeout):
     """
     Execute a command.
     """
-    return CommandWithExpect(command, login_password, sudo_password, expect_timeout).execute()
+    return CommandWithExpect(command, command_args, login_password, sudo_password, expect_timeout).execute()
 
 def _rsync(command, login_password, expect_timeout):
     """
@@ -88,21 +88,30 @@ class CommandExecutor(BaseExecutor):
             raise RuntimeError('1st argument "commands" length is 0')
 
         options = self.context.options
+        command_args = []
         ssh_user = options.ssh_user or getuser()
         ssh_options = ''
         if options.ssh_options:
             ssh_options = options.ssh_options + ' '
         ssh_options += '-l ' + ssh_user
 
+        for arg in ssh_options.split(' '):
+            command_args.append(arg.strip())
+
         async_results = []
         for host in self.hosts:
             for command in commands:
                 # execute a command with shell because we want to use pipe(|) and so on.
-                c = 'ssh %s %s "/bin/sh -c \'%s\'"' % (ssh_options, host, command)
+                # c = 'ssh %s %s "/bin/sh -c \'%s\'"' % (ssh_options, host, command)
+                c = command
+                c = c.replace('-', '\-')
+                c = c.replace('"', '\\"')
+                command_args.extend([ host, '/bin/sh -c "%s"' % (c) ])
                 # host, command, ssh_user, ssh_option, login_password, sudo_password
                 async_result = self.process_pool.apply_async(
                     _command,
-                    [ c, self.login_password, self.sudo_password, options.expect_timeout ]
+                    #[ c, self.login_password, self.sudo_password, options.expect_timeout ]
+                    [ 'ssh', command_args, self.login_password, self.sudo_password, options.expect_timeout ]
                 )
                 async_results.append({ 'host': host, 'command': command, 'async_result': async_result })
 

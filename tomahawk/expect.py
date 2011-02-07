@@ -8,8 +8,9 @@ class CommandWithExpect(object):
     """
     A command executor through expect.
     """
-    def __init__(self, command, login_password, sudo_password, timeout = DEFAULT_EXPECT_TIMEOUT):
+    def __init__(self, command, command_args, login_password, sudo_password, timeout = DEFAULT_EXPECT_TIMEOUT):
         self.command = command
+        self.command_args = command_args
         self.login_password = login_password
         self.sudo_password = sudo_password
         self.timeout = timeout
@@ -23,13 +24,16 @@ class CommandWithExpect(object):
         output = StringIO()
         child = spawn(
             self.command,
+            self.command_args,
             timeout = self.timeout,
             logfile = output # TODO: logfile -> child.before() or child.after()
         )
         #child.logfile_send = file('/tmp/expect_send', 'w')
         #child.logfile = sys.stdout
 
-        #print "command = " + self.command
+#        print "command = " + self.command
+#        print "command_args = " + str(self.command_args)
+
         login_expect = "^(.+'s password:?\s*|Enter passphrase.+)"
         sudo_expect1 = '^([Pp]assword:?\s*|パスワード:\s*)' # TODO: japanese character expected as utf-8
         sudo_expect2 = '^\[sudo\] password for.+$'
