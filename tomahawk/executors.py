@@ -18,7 +18,7 @@ def _rsync(command, login_password, expect_timeout):
     """
     Execute rsync
     """
-    return CommandWithExpect(command, login_password, None, expect_timeout).execute()
+    return CommandWithExpect(command, [], login_password, None, expect_timeout).execute()
 
 class BaseExecutor(object):
     """
