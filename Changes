@@ -1,3 +1,7 @@
+0.2.4 2011.02.08
+  - Bug fix: #3 tomahawk-rsync in tomahawk-0.2.3 is broken.
+    See https://github.com/oinume/tomahawk/issues#issue/3
+
 0.2.3 2011.02.07
   - Bug fix: #2 Shell quote problem. See https://github.com/oinume/tomahawk/issues/closed#issue/2
 
