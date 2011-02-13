@@ -41,7 +41,7 @@ setup(
         'Environment :: Console',
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Operating System :: UNIX',
+        'Operating System :: Unix',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
