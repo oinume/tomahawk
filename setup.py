@@ -37,10 +37,10 @@ setup(
     ],
     test_suite = 'nose.collector',
     classifiers = [
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
         'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: GPL License',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
         'Operating System :: UNIX',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.5',
