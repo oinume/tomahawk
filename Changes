@@ -1,3 +1,6 @@
+0.2.5 2011.02.24
+  - Bug fix: When no sudo password, no command output.
+
 0.2.4 2011.02.08
   - Bug fix: #3 tomahawk-rsync in tomahawk-0.2.3 is broken.
     See https://github.com/oinume/tomahawk/issues#issue/3
