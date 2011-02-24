@@ -31,13 +31,14 @@ class CommandWithExpect(object):
         #child.logfile_send = file('/tmp/expect_send', 'w')
         #child.logfile = sys.stdout
 
-        # print "%s %s" % (self.command, str(self.command_args))
+        #print "%s %s" % (self.command, str(self.command_args))
 
         login_expect = "^(.+'s password:?\s*|Enter passphrase.+)"
         sudo_expect1 = '^([Pp]assword:?\s*|パスワード:\s*)' # TODO: japanese character expected as utf-8
         sudo_expect2 = '^\[sudo\] password for.+$'
         try:
             index = child.expect([ login_expect, sudo_expect1, sudo_expect2 ])
+            #print "index = %d" % (index)
             if index == 0: # login_expect
                 if self.login_password is None:
                     # SSH authentication required but login_password is not input,
@@ -70,9 +71,10 @@ class CommandWithExpect(object):
         #print "exit_status = %d" % exit_status
 
         output_tmp = output.getvalue()
+        #print "output_tmp = '%s'" % (output_tmp)
         output_text = ''
         password = self.login_password or self.sudo_password
-        if password is not None:
+        if password is not None and len(password) > 0:
             for line in output_tmp.splitlines():
                 if line.endswith(password):
                     continue
@@ -80,7 +82,7 @@ class CommandWithExpect(object):
         else:
             output_text = output_tmp
 
-#        print "output = '%s'" % output_text
+        #print "output = '%s'" % output_text
         output.close()
 
         return exit_status, output_text.strip()
