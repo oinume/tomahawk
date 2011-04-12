@@ -1,3 +1,6 @@
+0.2.6 2011.04.13
+  - New feature: --no-sudo-password is now available.
+
 0.2.5 2011.02.24
   - Bug fix: When no sudo password, no command output.
 
@@ -15,8 +18,8 @@
   - Bug fix: tomahawk-rsync always outputs same hostname.
 
 0.2.0 2010.12.07
-  - Feature: When environment "TOMAHAWK_ENV" is "production", tomahawk confirms command execution.
-  - Feature: --version option is now available.
+  - New feature: When environment "TOMAHAWK_ENV" is "production", tomahawk confirms command execution.
+  - New feature: --version option is now available.
 
 0.1.2 2010.12.06
   - Fixed a bug tomahawk prints a password to stdout.
