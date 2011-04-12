@@ -52,7 +52,8 @@ class BaseExecutor(object):
         if 'sudo_password' in kwargs:
             sudo_password = kwargs['sudo_password']
         elif options.__dict__.get('prompt_sudo_password') \
-                or (context.arguments is not None and context.arguments[0].startswith('sudo')):
+                or (not options.__dict__.get('no_sudo_password') \
+                    and context.arguments is not None and context.arguments[0].startswith('sudo')):
             sudo_password = read_sudo_password()
             newline = True
 

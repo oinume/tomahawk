@@ -61,6 +61,10 @@ def create_argument_parser():
         help='Prompt a password for sudo.'
     )
     p.add_argument(
+        '--no-sudo-password', action='store_true',
+        help='Never prompt a password for sudo.'
+    )
+    p.add_argument(
         '--expect-timeout', metavar='SECONDS', type=int, default=DEFAULT_EXPECT_TIMEOUT,
         help='Specify expect timeout in seconds. (default: %d)' % (DEFAULT_EXPECT_TIMEOUT)
     )
