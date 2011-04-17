@@ -1,3 +1,24 @@
+0.3.0-rc1 2011.04.17
+  - Bug fix: When execution timed out, looks like just failure.
+  - Bug fix: All host names are not displayed when tomahawk-rsync --continue-on-error fails.
+  - Bug fix: Displays error hosts with specified order when --continue-on-error option specified.
+  - Changes: --expect-timeout becomes duplicated. Use --timeout instead.
+  - Changes: Default --timeout seconds is changed from 5 to 10.
+  - Changes: Changed filename format from '%(filename)__%(host)' to '%(host)__%(filename)' when --mirror-mode=pull.
+
+0.2.6 2011.04.13
+  - New feature: --no-sudo-password is now available.
+
+0.2.5 2011.02.24
+  - Bug fix: When no sudo password, no command output.
+
+0.2.4 2011.02.08
+  - Bug fix: #3 tomahawk-rsync in tomahawk-0.2.3 is broken.
+    See https://github.com/oinume/tomahawk/issues#issue/3
+
+0.2.3 2011.02.07
+  - Bug fix: #2 Shell quote problem. See https://github.com/oinume/tomahawk/issues/closed#issue/2
+
 0.2.2 2011.01.25
   - Bug fix: when tomahawk-rsync -m pull specified, always appends hostname to local filename.
 

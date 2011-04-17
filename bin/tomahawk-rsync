@@ -12,7 +12,7 @@ import argparse
 from tomahawk.command_line import RsyncContext
 from tomahawk.constants import (
     VERSION,
-    DEFAULT_EXPECT_TIMEOUT,
+    DEFAULT_TIMEOUT,
     DEFAULT_EXPECT_ENCODING,
     DEFAULT_RSYNC_OPTIONS
 )
@@ -72,8 +72,12 @@ def create_argument_parser():
         help='Prompt a password for ssh authentication.'
     )
     p.add_argument(
-        '--expect-timeout', metavar='SECONDS', type=int, default=DEFAULT_EXPECT_TIMEOUT,
-        help='Specify expect timeout in seconds. (default: %d)' % (DEFAULT_EXPECT_TIMEOUT)
+        '-t', '--timeout', metavar='SECONDS', type=int, default=DEFAULT_TIMEOUT,
+        help='Specify expect timeout in seconds. (default: %d)' % (DEFAULT_TIMEOUT)
+    )
+    p.add_argument(
+        '--expect-timeout', metavar='SECONDS', type=int,
+        help='Duplicated. Use --timeout'
     )
     p.add_argument(
         '--expect-encoding', metavar='ENCODING', default=DEFAULT_EXPECT_ENCODING,

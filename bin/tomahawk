@@ -11,7 +11,7 @@ parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
 
 import argparse
 from tomahawk.command_line import Context
-from tomahawk.constants import VERSION, DEFAULT_EXPECT_TIMEOUT, DEFAULT_EXPECT_ENCODING
+from tomahawk.constants import VERSION, DEFAULT_TIMEOUT, DEFAULT_EXPECT_ENCODING
 from tomahawk.log import create_logger
 from tomahawk.main import Main
 from tomahawk.utils import shutdown_by_signal
@@ -65,8 +65,16 @@ def create_argument_parser():
         help='Prompt a password for sudo.'
     )
     p.add_argument(
-        '--expect-timeout', metavar='SECONDS', type=int, default=DEFAULT_EXPECT_TIMEOUT,
-        help='Specify expect timeout in seconds. (default: %d)' % (DEFAULT_EXPECT_TIMEOUT)
+        '--no-sudo-password', action='store_true',
+        help='Never prompt a password for sudo.'
+    )
+    p.add_argument(
+        '-t', '--timeout', metavar='SECONDS', type=int, default=DEFAULT_TIMEOUT,
+        help='Specify expect timeout in seconds. (default: %d)' % (DEFAULT_TIMEOUT)
+    )
+    p.add_argument(
+        '--expect-timeout', metavar='SECONDS', type=int,
+        help='Duplicated. Use --timeout'
     )
     p.add_argument(
         '--expect-encoding', metavar='ENCODING', default=DEFAULT_EXPECT_ENCODING,

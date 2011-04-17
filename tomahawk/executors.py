@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 from getpass import getuser
-from multiprocessing import Pool
+import multiprocessing
 from os import path
 from sys import stderr
 from time import sleep
-from tomahawk.constants import DEFAULT_RSYNC_OPTIONS
+from tomahawk.constants import DEFAULT_RSYNC_OPTIONS, TimeoutError
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import read_login_password, read_sudo_password
 
-def _command(command, login_password, sudo_password, expect_timeout):
+def _command(command, command_args, login_password, sudo_password, timeout):
     """
     Execute a command.
     """
-    return CommandWithExpect(command, login_password, sudo_password, expect_timeout).execute()
+    return CommandWithExpect(command, command_args, login_password, sudo_password, timeout).execute()
 
-def _rsync(command, login_password, expect_timeout):
+def _rsync(command, login_password, timeout):
     """
     Execute rsync
     """
-    return CommandWithExpect(command, login_password, None, expect_timeout).execute()
+    return CommandWithExpect(command, [], login_password, None, timeout).execute()
 
 class BaseExecutor(object):
     """
@@ -39,6 +39,9 @@ class BaseExecutor(object):
             raise RuntimeError('Argument "hosts" length must be > 0')
 
         options = context.options
+        if options['expect_timeout'] is not None:
+            options['timeout'] = options['expect_timeout']
+            log.warn("Option --expect-timeout is duplicated. Use --timeout.")
 
         newline = False
         login_password = None
@@ -52,7 +55,9 @@ class BaseExecutor(object):
         if 'sudo_password' in kwargs:
             sudo_password = kwargs['sudo_password']
         elif options.get('prompt_sudo_password') \
-                or (context.arguments is not None and context.arguments[0].startswith('sudo')):
+             or (not options.get('no_sudo_password') \
+                 and context.arguments is not None
+                 and context.arguments[0].startswith('sudo')):
             sudo_password = read_sudo_password()
             newline = True
 
@@ -65,7 +70,7 @@ class BaseExecutor(object):
         self.login_password = login_password
         self.sudo_password = sudo_password
         self.raise_error = False if options['continue_on_error'] else True
-        self.process_pool = Pool(processes = options['parallel'])
+        self.process_pool = multiprocessing.Pool(processes = options['parallel'])
         
     def destory_process_pool(self):
         if self.process_pool is not None:
@@ -88,7 +93,7 @@ class CommandExecutor(BaseExecutor):
             raise RuntimeError('1st argument "commands" length is 0')
 
         options = self.context.options
-        ssh = options.get('ssh') or 'ssh'
+        #ssh = options.get('ssh') or 'ssh'
         
         ssh_user = options.get('ssh_user') or getuser()
         ssh_options = ''
@@ -99,12 +104,19 @@ class CommandExecutor(BaseExecutor):
         async_results = []
         for host in self.hosts:
             for command in commands:
+                command_args = []
+                for option in ssh_options.split(' '):
+                    #  remove left and right whitespaces
+                    command_args.append(option.strip())
+                command_args.append(host)
+                c = command.replace('"', '\\"')
                 # execute a command with shell because we want to use pipe(|) and so on.
-                c = '%s %s %s "/bin/sh -c \'%s\'"' % (ssh, ssh_options, host, command)
+                command_args.extend([ '/bin/sh', '-c', '"%s"' % (c) ])
+
                 # host, command, ssh_user, ssh_option, login_password, sudo_password
                 async_result = self.process_pool.apply_async(
                     _command,
-                    [ c, self.login_password, self.sudo_password, options['expect_timeout'] ]
+                    [ 'ssh', command_args, self.login_password, self.sudo_password, options['timeout'] ]
                 )
                 async_results.append({ 'host': host, 'command': command, 'async_result': async_result })
 
@@ -113,7 +125,7 @@ class CommandExecutor(BaseExecutor):
 
         hosts_count = len(self.hosts)
         finished = 0
-        error_hosts = []
+        error_hosts = {}
         while finished < hosts_count:
             for dict in async_results:
                 host = dict['host']
@@ -121,7 +133,13 @@ class CommandExecutor(BaseExecutor):
                 if not async_result.ready():
                     continue
 
-                exit_status, command_output = async_result.get(timeout = options['expect_timeout'])
+                exit_status = 1
+                command_output = ''
+                timeout_detail = None
+                try:
+                    exit_status, command_output = async_result.get(timeout = options['timeout'])
+                except TimeoutError, error:
+                    timeout_detail = str(error)
                 async_results.remove(dict)
                 finished += 1
 
@@ -129,27 +147,34 @@ class CommandExecutor(BaseExecutor):
                     'user': ssh_user,
                     'host': host,
                     'command': dict['command'],
-                    'output': command_output
+                    'output': command_output,
                 }
                 # output template
                 # TODO: specify from command line option
                 output = '%(user)s@%(host)s %% %(command)s\n%(output)s' % output_params
                 if exit_status == 0:
                     print output, '\n'
+                elif timeout_detail is not None:
+                    output += '[error] Command timed out after %d seconds' % (options['timeout'])
+                    print output, '\n'
+                    error_hosts[host] = 2
+                    if self.raise_error:
+                        print >> stderr, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
+                        return 1
                 else:
                     output += '[error] Command failed ! (status = %d)' % exit_status
                     print output, '\n'
-                    error_hosts.append(host)
+                    error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
                         print >> stderr, '[error] Command "%s" failed on host "%s"' % (command, host)
                         return 1
 
-
         if len(error_hosts) != 0:
             hosts = ''
-            for h in error_hosts:
-                hosts += '  %s\n' % (h)
+            for h in self.hosts:
+                if h in error_hosts:
+                    hosts += '  %s\n' % (h)
             hosts = hosts.rstrip()
             print >> stderr, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
             return 1
@@ -195,9 +220,9 @@ class RsyncExecutor(BaseExecutor):
             )
 
         async_results = []
-        error_hosts = []
+        error_hosts = {}
         for host in self.hosts:
-            c = ''
+            c = None
             if mirror_mode == 'push':
                 c = rsync_template % (host)
             else: # pull
@@ -208,20 +233,21 @@ class RsyncExecutor(BaseExecutor):
                         file_name = path.basename(source)
                         if not destination.endswith('/'):
                             dest += '/'
-                        dest += '%s__%s' % (file_name, host)
+                        dest += '%s__%s' % (host, file_name)
                     else:
                         # if destination is a file, simply appends a host suffix
-                        dest += '__' + host
+                        dest = host + '__' + dest
                 else:
-                    # if file doesn't exist
-                    dest += '__' + host
+                     # if file doesn't exist
+                    source_name = path.basename(source[0:len(source)-1]) if source.endswith('/') else path.basename(source)
+                    dest += host + '__' + source_name
                 c = rsync_template % (host, dest)
             
             self.log.debug('command = "%s"' % (c))
 
             async_result = self.process_pool.apply_async(
                 _rsync,
-                [ c, self.login_password, options['expect_timeout'] ]
+                [ c, self.login_password, options['timeout'] ]
             )
             async_results.append({ 'host': host, 'command': c, 'async_result': async_result })
 
@@ -234,17 +260,32 @@ class RsyncExecutor(BaseExecutor):
             for dict in async_results:
                 host = dict['host']
                 async_result = dict['async_result']
-                exit_status, command_output = async_result.get(timeout = options['expect_timeout'])
+
+                exit_status = 1
+                command_output = ''
+                timeout_detail = None
+                try:
+                    exit_status, command_output = async_result.get(timeout = options['timeout'])
+                except (TimeoutError, multiprocessing.TimeoutError), error:
+                    timeout_detail = str(error)
                 async_results.remove(dict)
                 finished += 1
 
                 output = '%% %s\n%s' % (dict['command'], command_output)
                 if exit_status == 0:
                     print output, '\n'
+                elif timeout_detail is not None:
+                    output += '[error] rsync timed out after %d seconds' % (options['timeout'])
+                    print output, '\n'
+                    error_hosts[host] = 2
+                    if self.raise_error:
+                        #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
+                        print >> stderr, '[error] "%s" timed out on host "%s" after %d seconds.' % (c, host, options['timeout'])
+                        return 1
                 else:
                     output += '[error] rsync failed ! (status = %d)' % exit_status
                     print output, '\n'
-                    error_hosts.append(host)
+                    error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
                         print >> stderr, '[error] "%s" failed on host "%s"' % (c, host)
@@ -252,10 +293,17 @@ class RsyncExecutor(BaseExecutor):
 
         if len(error_hosts) != 0:
             hosts = ''
-            for h in error_hosts:
-                hosts += '  %s\n' % (h)
-                hosts.rstrip()
-                print >> stderr, '[error] "%s" failed on following hosts\n%s' % (c, hosts)
-                return 1
+            for h in self.hosts:
+                if h in error_hosts:
+                    hosts += '  %s\n' % (h)
+            hosts.rstrip()
+
+            rsync = None
+            if mirror_mode == 'push':
+                rsync = rsync_template % ('REMOTE_HOST')
+            else:
+                rsync = rsync_template % ('REMOTE_HOST', 'LOCAL')
+            print >> stderr, '[error] "%s" failed on following hosts\n%s' % (rsync, hosts)
+            return 1
 
         return 0

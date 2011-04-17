@@ -35,12 +35,13 @@ parser.add_argument(
 
 options = parser.parse_args()
 if options.prompt:
-#    print("before raw_input()")
+    print("before raw_input()")
     input = raw_input(options.prompt)
     #sys.stdin.read()
-#    print("input = " + input)
+    print("input = " + input)
 
-regexp = re.compile("^/bin/sh -c '(.+)'$")
-for arg in options.command:
-    if regexp.match(arg):
-        exit(subprocess.call(shlex.split(arg)))
+# call command
+#regexp = re.compile("^/bin/sh -c '(.+)'$")
+#for arg in options.command:
+#    if regexp.match(arg):
+#        exit(subprocess.call(shlex.split(arg)))
