@@ -20,9 +20,6 @@ from tomahawk.log import create_logger
 from tomahawk.main import RsyncMain
 from tomahawk.utils import shutdown_by_signal
 
-# Trap SIGINT(Ctrl-C) to quit executing a command
-signal.signal(signal.SIGINT, shutdown_by_signal)
-
 def create_argument_parser():
     p = argparse.ArgumentParser(
         prog = os.path.basename(__file__),
@@ -100,29 +97,33 @@ def create_argument_parser():
     return p
 
 if __name__ == '__main__':
-    arg_parser = create_argument_parser()
-    options = arg_parser.parse_args()
-    log = create_logger(options.debug)
-    log.debug('options = ' + str(options))
-    log.debug('source = ' + str(options.source))
-    log.debug('destination = ' + str(options.destination))
-
-    context = RsyncContext(
-        bin_dir,
-        options.source,
-        options.destination,
-        options.__dict__,
-        arg_parser,
-    )
-
-    if options.profile:
-        file = '%s.prof.%d' % (os.path.basename(__file__), os.getpid())
-        cProfile = __import__('cProfile')
-        pstats = __import__('pstats')
-        prof = cProfile.run("RsyncMain(context, log).run()", file)
-        p = pstats.Stats(file)
-        p.strip_dirs()
-        p.sort_stats('time', 'calls')
-        p.print_stats()
-    else:
-        sys.exit(RsyncMain(context, log).run())
+    try:
+        arg_parser = create_argument_parser()
+        options = arg_parser.parse_args()
+        log = create_logger(options.debug)
+        log.debug('options = ' + str(options))
+        log.debug('source = ' + str(options.source))
+        log.debug('destination = ' + str(options.destination))
+        
+        context = RsyncContext(
+            bin_dir,
+            options.source,
+            options.destination,
+            options.__dict__,
+            arg_parser,
+        )
+        
+        if options.profile:
+            file = '%s.prof.%d' % (os.path.basename(__file__), os.getpid())
+            cProfile = __import__('cProfile')
+            pstats = __import__('pstats')
+            prof = cProfile.run("RsyncMain(context, log).run()", file)
+            p = pstats.Stats(file)
+            p.strip_dirs()
+            p.sort_stats('time', 'calls')
+            p.print_stats()
+        else:
+            sys.exit(RsyncMain(context, log).run())
+    except KeyboardInterrupt:
+        print
+        print("Keyboard interrupt.")

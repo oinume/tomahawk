@@ -14,11 +14,6 @@ from tomahawk.command_line import Context
 from tomahawk.constants import VERSION, DEFAULT_TIMEOUT, DEFAULT_EXPECT_ENCODING
 from tomahawk.log import create_logger
 from tomahawk.main import Main
-from tomahawk.utils import shutdown_by_signal
-
-# Trap SIGINT(Ctrl-C) to quit executing a command
-# TODO: KeyboardInterrupt
-signal.signal(signal.SIGINT, shutdown_by_signal)
 
 def create_argument_parser():
     p = argparse.ArgumentParser(
@@ -99,26 +94,31 @@ def create_argument_parser():
 if __name__ == '__main__':
 #    TODO: 
 #    Main(__file__, bin_dir).run()
-    arg_parser = create_argument_parser()
-    options = arg_parser.parse_args()
-    log = create_logger(options.debug)
-    log.debug('options = ' + str(options))
-    log.debug('arguments = ' + str(options.command))
-    context = Context(
-        bin_dir,
-        options.command,
-        options.__dict__,
-        arg_parser,
-    )
+    try:
+        arg_parser = create_argument_parser()
+        options = arg_parser.parse_args()
+        log = create_logger(options.debug)
+        log.debug('options = ' + str(options))
+        log.debug('arguments = ' + str(options.command))
+        context = Context(
+            bin_dir,
+            options.command,
+            options.__dict__,
+            arg_parser,
+        )
+    
+        if options.profile:
+            file = 'tomahawk.prof.%d' % (os.getpid())
+            cProfile = __import__('cProfile')
+            pstats = __import__('pstats')
+            prof = cProfile.run("Main(context, log).run()", file)
+            p = pstats.Stats(file)
+            p.strip_dirs()
+            p.sort_stats('time', 'calls')
+            p.print_stats()
+        else:
+            sys.exit(Main(context, log).run())
+    except KeyboardInterrupt:
+        print
+        print("Keyboard interrupt.")
 
-    if options.profile:
-        file = 'tomahawk.prof.%d' % (os.getpid())
-        cProfile = __import__('cProfile')
-        pstats = __import__('pstats')
-        prof = cProfile.run("Main(context, log).run()", file)
-        p = pstats.Stats(file)
-        p.strip_dirs()
-        p.sort_stats('time', 'calls')
-        p.print_stats()
-    else:
-        sys.exit(Main(context, log).run())
