@@ -1,4 +1,8 @@
-0.3.0-rc1
+0.3.0
+  - Improve handling keyboard interrupt.
+  - Fix tests.
+
+0.3.0-rc1 2011.04.17
   - Bug fix: When execution timed out, looks like just failure.
   - Bug fix: All host names are not displayed when tomahawk-rsync with --continue-on-error fails.
   - Bug fix: Displays error hosts with specified order when --continue-on-error option specified.
