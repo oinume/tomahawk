@@ -1,10 +1,11 @@
-0.3.0-rc1 2011.04.17
+0.3.0-rc1
   - Bug fix: When execution timed out, looks like just failure.
-  - Bug fix: All host names are not displayed when tomahawk-rsync --continue-on-error fails.
+  - Bug fix: All host names are not displayed when tomahawk-rsync with --continue-on-error fails.
   - Bug fix: Displays error hosts with specified order when --continue-on-error option specified.
-  - Changes: --expect-timeout becomes duplicated. Use --timeout instead.
-  - Changes: Default --timeout seconds is changed from 5 to 10.
-  - Changes: Changed filename format from '%(filename)__%(host)' to '%(host)__%(filename)' when --mirror-mode=pull.
+  - Change: --expect-timeout becomes duplicated. Use --timeout instead.
+  - Change: Default --timeout seconds is changed from 5 to 10.
+  - Change: Changed filename format from '%(filename)__%(host)' to '%(host)__%(filename)' when tomahawk-rsync --mirror-mode=pull.
+  - Output further debug messages when --debug.
 
 0.2.6 2011.04.13
   - New feature: --no-sudo-password is now available.
@@ -26,11 +27,11 @@
   - Bug fix: tomahawk-rsync always outputs same hostname.
 
 0.2.0 2010.12.07
-  - Feature: When environment "TOMAHAWK_ENV" is "production", tomahawk confirms command execution.
-  - Feature: --version option is now available.
+  - New feature: When environment "TOMAHAWK_ENV" is "production", tomahawk confirms command execution.
+  - New feature: --version option is now available.
 
 0.1.2 2010.12.06
-  - Fixed a bug tomahawk prints a password to stdout.
+  - Bug fix: tomahawk prints a password to stdout.
 
 0.1.1 2010.12.02
   - Renamed. tomahawk.py -> tomahawk, tomahawk-rsync.py -> tomahawk-rsync

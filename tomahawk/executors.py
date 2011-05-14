@@ -8,17 +8,23 @@ from tomahawk.constants import DEFAULT_RSYNC_OPTIONS, TimeoutError
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import read_login_password, read_sudo_password
 
-def _command(command, command_args, login_password, sudo_password, timeout):
+def _command(command, command_args, login_password, sudo_password, timeout, debug_enabled):
     """
     Execute a command.
     """
-    return CommandWithExpect(command, command_args, login_password, sudo_password, timeout).execute()
+    return CommandWithExpect(
+        command, command_args, login_password,
+        sudo_password, timeout, debug_enabled
+    ).execute()
 
-def _rsync(command, login_password, timeout):
+def _rsync(command, login_password, timeout, debug_enabled):
     """
     Execute rsync
     """
-    return CommandWithExpect(command, [], login_password, None, timeout).execute()
+    return CommandWithExpect(
+        command, [], login_password,
+        None, timeout, debug_enabled
+    ).execute()
 
 class BaseExecutor(object):
     """
@@ -116,7 +122,8 @@ class CommandExecutor(BaseExecutor):
                 # host, command, ssh_user, ssh_option, login_password, sudo_password
                 async_result = self.process_pool.apply_async(
                     _command,
-                    [ 'ssh', command_args, self.login_password, self.sudo_password, options['timeout'] ]
+                    [ 'ssh', command_args, self.login_password,
+                      self.sudo_password, options['timeout'], options['debug'] ]
                 )
                 async_results.append({ 'host': host, 'command': command, 'async_result': async_result })
 
@@ -247,7 +254,7 @@ class RsyncExecutor(BaseExecutor):
 
             async_result = self.process_pool.apply_async(
                 _rsync,
-                [ c, self.login_password, options['timeout'] ]
+                [ c, self.login_password, options['timeout'], options['debug'] ]
             )
             async_results.append({ 'host': host, 'command': c, 'async_result': async_result })
 

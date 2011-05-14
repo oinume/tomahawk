@@ -3,17 +3,20 @@ from cStringIO import StringIO
 from pexpect import spawn, EOF, TIMEOUT
 from sys import stderr
 from tomahawk.constants import DEFAULT_TIMEOUT, FatalError, TimeoutError
+from tomahawk.log import create_logger
 
 class CommandWithExpect(object):
     """
     A command executor through expect.
     """
-    def __init__(self, command, command_args, login_password, sudo_password, timeout = DEFAULT_TIMEOUT):
+    def __init__(self, command, command_args, login_password,
+                 sudo_password, timeout = DEFAULT_TIMEOUT, debug_enabled = False):
         self.command = command
         self.command_args = command_args
         self.login_password = login_password
         self.sudo_password = sudo_password
         self.timeout = timeout
+        self.log = create_logger(debug_enabled)
 
     def execute(self):
         """
@@ -31,7 +34,7 @@ class CommandWithExpect(object):
         )
         #child.logfile_send = file('/tmp/expect_send', 'w')
         #child.logfile = sys.stdout
-        # print "%s %s" % (self.command, str(self.command_args))
+        self.log.debug("command = %s, args = %s" % (self.command, str(self.command_args)))
 
         login_expect = r"^(.+'s password:?\s*|Enter passphrase.+)"
         sudo_expect0 = r'^[Pp]assword:?\s*$'
@@ -40,6 +43,7 @@ class CommandWithExpect(object):
         try:
             #print("##### before child.expect()")
             index = child.expect([ login_expect, sudo_expect0, sudo_expect1, sudo_expect2 ])
+            self.log.debug("expect index = %d" % (index))
             if index == 0: # login_expect
                 if self.login_password is None:
                     # SSH authentication required but login_password is not input,
@@ -62,9 +66,10 @@ class CommandWithExpect(object):
 
         except EOF:
             #print "##### except EOF"
+            self.log.debug("expect.EOF")
             pass
         except TIMEOUT:
-            #print "##### except TIMEOUT"
+            self.log.debug("expect.TIMEOUT")
             raise TimeoutError("Execution is timed out after %d seconds" % (self.timeout))
 
         child.close()
