@@ -48,7 +48,7 @@ class CommandWithExpect(object):
                 if self.login_password is None:
                     # SSH authentication required but login_password is not input,
                     # so notify --prompt-login-password option
-                    print >> stderr, '[warn] Use --prompt-login-password for ssh authentication.'
+                    print >> stderr, '[warn] Use -l for ssh authentication.'
                     child.sendline()
                     child.expect(EOF)
                     child.kill(0)
@@ -59,13 +59,16 @@ class CommandWithExpect(object):
                 #print "sudo expect. index = " + str(index)
                 # Because some OSes (like MacOS) prompt 'Password:' for SSH authentication,
                 # send login_password if sudo_password isn't provided
-                child.sendline(self.sudo_password or self.login_password)
+                password = self.sudo_password or self.login_password
+                if password is None:
+                    #print >> stderr, "[error] Password is empty. Use -l or -s"
+                    raise FatalError("Password is empty. Use -l or -s .")
+                child.sendline(password)
                 child.expect(EOF)
             else:
                 raise FatalError("Should not reach here")
 
         except EOF:
-            #print "##### except EOF"
             self.log.debug("expect.EOF")
             pass
         except TIMEOUT:

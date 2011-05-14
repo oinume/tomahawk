@@ -87,7 +87,7 @@ def test_04_ssh_options():
     )
     assert_equal(status, 0, "execute (--ssh-options)")
 
-def test_06_timeout():
+def test_05_timeout():
     status = call(
         [ TOMAHAWK_PATH, "--hosts=localhost", "--timeout=5", 'sleep 2' ],
 #        stdout = PIPE, stderr = PIPE
@@ -104,12 +104,12 @@ def test_06_timeout():
     # TODO: with -c
 
 def test_06_prompt_sudo_password():
-    command = "%s --hosts=localhost --ssh-user=tomahawk_test uptime" % (TOMAHAWK_PATH)
+    command = "%s --hosts=localhost --prompt-login-password --ssh-user=tomahawk_test uptime" % (TOMAHAWK_PATH)
     child = pexpect.spawn(
         command,
         timeout = 5
     )
-    i = child.expect([ pexpect.EOF, pexpect.TIMEOUT, '^([Pp]assword:?\s*|パスワード:\s*)' ])
+    i = child.expect([ pexpect.EOF, pexpect.TIMEOUT, 'Enter a password.+' ])
     if i == 0: # EOF
         print 'EOF'
         print child.before
