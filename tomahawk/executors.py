@@ -121,6 +121,7 @@ class CommandExecutor(BaseExecutor):
                 for option in ssh_options.split(' '):
                     #  remove left and right whitespaces
                     command_args.append(option.strip())
+
                 command_args.append(host)
                 c = command.replace('"', '\\"')
                 # execute a command with shell because we want to use pipe(|) and so on.
@@ -129,8 +130,8 @@ class CommandExecutor(BaseExecutor):
                 # host, command, ssh_user, ssh_option, login_password, sudo_password
                 async_result = self.process_pool.apply_async(
                     _command,
-                    [ 'ssh', command_args, self.login_password,
-                      self.sudo_password, options['timeout'], options['debug'] ]
+                    ( 'ssh', command_args, self.login_password,
+                      self.sudo_password, options['timeout'], options['debug'] ),
                 )
                 async_results.append({ 'host': host, 'command': command, 'async_result': async_result })
 
@@ -151,7 +152,7 @@ class CommandExecutor(BaseExecutor):
                 command_output = ''
                 timeout_detail = None
                 try:
-                    exit_status, command_output = async_result.get(timeout = options['timeout'])
+                    exit_status, command_output = async_result.get(timeout = options['timeout'] + 1)
                 except TimeoutError, error:
                     timeout_detail = str(error)
                 async_results.remove(dict)
