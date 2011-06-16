@@ -3,7 +3,7 @@ import cStringIO
 import pexpect
 import re
 import sys
-from tomahawk.constants import DEFAULT_TIMEOUT, FatalError, TimeoutError
+from tomahawk.constants import DEFAULT_TIMEOUT, CommandError, TimeoutError
 from tomahawk.log import create_logger
 
 class CommandWithExpect(object):
@@ -49,7 +49,7 @@ class CommandWithExpect(object):
                 if password is None:
                     self.log.debug("Password is None")
                     #print >> stderr, "[error] Password is empty. Use -l or -s"
-                    raise FatalError("Password is empty. Use -l or -s .")
+                    raise CommandError("Password is empty. Use -l or -s .")
 
                 child.sendline(password)
                 index2 = child.expect(self.expect_patterns)
