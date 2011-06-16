@@ -3,7 +3,7 @@ from getpass import getuser
 import multiprocessing
 from os import path
 import signal
-from sys import stderr
+import sys
 from time import sleep
 from tomahawk.constants import DEFAULT_RSYNC_OPTIONS, TimeoutError
 from tomahawk.expect import CommandWithExpect
@@ -174,7 +174,7 @@ class CommandExecutor(BaseExecutor):
                     print output, '\n'
                     error_hosts[host] = 2
                     if self.raise_error:
-                        print >> stderr, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
+                        print >> sys.stderr, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
                         return 1
                 else:
                     output += '[error] Command failed ! (status = %d)' % exit_status
@@ -182,7 +182,7 @@ class CommandExecutor(BaseExecutor):
                     error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
-                        print >> stderr, '[error] Command "%s" failed on host "%s"' % (command, host)
+                        print >> sys.stderr, '[error] Command "%s" failed on host "%s"' % (command, host)
                         return 1
 
         if len(error_hosts) != 0:
@@ -191,7 +191,7 @@ class CommandExecutor(BaseExecutor):
                 if h in error_hosts:
                     hosts += '  %s\n' % (h)
             hosts = hosts.rstrip()
-            print >> stderr, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
+            print >> sys.stderr, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
             return 1
         
         return 0
@@ -295,7 +295,7 @@ class RsyncExecutor(BaseExecutor):
                     error_hosts[host] = 2
                     if self.raise_error:
                         #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
-                        print >> stderr, '[error] "%s" timed out on host "%s" after %d seconds.' % (c, host, options['timeout'])
+                        print >> sys.stderr, '[error] "%s" timed out on host "%s" after %d seconds.' % (c, host, options['timeout'])
                         return 1
                 else:
                     output += '[error] rsync failed ! (status = %d)' % exit_status
@@ -303,7 +303,7 @@ class RsyncExecutor(BaseExecutor):
                     error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
-                        print >> stderr, '[error] "%s" failed on host "%s"' % (c, host)
+                        print >> sys.stderr, '[error] "%s" failed on host "%s"' % (c, host)
                         return 1
 
         if len(error_hosts) != 0:
@@ -318,7 +318,7 @@ class RsyncExecutor(BaseExecutor):
                 rsync = rsync_template % ('REMOTE_HOST')
             else:
                 rsync = rsync_template % ('REMOTE_HOST', 'LOCAL')
-            print >> stderr, '[error] "%s" failed on following hosts\n%s' % (rsync, hosts)
+            print >> sys.stderr, '[error] "%s" failed on following hosts\n%s' % (rsync, hosts)
             return 1
 
         return 0

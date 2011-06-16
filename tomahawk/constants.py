@@ -8,6 +8,10 @@ class TimeoutError(RuntimeError):
     """Timeout error of command execution."""
     pass
 
+class CommandError(RuntimeError):
+    """Command execution error."""
+    pass
+
 class FatalError(RuntimeError):
     """A fatal error in tomahawk."""
     pass

@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
-from pexpect import spawn, EOF, TIMEOUT
-from tomahawk.constants import DEFAULT_TIMEOUT, FatalError, TimeoutError
+import cStringIO
+import pexpect
+import re
+import sys
+from tomahawk.constants import DEFAULT_TIMEOUT, CommandError, TimeoutError
 from tomahawk.log import create_logger
 
 class CommandWithExpect(object):
+
     """
     A command executor through expect.
     """
@@ -15,6 +19,11 @@ class CommandWithExpect(object):
         self.sudo_password = sudo_password
         self.timeout = timeout
         self.log = create_logger(debug_enabled)
+        self.expect_patterns = [
+            '^Enter passphrase.+',
+            '[Pp]assword:',
+            '^パスワード:', # TODO: japanese character expected as utf-8
+        ]
 
     def execute(self):
         """
@@ -22,19 +31,17 @@ class CommandWithExpect(object):
         
         Returns: command result status, output string
         """
-        child = spawn(
+        expect_output = cStringIO.StringIO()
+        child = pexpect.spawn(
             self.command,
             self.command_args,
             timeout = self.timeout,
+            logfile = expect_output
         )
         self.log.debug("command = %s, args = %s" % (self.command, str(self.command_args)))
 
-        login_expect = '^(.+\'s password:?\s*|Enter passphrase.+)'
-        sudo_expect0 = '[Pp]assword:'
-        sudo_expect1 = '^パスワード:' # TODO: japanese character expected as utf-8
-
         try:
-            index = child.expect([ login_expect, sudo_expect0, sudo_expect1, EOF ])
+            index = child.expect(self.expect_patterns)
             self.log.debug("expect index = %d" % (index))
 
             if index in (0, 1, 2):
@@ -42,23 +49,27 @@ class CommandWithExpect(object):
                 if password is None:
                     self.log.debug("Password is None")
                     #print >> stderr, "[error] Password is empty. Use -l or -s"
-                    raise FatalError("Password is empty. Use -l or -s .")
+                    raise CommandError("Password is empty. Use -l or -s .")
 
+                child.sendline(password)
+                index2 = child.expect(self.expect_patterns)
+                self.log.debug("expect index2 = %d" % (index2))
                 child.sendline(password)
             if index == 3:
                 self.log.debug("expect.EOF")
-        except TIMEOUT:
-            self.log.debug("timeout")
+        except pexpect.TIMEOUT:
+            self.log.debug("expect.TIMEOUT")
             raise TimeoutError("Execution is timed out after %d seconds" % (self.timeout))
-        except EOF:
-            self.log.debug("EOF")
+        except pexpect.EOF:
+            self.log.debug("expect.EOF")
         finally:
             #child.close()
             pass
-        return self.get_status_and_output(child)
+        return self.get_status_and_output(child, expect_output)
 
-    def get_status_and_output(self, child):
-        lines = child.readlines()
+    def get_status_and_output(self, child, expect_output):
+        #lines = child.readlines()
+        #print lines
         child.close()
         self.log.debug("child closed.")
 
@@ -67,12 +78,23 @@ class CommandWithExpect(object):
             exit_status = 1
         self.log.debug("exit_status = %d" % exit_status)
 
-        output_text = ''
-        for line in lines:
-            if line.strip() == '':
-                # Ignore empty line
+        output_lines = []
+        expect_regexs = [ re.compile(p) for p in self.expect_patterns ]
+        for line in expect_output.getvalue().split('\n'):
+            line = line.strip('\r\n')
+            if line == '':
                 continue
-            output_text += line
-        self.log.debug("output_text = '%s'" % output_text)
 
-        return exit_status, output_text.strip()
+            self.log.debug("line = " + line)
+            append = True
+            for regex in expect_regexs:
+                if regex.search(line):
+                    append = False
+                    continue
+            if append:
+                output_lines.append(line)
+
+        output_text = '\n'.join(output_lines)
+        self.log.debug("output_text = " + output_text)
+
+        return exit_status, output_text
