@@ -93,6 +93,11 @@ class CommandWithExpect(object):
             if line == '':
                 continue
 
+            if self.login_password:
+                line = line.replace(self.login_password, len(self.login_password) * '*')
+            if self.sudo_password:
+                line = line.replace(self.sudo_password, len(self.sudo_password) * '*')
+
             self.log.debug("line = " + line)
             append = True
             for regex in expect_regexs:
