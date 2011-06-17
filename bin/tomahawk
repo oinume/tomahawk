@@ -11,7 +11,12 @@ parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
 
 import argparse
 from tomahawk.command_line import Context
-from tomahawk.constants import VERSION, DEFAULT_TIMEOUT, DEFAULT_EXPECT_ENCODING
+from tomahawk.constants import (
+    VERSION,
+    DEFAULT_TIMEOUT,
+    DEFAULT_EXPECT_DELAY,
+    DEFAULT_EXPECT_ENCODING
+)
 from tomahawk.log import create_logger
 from tomahawk.main import Main
 
@@ -78,6 +83,10 @@ def create_argument_parser():
     p.add_argument(
         '-d', '--delay', type=int, default=0,
         help='Command delay time in seconds. (default: 0)'
+    )
+    p.add_argument(
+        '--expect-delay', type=float, default=DEFAULT_EXPECT_DELAY,
+        help='Expect delay time in seconds. (default: 0.05)'
     )
     p.add_argument(
         '-D', '--debug', action='store_true', default=False,
