@@ -13,9 +13,10 @@ import argparse
 from tomahawk.command_line import Context
 from tomahawk.constants import (
     VERSION,
-    DEFAULT_TIMEOUT,
+    DEFAULT_COMMAND_OUTPUT_FORMAT,
     DEFAULT_EXPECT_DELAY,
-    DEFAULT_EXPECT_ENCODING
+    DEFAULT_EXPECT_ENCODING,
+    DEFAULT_TIMEOUT
 )
 from tomahawk.log import create_logger
 from tomahawk.main import Main
@@ -87,6 +88,10 @@ def create_argument_parser():
     p.add_argument(
         '--expect-delay', type=float, default=DEFAULT_EXPECT_DELAY,
         help='Expect delay time in seconds. (default: 0.05)'
+    )
+    p.add_argument(
+        '--output-format', default=DEFAULT_COMMAND_OUTPUT_FORMAT,
+        help="Command output format. (default: '%s')" % (DEFAULT_COMMAND_OUTPUT_FORMAT.replace('%', '%%').replace('\n', '\\n'))
     )
     p.add_argument(
         '-D', '--debug', action='store_true', default=False,
