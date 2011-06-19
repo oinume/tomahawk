@@ -1,4 +1,12 @@
-0.3.0
+0.3.2 2011.06.18
+  - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
+  - Bug fix: #7 Password is not masked even --debug
+
+0.3.1 2011.06.16
+  - Bug fix: #4 Pass a directory to -f option, traceback occurrs
+  - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
+
+0.3.0 2011.05.15
   - Improve handling keyboard interrupt.
   - Fix tests.
 

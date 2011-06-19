@@ -9,7 +9,9 @@ from tomahawk.constants import DEFAULT_RSYNC_OPTIONS, TimeoutError
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import read_login_password, read_sudo_password, shutdown_by_signal
 
-def _command(command, command_args, login_password, sudo_password, timeout, debug_enabled):
+def _command(
+    command, command_args, login_password, sudo_password,
+    timeout, expect_delay, debug_enabled):
     """
     Execute a command.
     """
@@ -18,10 +20,10 @@ def _command(command, command_args, login_password, sudo_password, timeout, debu
 
     return CommandWithExpect(
         command, command_args, login_password,
-        sudo_password, timeout, debug_enabled
+        sudo_password, timeout, expect_delay, debug_enabled
     ).execute()
 
-def _rsync(command, login_password, timeout, debug_enabled):
+def _rsync(command, login_password, timeout, expect_delay, debug_enabled):
     """
     Execute rsync
     """
@@ -30,7 +32,7 @@ def _rsync(command, login_password, timeout, debug_enabled):
 
     return CommandWithExpect(
         command, [], login_password,
-        None, timeout, debug_enabled
+        None, timeout, expect_delay, debug_enabled
     ).execute()
 
 class BaseExecutor(object):
@@ -131,7 +133,8 @@ class CommandExecutor(BaseExecutor):
                 async_result = self.process_pool.apply_async(
                     _command,
                     ( 'ssh', command_args, self.login_password,
-                      self.sudo_password, options['timeout'], options['debug'] ),
+                      self.sudo_password, options['timeout'],
+                      options['expect_delay'], options['debug'] ),
                 )
                 async_results.append({ 'host': host, 'command': command, 'async_result': async_result })
 
@@ -262,7 +265,7 @@ class RsyncExecutor(BaseExecutor):
 
             async_result = self.process_pool.apply_async(
                 _rsync,
-                [ c, self.login_password, options['timeout'], options['debug'] ]
+                ( c, self.login_password, options['timeout'], options['expect_delay'], options['debug'] )
             )
             async_results.append({ 'host': host, 'command': c, 'async_result': async_result })
 

@@ -3,7 +3,13 @@ import cStringIO
 import pexpect
 import re
 import sys
-from tomahawk.constants import DEFAULT_TIMEOUT, CommandError, TimeoutError
+import time
+from tomahawk.constants import (
+    DEFAULT_TIMEOUT,
+    DEFAULT_EXPECT_DELAY,
+    CommandError,
+    TimeoutError
+)
 from tomahawk.log import create_logger
 
 class CommandWithExpect(object):
@@ -12,12 +18,14 @@ class CommandWithExpect(object):
     A command executor through expect.
     """
     def __init__(self, command, command_args, login_password,
-                 sudo_password, timeout = DEFAULT_TIMEOUT, debug_enabled = False):
+                 sudo_password, timeout = DEFAULT_TIMEOUT,
+                 expect_delay = DEFAULT_EXPECT_DELAY, debug_enabled = False):
         self.command = command
         self.command_args = command_args
         self.login_password = login_password
         self.sudo_password = sudo_password
         self.timeout = timeout
+        self.expect_delay = expect_delay
         self.log = create_logger(debug_enabled)
         self.expect_patterns = [
             '^Enter passphrase.+',
@@ -68,8 +76,8 @@ class CommandWithExpect(object):
         return self.get_status_and_output(child, expect_output)
 
     def get_status_and_output(self, child, expect_output):
-        #lines = child.readlines()
-        #print lines
+        # Need a litte bit sleep because of failure of expect
+        time.sleep(self.expect_delay)
         child.close()
         self.log.debug("child closed.")
 
@@ -84,6 +92,11 @@ class CommandWithExpect(object):
             line = line.strip('\r\n')
             if line == '':
                 continue
+
+            if self.login_password:
+                line = line.replace(self.login_password, len(self.login_password) * '*')
+            if self.sudo_password:
+                line = line.replace(self.sudo_password, len(self.sudo_password) * '*')
 
             self.log.debug("line = " + line)
             append = True
