@@ -123,6 +123,16 @@ def test_06_prompt_sudo_password():
         #print child.before
         ok_(True, "execute (prompt password)")
 
+def test_07_output_format():
+    process = Popen(
+        [ TOMAHAWK_PATH, '--hosts=localhost', "--output-format='${host} @ ${command}'", 'uptime' ],
+        stdout = PIPE, stderr = PIPE
+    )
+    process.wait()
+    out, error = process.communicate()
+
+    assert_equal(process.returncode, 0, "execute (--output-format)")
+    ok_(re.search(r'localhost @ uptime', out) , "execute (--output-format: output)")
 
 def test_10_confirm_execution_on_production():
     command = '%s --hosts=localhost,localhost uptime' % (TOMAHAWK_PATH)
