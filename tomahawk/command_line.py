@@ -1,80 +1,21 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-from tomahawk.log import create_logger
+__all__ = ("CommandContext", "RsyncContext")
 
-__all__ = ("Context", "Base")
+class BaseContext(object):
+    pass
 
-class Context(object):
+class CommandContext(BaseContext):
     """
     """
-    def __init__(self, bin_dir, arguments, options, arg_parser):
-        self.bin_dir = bin_dir
+    def __init__(self, arguments, options):
         self.arguments = arguments
         self.options = options
-        self.arg_parser = arg_parser
 
-class RsyncContext(Context):
+class RsyncContext(BaseContext):
     """
     """
-    def __init__(self, bin_dir, source, destination, options, arg_parser):
-        super(RsyncContext, self).__init__(bin_dir, None, options, arg_parser)
+    def __init__(self, source, destination, options):
         self.source = source
         self.destination = destination
+        self.options = options
 
-class BaseMain(object):
-    def __init__(self, context, log=None):
-        self.context = context
-        if log is None:
-            self.log = create_logger(context.options.get('debug'))
-        else:
-            self.log = log
-
-    def run(self):
-        raise Exception("Implement by sub-class")
-
-    def check_hosts(self):
-        options = self.context.options
-        if options.get('hosts') is not None and options.get('hosts_files') is not None:
-            self.log.error('Cannot specify both options --hosts and --hosts-files.')
-            self.log.error(self.context.arg_parser.format_usage())
-            sys.exit(2)
-
-        # initialize target hosts with --hosts or --hosts-files
-        hosts = []
-        # TODO: \, escape handling
-        # regexp: [^\\],
-        if options.get('hosts'):
-            list = options['hosts'].split(',')
-            for host in list:
-                host.strip()
-                hosts.append(host)
-        elif options.get('hosts_files'):
-            list = options['hosts_files'].split(',')
-            for file in list:
-                try:
-                    for line in open(file):
-                        host = line.strip()
-                        if host == '' or host.startswith('#'):
-                            continue
-                        hosts.append(host)
-                except IOError, e:
-                    print >> sys.stderr, "Failed to open '%s'. (%s)" % (file, e)
-                    sys.exit(4)
-        else:
-            self.log.error('Specify --hosts or --hosts-files option.')
-            self.log.error(self.context.arg_parser.format_usage())
-            sys.exit(2)
-
-        return hosts
-
-    def confirm_execution_on_production(self, message):
-        if os.environ.get('TOMAHAWK_ENV') != 'production':
-            return
-
-        input = raw_input(message)
-        if input == 'yes':
-            print
-        else:
-            print 'Command execution was cancelled.'
-            sys.exit(0)
