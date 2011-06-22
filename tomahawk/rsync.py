@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import getpass
+import multiprocessing
 import os
 import signal
 import sys
@@ -155,7 +156,7 @@ class RsyncExecutor(BaseExecutor):
                         dest = host + '__' + dest
                 else:
                      # if file doesn't exist
-                    source_name = path.basename(source[0:len(source)-1]) if source.endswith('/') else path.basename(source)
+                    source_name = os.path.basename(source[0:len(source)-1]) if source.endswith('/') else os.path.basename(source)
                     dest += host + '__' + source_name
                 c = rsync_template % (host, dest)
             
@@ -204,6 +205,7 @@ class RsyncExecutor(BaseExecutor):
                     error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
+                        # TODO: failure_handler, timeout_handler
                         print >> sys.stderr, '[error] "%s" failed on host "%s"' % (c, host)
                         return 1
 
