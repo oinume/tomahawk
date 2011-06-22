@@ -6,7 +6,7 @@ import tomahawk_bootstrap
 # Add TOMAHAWK_HOME, TOMAHAWK_HOME/lib to sys.path
 parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
 
-from tomahawk.main import RsyncMain
+from tomahawk.rsync import RsyncMain
 
 if __name__ == '__main__':
     sys.exit(RsyncMain(__file__, bin_dir).run())
