@@ -7,7 +7,7 @@ import signal
 import sys
 import time
 
-from tomahawk.common import BaseContext, BaseMain, BaseExecutor
+from tomahawk.base import BaseContext, BaseMain, BaseExecutor
 from tomahawk.constants import (
     DEFAULT_RSYNC_OPTIONS,
     TimeoutError,

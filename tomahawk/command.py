@@ -6,7 +6,7 @@ import signal
 import sys
 import time
 
-from tomahawk.common import BaseContext, BaseExecutor, BaseMain
+from tomahawk.base import BaseContext, BaseExecutor, BaseMain
 from tomahawk.constants import TimeoutError
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import shutdown_by_signal
