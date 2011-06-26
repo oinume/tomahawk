@@ -18,20 +18,20 @@ from tomahawk.utils import shutdown_by_signal
 class RsyncContext(BaseContext):
     """
     """
-    def __init__(self, source, destination, options):
+    def __init__(self, source, destination, options, out, err):
         self.source = source
         self.destination = destination
-        self.options = options
-        self.arguments = None
+        super(RsyncContext, self).__init__(options, out, err)
 
 class RsyncMain(BaseMain):
     """
     Main class for tomahawk-rsync
     """
 
-    def __init__(self, file, bin_dir):
+    def __init__(self, file):
+        #arg_parser = self.create_argument_parser(file)
         # setup self.log, self.arg_parser, self.options
-        super(RsyncMain, self).initialize(file, self.create_argument_parser(file))
+        super(RsyncMain, self).__init__(file)
         self.log.debug("options = " + str(self.options))
         self.log.debug("source = " + str(self.options.source))
         self.log.debug("destination = " + str(self.options.destination))
@@ -41,6 +41,8 @@ class RsyncMain(BaseMain):
             self.options.source,
             self.options.destination,
             self.options.__dict__,
+            sys.stdout,
+            sys.stderr
         )
         hosts = self.check_hosts()
 

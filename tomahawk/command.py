@@ -15,18 +15,19 @@ class CommandContext(BaseContext):
     """
     Command context
     """
-    def __init__(self, arguments, options):
+    def __init__(self, arguments, options, out, err):
         self.arguments = arguments
-        self.options = options
+        super(CommandContext, self).__init__(options, out, err)
 
 class CommandMain(BaseMain):
     """
     Main class for tomahawk
     """
 
-    def __init__(self, file, bin_dir):
+    def __init__(self, file):
+        #arg_parser = self.create_argument_parser(file)
         # setup self.log, self.arg_parser, self.options
-        super(CommandMain, self).initialize(file, self.create_argument_parser(file))
+        super(CommandMain, self).__init__(file)
         self.log.debug("options = " + str(self.options))
         self.log.debug("arguments = " + str(self.options.command))
 
@@ -34,6 +35,8 @@ class CommandMain(BaseMain):
         context = CommandContext(
             self.options.command,
             self.options.__dict__,
+            sys.stdout,
+            sys.stderr
         )
         hosts = self.check_hosts()
 
@@ -138,6 +141,8 @@ class CommandExecutor(BaseExecutor):
                 if options['delay'] != 0:
                     time.sleep(options['delay'])
 
+        out = self.context.out
+        err = self.context.err
         hosts_count = len(self.hosts)
         finished = 0
         error_hosts = {}
@@ -168,21 +173,21 @@ class CommandExecutor(BaseExecutor):
                 # TODO: specify from command line option
                 output = '%(user)s@%(host)s %% %(command)s\n%(output)s' % output_params
                 if exit_status == 0:
-                    print output, '\n'
+                    print >> out, output, '\n'
                 elif timeout_detail is not None:
                     output += '[error] Command timed out after %d seconds' % (options['timeout'])
-                    print output, '\n'
+                    print >> out, output, '\n'
                     error_hosts[host] = 2
                     if self.raise_error:
-                        print >> sys.stderr, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
+                        print >> err, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
                         return 1
                 else:
                     output += '[error] Command failed ! (status = %d)' % exit_status
-                    print output, '\n'
+                    print >> out, output, '\n'
                     error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
-                        print >> sys.stderr, '[error] Command "%s" failed on host "%s"' % (command, host)
+                        print >> err, '[error] Command "%s" failed on host "%s"' % (command, host)
                         return 1
 
         if len(error_hosts) != 0:
@@ -191,7 +196,7 @@ class CommandExecutor(BaseExecutor):
                 if h in error_hosts:
                     hosts += '  %s\n' % (h)
             hosts = hosts.rstrip()
-            print >> sys.stderr, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
+            print >> err, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
             return 1
         
         return 0

@@ -25,3 +25,36 @@ def read_sudo_password():
 def get_run_user():
     return getuser()
 
+def check_hosts(options, log, usage_func):
+    if options.get('hosts') is not None and options.get('hosts_files') is not None:
+        log.error("Cannot specify both options --hosts and --hosts-files.")
+        log.error(usage_func())
+        sys.exit(2)
+
+    # initialize target hosts with --hosts or --hosts-files
+    hosts = []
+    # TODO: \, escape handling
+    # regexp: [^\\],
+    if options.get('hosts'):
+        list = options['hosts'].split(',')
+        for host in list:
+            host.strip()
+            hosts.append(host)
+    elif options.get('hosts_files'):
+        list = options['hosts_files'].split(',')
+        for file in list:
+            try:
+                for line in open(file):
+                    host = line.strip()
+                    if host == '' or host.startswith('#'):
+                        continue
+                    hosts.append(host)
+            except IOError, e:
+                print >> sys.stderr, "Failed to open '%s'. (%s)" % (file, e)
+                sys.exit(4)
+    else:
+        log.error("Specify --hosts or --hosts-files option.")
+        log.error(usage_func())
+        sys.exit(2)
+
+    return hosts

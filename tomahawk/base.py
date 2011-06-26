@@ -11,21 +11,28 @@ from tomahawk.constants import (
 )
 from tomahawk.log import create_logger
 from tomahawk.utils import (
+    check_hosts,
     read_login_password,
     read_sudo_password,
 )
 class BaseContext(object):
-    pass
+    def __init__(self, options = {}, out = sys.stdout, err = sys.stderr):
+        self.options = options
+        self.out = out
+        self.err = err
 
 class BaseMain(object):
-    def __init__(self, file, bin_dir):
-        pass
-    
-    def initialize(self, script_path, arg_parser):
+    def __init__(self, script_path):
         self.script_path = script_path
-        self.arg_parser = arg_parser
+        self.arg_parser = self.create_argument_parser(file)
         self.options = self.arg_parser.parse_args()
         self.log = create_logger(self.options.debug)
+    
+#    def initialize(self, script_path, arg_parser):
+#        self.script_path = script_path
+#        self.arg_parser = arg_parser
+#        self.options = self.arg_parser.parse_args()
+#        self.log = create_logger(self.options.debug)
 
     def run(self):
         try:
@@ -49,39 +56,7 @@ class BaseMain(object):
         raise Exception("This is a template method implemented by sub-class")
 
     def check_hosts(self):
-        options = self.options.__dict__
-        if options.get('hosts') is not None and options.get('hosts_files') is not None:
-            self.log.error("Cannot specify both options --hosts and --hosts-files.")
-            self.log.error(self.arg_parser.format_usage())
-            sys.exit(2)
-
-        # initialize target hosts with --hosts or --hosts-files
-        hosts = []
-        # TODO: \, escape handling
-        # regexp: [^\\],
-        if options.get('hosts'):
-            list = options['hosts'].split(',')
-            for host in list:
-                host.strip()
-                hosts.append(host)
-        elif options.get('hosts_files'):
-            list = options['hosts_files'].split(',')
-            for file in list:
-                try:
-                    for line in open(file):
-                        host = line.strip()
-                        if host == '' or host.startswith('#'):
-                            continue
-                        hosts.append(host)
-                except IOError, e:
-                    print >> sys.stderr, "Failed to open '%s'. (%s)" % (file, e)
-                    sys.exit(4)
-        else:
-            self.log.error("Specify --hosts or --hosts-files option.")
-            self.log.error(self.arg_parser.format_usage())
-            sys.exit(2)
-
-        return hosts
+        return check_hosts(self.options.__dict__, self.log, self.arg_parser.format_usage)
 
     def confirm_execution_on_production(self, message):
         if os.environ.get('TOMAHAWK_ENV') != 'production':

@@ -9,4 +9,4 @@ parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
 from tomahawk.command import CommandMain
 
 if __name__ == '__main__':
-    sys.exit(CommandMain(__file__, bin_dir).run())
+    sys.exit(CommandMain(__file__).run())
