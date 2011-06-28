@@ -19,9 +19,9 @@ class RsyncContext(BaseContext):
     """
     """
     def __init__(self, source, destination, options, out, err):
+        super(RsyncContext, self).__init__(options, out, err)
         self.source = source
         self.destination = destination
-        super(RsyncContext, self).__init__(options, out, err)
 
 class RsyncMain(BaseMain):
     """

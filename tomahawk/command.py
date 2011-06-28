@@ -16,8 +16,8 @@ class CommandContext(BaseContext):
     Command context
     """
     def __init__(self, arguments, options, out, err):
-        self.arguments = arguments
         super(CommandContext, self).__init__(options, out, err)
+        self.arguments = arguments
 
 class CommandMain(BaseMain):
     """

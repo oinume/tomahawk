@@ -69,8 +69,11 @@ def test_05_execute_option_continue_on_error():
     status_continue = executor_continue.execute(context_continue.arguments)
     eq_(1, status_continue, "execute() > option > --continue-on-error > status")
 
-    # err_c's length must be longer because the command continues even when error
-    ok_(len(err_continue.getvalue()) > len(err.getvalue()), "execute > option > --continue-on-error > output")
+    # err_continue's length must be longer because the command continues even when error
+    ok_(
+        len(err_continue.getvalue()) > len(err.getvalue()),
+        "execute > option > --continue-on-error > output"
+    )
 
     target_hosts = [
         'localhost', 'localhost', 'localhost', 'localhost',
