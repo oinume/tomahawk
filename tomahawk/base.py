@@ -24,7 +24,7 @@ class BaseContext(object):
 class BaseMain(object):
     def __init__(self, script_path):
         self.script_path = script_path
-        self.arg_parser = self.create_argument_parser(file)
+        self.arg_parser = self.create_argument_parser(script_path)
         self.options = self.arg_parser.parse_args()
         self.log = create_logger(self.options.debug)
     

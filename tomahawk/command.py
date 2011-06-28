@@ -25,7 +25,6 @@ class CommandMain(BaseMain):
     """
 
     def __init__(self, file):
-        #arg_parser = self.create_argument_parser(file)
         # setup self.log, self.arg_parser, self.options
         super(CommandMain, self).__init__(file)
         self.log.debug("options = " + str(self.options))

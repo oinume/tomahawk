@@ -1,7 +1,7 @@
 import cStringIO
 import os
 import re
-from nose.tools import assert_equal, eq_, ok_
+from nose.tools import eq_, ok_
 
 from tomahawk.base import BaseMain
 from tomahawk.command import CommandContext, CommandExecutor, CommandMain
@@ -17,10 +17,30 @@ def test_01_execute():
         [ '--hosts=localhost', 'echo "hello world!"' ]
     )
     status = executor.execute(context.arguments)
-    eq_(0, status, "execute(): status")
-    ok_(re.search(r'hello world', out.getvalue()), "execute(): output")
+    eq_(0, status, "execute() > status")
+    ok_(re.search(r'hello world', out.getvalue()), "execute() > output")
 
-def test_02_execute_option_host_files():
+def test_02_execute_error():
+    out, err = create_out_and_err()
+    context, executor = create_context_and_executor(
+        out, err,
+        [ '--hosts=localhost', 'failure_command' ]
+    )
+    status = executor.execute(context.arguments)
+    eq_(1, status, "execute() > error > status")
+    ok_(re.search(r'failed on host', err.getvalue()), "execute() > error > output")
+
+def test_03_execute_timeout():
+    out, err = create_out_and_err()
+    context, executor = create_context_and_executor(
+        out, err,
+        [ '--hosts=localhost', '--timeout=1', 'sleep 5' ]
+    )
+    status = executor.execute(context.arguments)
+    eq_(1, status, "execute() > timeout > status")
+    ok_(re.search(r'timed out on host', err.getvalue()), "execute() > timeout > output")
+
+def test_04_execute_option_host_files():
     out, err = create_out_and_err()
     hosts_files = os.path.join(TESTS_DIR, 'localhost_2.hosts')
     context, executor = create_context_and_executor(
@@ -28,16 +48,66 @@ def test_02_execute_option_host_files():
         [ '--hosts-files=' + hosts_files, 'echo "hello world!"' ]
     )
     status = executor.execute(context.arguments)
-    eq_(0, status, "execute(): --hosts-files: status")
-    ok_(re.search(r'hello world', out.getvalue()), "execute(): --hosts-files: output")
+    eq_(0, status, "execute() > option > --hosts-files > status")
+    ok_(re.search(r'hello world', out.getvalue()), "execute() > option > --hosts-files > output")
 
-def test_03_execute_option_continue_on_error():
+def test_05_execute_option_continue_on_error():
+    # without --continue-on-error
     out, err = create_out_and_err()
     context, executor = create_context_and_executor(
         out, err,
-        [ '--hosts=localhost,localhost', 'no_such_command' ]
+        [ '--hosts=localhost,localhost', 'failure_command' ]
     )
-    # TODO: test_tomahawk.py -c
+    executor.execute(context.arguments)
+
+    # with --continue-on-error
+    out_continue, err_continue = create_out_and_err()
+    context_continue, executor_continue = create_context_and_executor(
+        out_continue, err_continue,
+        [ '--hosts=localhost,localhost', '--continue-on-error', 'failure_command' ]
+    )
+    status_continue = executor_continue.execute(context_continue.arguments)
+    eq_(1, status_continue, "execute() > option > --continue-on-error > status")
+
+    # err_c's length must be longer because the command continues even when error
+    ok_(len(err_continue.getvalue()) > len(err.getvalue()), "execute > option > --continue-on-error > output")
+
+    target_hosts = [
+        'localhost', 'localhost', 'localhost', 'localhost',
+        '127.0.0.1', '127.0.0.1', '127.0.0.1', '127.0.0.1',
+    ]
+    out_order, err_order = create_out_and_err()
+    context_order, executor_order = create_context_and_executor(
+        out_order, err_order,
+        [ '--hosts=%s' % (','.join(target_hosts)),
+          'failure_command', '--continue-on-error', '--parallel=2' ]
+    )
+    status_order = executor_order.execute(context_order.arguments)
+    eq_(1, status_order, "execute() > option > --continue-on-error, --parallel > status")
+
+    # parse output to collect failure hosts.
+    hosts = []
+    hosts_start = False
+    for line in err_order.getvalue().split('\n'):
+        if re.search(r'failed on following hosts', line, re.I):
+            hosts_start = True
+            continue
+        if hosts_start:
+            h = line.strip()
+            if h != '':
+                hosts.append(h)
+
+    eq_(hosts, target_hosts, "execute > option > --continue-on-error > error hosts order")
+
+def test_06_execute_option_ssh_options():
+    out, err = create_out_and_err()
+    context, executor = create_context_and_executor(
+        out, err,
+        [ '--hosts=localhost', '-D', "--ssh-options=-o LogLevel=debug", 'uptime' ]
+    )
+    status = executor.execute(context.arguments)
+    eq_(0, status, "execute() > option > --ssh-options > status")
+    ok_(re.search(r'debug1: Exit status 0', out.getvalue()), "execute() > option > --ssh-options > output")
 
 def create_out_and_err():
     return cStringIO.StringIO(), cStringIO.StringIO()
