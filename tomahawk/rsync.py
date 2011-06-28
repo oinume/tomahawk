@@ -173,6 +173,8 @@ class RsyncExecutor(BaseExecutor):
             if options['delay'] != 0:
                 time.sleep(options['delay'])
 
+        out = self.context.out
+        err = self.context.err
         finished = 0
         hosts_count = len(self.hosts)
         while finished < hosts_count:
@@ -192,23 +194,23 @@ class RsyncExecutor(BaseExecutor):
 
                 output = '%% %s\n%s' % (dict['command'], command_output)
                 if exit_status == 0:
-                    print output, '\n'
+                    print >> out, output, '\n'
                 elif timeout_detail is not None:
                     output += '[error] rsync timed out after %d seconds' % (options['timeout'])
-                    print output, '\n'
+                    print >> out, output, '\n'
                     error_hosts[host] = 2
                     if self.raise_error:
                         #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
-                        print >> sys.stderr, '[error] "%s" timed out on host "%s" after %d seconds.' % (c, host, options['timeout'])
+                        print >> err, '[error] "%s" timed out on host "%s" after %d seconds.' % (c, host, options['timeout'])
                         return 1
                 else:
                     output += '[error] rsync failed ! (status = %d)' % exit_status
-                    print output, '\n'
+                    print >> out, output, '\n'
                     error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
                         # TODO: failure_handler, timeout_handler
-                        print >> sys.stderr, '[error] "%s" failed on host "%s"' % (c, host)
+                        print >> err, '[error] "%s" failed on host "%s"' % (c, host)
                         return 1
 
         if len(error_hosts) != 0:
@@ -223,7 +225,7 @@ class RsyncExecutor(BaseExecutor):
                 rsync = rsync_template % ('REMOTE_HOST')
             else:
                 rsync = rsync_template % ('REMOTE_HOST', 'LOCAL')
-            print >> sys.stderr, '[error] "%s" failed on following hosts\n%s' % (rsync, hosts)
+            print >> err, '[error] "%s" failed on following hosts\n%s' % (rsync, hosts)
             return 1
 
         return 0

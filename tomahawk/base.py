@@ -20,6 +20,7 @@ class BaseContext(object):
         self.options = options
         self.out = out
         self.err = err
+        self.arguments, self.source, self.destination = None, None, None
 
 class BaseMain(object):
     def __init__(self, script_path):
