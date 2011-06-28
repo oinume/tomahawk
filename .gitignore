@@ -3,3 +3,4 @@ TODO
 tomahawk.egg-info/
 dist/
 tmp/hello*
+.coverage
