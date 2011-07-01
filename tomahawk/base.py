@@ -175,7 +175,70 @@ class BaseExecutor(object):
         self.sudo_password = sudo_password
         self.raise_error = False if options['continue_on_error'] else True
         self.process_pool = multiprocessing.Pool(processes = options['parallel'])
+
+    def process_async_results(
+        self,
+        async_results,
+        output_callback,
         
+    ):
+        out, err = self.context.out, self.context.err
+        hosts_count = len(self.hosts)
+        finished = 0
+        error_hosts = {}
+        while finished < hosts_count:
+            for dict in async_results:
+                host = dict['host']
+                async_result = dict['async_result']
+                if not async_result.ready():
+                    continue
+
+                exit_status = 1
+                command_output = ''
+                timeout_detail = None
+                try:
+                    exit_status, command_output = async_result.get(timeout = options['timeout'])
+                except (TimeoutError, multiprocessing.TimeoutError), error:
+                    timeout_detail = str(error)
+                async_results.remove(dict)
+                finished += 1
+
+                output = output_callback()
+                if exit_status == 0:
+                    print >> out, output, '\n'
+                elif timeout_detail is not None:
+#                    output += '[error] Command timed out after %d seconds' % (options['timeout'])
+#                    print >> out, output, '\n'
+                    output_timeout_handler(out, err, timeout)
+                    error_hosts[host] = 2
+                    if self.raise_error:
+#                        print >> err, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
+                        output_timeout_raise_error_handler(out, err, command, host, timeout)
+                        return 1
+                else:
+#                    output += '[error] Command failed ! (status = %d)' % exit_status
+#                    print >> out, output, '\n'
+                    output_failure_handler(out, err, exit_status)
+                    error_hosts[host] = 1
+                    if self.raise_error:
+                        #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
+#                        print >> err, '[error] Command "%s" failed on host "%s"' % (command, host)
+                        output_failure_raise_error_handler(out, err, command, host)
+                        return 1
+
+        if len(error_hosts) != 0:
+            hosts = ''
+            for h in self.hosts:
+                if h in error_hosts:
+                    hosts += '  %s\n' % (h)
+            hosts = hosts.rstrip()
+#            print >> err, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
+            output_failure_last_message_handler(err, command, hosts)
+            return 1
+        
+        return 0
+
+
     def destory_process_pool(self):
         if self.process_pool is not None:
             self.process_pool.close()
