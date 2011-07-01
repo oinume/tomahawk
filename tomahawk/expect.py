@@ -30,7 +30,7 @@ class CommandWithExpect(object):
         self.expect_patterns = [
             '^Enter passphrase.+',
             '[Pp]assword:',
-            '^パスワード:', # TODO: japanese character expected as utf-8
+            'パスワード', # TODO: japanese character expected as utf-8
         ]
 
     def execute(self):
