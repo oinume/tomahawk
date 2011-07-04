@@ -15,7 +15,6 @@ from tomahawk.constants import (
     VERSION,
     DEFAULT_COMMAND_OUTPUT_FORMAT,
     DEFAULT_EXPECT_DELAY,
-    DEFAULT_EXPECT_ENCODING,
     DEFAULT_TIMEOUT
 )
 from tomahawk.log import create_logger
@@ -76,10 +75,6 @@ def create_argument_parser():
     p.add_argument(
         '--expect-timeout', metavar='SECONDS', type=int,
         help='Duplicated. Use --timeout'
-    )
-    p.add_argument(
-        '--expect-encoding', metavar='ENCODING', default=DEFAULT_EXPECT_ENCODING,
-        help='Expect encoding for password prompt. (default: %s)' % (DEFAULT_EXPECT_ENCODING)
     )
     p.add_argument(
         '-d', '--delay', type=int, default=0,
