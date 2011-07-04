@@ -10,6 +10,12 @@ from tomahawk.constants import DEFAULT_RSYNC_OPTIONS, TimeoutError
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import read_login_password, read_sudo_password, shutdown_by_signal
 
+CONTROLL_CHARS = {
+    'r': '\r',
+    'n': '\n',
+    't': '\t',
+}
+
 def _command(
     command, command_args, login_password, sudo_password,
     timeout, expect_delay, debug_enabled):
@@ -145,7 +151,7 @@ class CommandExecutor(BaseExecutor):
         hosts_count = len(self.hosts)
         finished = 0
         error_hosts = {}
-        output_format = string.Template(options['output_format'])
+        output_format_template = string.Template(self.output_format(options['output_format']))
         while finished < hosts_count:
             for dict in async_results:
                 host = dict['host']
@@ -169,7 +175,7 @@ class CommandExecutor(BaseExecutor):
                     'command': dict['command'],
                     'output': command_output,
                 }
-                output = output_format.safe_substitute(output_params)
+                output = output_format_template.safe_substitute(output_params)
                 if exit_status == 0:
                     print output
                 elif timeout_detail is not None:
@@ -198,6 +204,27 @@ class CommandExecutor(BaseExecutor):
             return 1
         
         return 0
+
+    def output_format(self, format):
+        seq = []
+        prev, prev_prev = None, None
+        for char in format:
+            controll_char = CONTROLL_CHARS.get(char)
+            if controll_char and prev == '\\' and prev_prev == '\\':
+                pass
+            elif controll_char and prev == '\\':
+                seq.pop(len(seq) - 1)
+                seq.append(controll_char)
+                prev_prev = prev
+                prev = char
+                continue
+
+            seq.append(char)
+            prev_prev = prev
+            prev = char
+
+        return ''.join(seq)
+
 
 class RsyncExecutor(BaseExecutor):
     """
