@@ -13,7 +13,7 @@ from tomahawk.command_line import RsyncContext
 from tomahawk.constants import (
     VERSION,
     DEFAULT_TIMEOUT,
-    DEFAULT_EXPECT_ENCODING,
+    DEFAULT_EXPECT_DELAY,
     DEFAULT_RSYNC_OPTIONS
 )
 from tomahawk.log import create_logger
@@ -77,12 +77,12 @@ def create_argument_parser():
         help='Duplicated. Use --timeout'
     )
     p.add_argument(
-        '--expect-encoding', metavar='ENCODING', default=DEFAULT_EXPECT_ENCODING,
-        help='Specify expect encoding for password prompt. (default: %s)' % (DEFAULT_EXPECT_ENCODING)
-    )
-    p.add_argument(
         '-d', '--delay', type=int, default=0,
         help='Command delay time in seconds. (default: 0)'
+    )
+    p.add_argument(
+        '--expect-delay', type=float, default=DEFAULT_EXPECT_DELAY,
+        help='Expect delay time in seconds. (default: 0.05)'
     )
     p.add_argument(
         '-D', '--debug', action='store_true', default=False,

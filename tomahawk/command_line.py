@@ -52,11 +52,15 @@ class BaseMain(object):
         elif options.get('hosts_files'):
             list = options['hosts_files'].split(',')
             for file in list:
-                for line in open(file):
-                    host = line.strip()
-                    if host == '' or host.startswith('#'):
-                        continue
-                    hosts.append(host)
+                try:
+                    for line in open(file):
+                        host = line.strip()
+                        if host == '' or host.startswith('#'):
+                            continue
+                        hosts.append(host)
+                except IOError, e:
+                    print >> sys.stderr, "Failed to open '%s'. (%s)" % (file, e)
+                    sys.exit(4)
         else:
             self.log.error('Specify --hosts or --hosts-files option.')
             self.log.error(self.context.arg_parser.format_usage())

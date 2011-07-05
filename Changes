@@ -1,4 +1,21 @@
-0.3.0
+0.3.4 2011.07.05
+  - New feature: #8 --output-format option for tomahawk
+
+0.3.3 2011.07.04
+  - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
+  - Bug fix: #10 tomahawk times out when japanese sudo password prompt
+  - Change: #11 --expect-encoding is now obsoleted
+  - Change: #9 release.py problem
+
+0.3.2 2011.06.18
+  - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
+  - Bug fix: #7 Password is not masked even --debug
+
+0.3.1 2011.06.16
+  - Bug fix: #4 Pass a directory to -f option, traceback occurrs
+  - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
+
+0.3.0 2011.05.15
   - Improve handling keyboard interrupt.
   - Fix tests.
 
