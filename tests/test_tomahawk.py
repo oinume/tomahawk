@@ -136,7 +136,7 @@ def test_07_output_format():
 
     # \n new line test
     process2 = Popen(
-        [ TOMAHAWK_PATH, '--hosts=localhost', "--output-format='${host} @ ${command}\noutput:${output}'", 'uptime' ],
+        [ TOMAHAWK_PATH, '--hosts=localhost', r"--output-format='${host} @ ${command}\noutput:${output}'", 'uptime' ],
         stdout = PIPE, stderr = PIPE
     )
     process2.wait()
@@ -147,13 +147,13 @@ def test_07_output_format():
 
     # \\n no new line test
     process3 = Popen(
-        [ TOMAHAWK_PATH, '--hosts=localhost', "--output-format='${command} \\n output:${output}'", 'uptime' ],
+        [ TOMAHAWK_PATH, '--hosts=localhost', r"--output-format='${command} \\n output:${output}'", 'uptime' ],
         stdout = PIPE, stderr = PIPE
     )
     process3.wait()
     out3, error3 = process3.communicate()
     assert_equal(process3.returncode, 0, "execute (--output-format)")
-    ok_(re.search(r'uptime \\n output:', out3) , "execute (--output-format: output)")
+    ok_(re.search(r'uptime \\\\n output:', out3) , "execute (--output-format: output)")
 
 def test_10_confirm_execution_on_production():
     command = '%s --hosts=localhost,localhost uptime' % (TOMAHAWK_PATH)
