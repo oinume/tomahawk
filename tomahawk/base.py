@@ -8,6 +8,7 @@ from tomahawk.constants import (
     DEFAULT_TIMEOUT,
     DEFAULT_EXPECT_DELAY,
     DEFAULT_EXPECT_ENCODING,
+    OUTPUT_FORMAT_CONTROLL_CHARS,
 )
 from tomahawk.log import create_logger
 from tomahawk.utils import (
@@ -28,12 +29,6 @@ class BaseMain(object):
         self.arg_parser = self.create_argument_parser(script_path)
         self.options = self.arg_parser.parse_args()
         self.log = create_logger(self.options.debug)
-    
-#    def initialize(self, script_path, arg_parser):
-#        self.script_path = script_path
-#        self.arg_parser = arg_parser
-#        self.options = self.arg_parser.parse_args()
-#        self.log = create_logger(self.options.debug)
 
     def run(self):
         try:
@@ -205,10 +200,10 @@ class BaseExecutor(object):
 
                 output = output_callback()
                 if exit_status == 0:
-                    print >> out, output, '\n'
+                    print >> out, output
                 elif timeout_detail is not None:
 #                    output += '[error] Command timed out after %d seconds' % (options['timeout'])
-#                    print >> out, output, '\n'
+#                    print >> out, output
                     output_timeout_handler(out, err, timeout)
                     error_hosts[host] = 2
                     if self.raise_error:
@@ -217,7 +212,7 @@ class BaseExecutor(object):
                         return 1
                 else:
 #                    output += '[error] Command failed ! (status = %d)' % exit_status
-#                    print >> out, output, '\n'
+#                    print >> out, output
                     output_failure_handler(out, err, exit_status)
                     error_hosts[host] = 1
                     if self.raise_error:
@@ -238,6 +233,25 @@ class BaseExecutor(object):
         
         return 0
 
+    def output_format(self, format):
+        seq = []
+        prev, prev_prev = None, None
+        for char in format:
+            controll_char = OUTPUT_FORMAT_CONTROLL_CHARS.get(char)
+            if controll_char and prev == '\\' and prev_prev == '\\':
+                pass
+            elif controll_char and prev == '\\':
+                seq.pop(len(seq) - 1)
+                seq.append(controll_char)
+                prev_prev = prev
+                prev = char
+                continue
+
+            seq.append(char)
+            prev_prev = prev
+            prev = char
+
+        return ''.join(seq)
 
     def destory_process_pool(self):
         if self.process_pool is not None:

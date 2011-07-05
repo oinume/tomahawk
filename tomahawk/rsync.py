@@ -192,12 +192,12 @@ class RsyncExecutor(BaseExecutor):
                 async_results.remove(dict)
                 finished += 1
 
-                output = '%% %s\n%s' % (dict['command'], command_output)
+                output = '%% %s\n%s\n' % (dict['command'], command_output)
                 if exit_status == 0:
-                    print >> out, output, '\n'
+                    print >> out, output
                 elif timeout_detail is not None:
                     output += '[error] rsync timed out after %d seconds' % (options['timeout'])
-                    print >> out, output, '\n'
+                    print >> out, output
                     error_hosts[host] = 2
                     if self.raise_error:
                         #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
@@ -205,7 +205,7 @@ class RsyncExecutor(BaseExecutor):
                         return 1
                 else:
                     output += '[error] rsync failed ! (status = %d)' % exit_status
-                    print >> out, output, '\n'
+                    print >> out, output
                     error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))

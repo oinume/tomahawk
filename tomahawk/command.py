@@ -3,11 +3,15 @@ import argparse
 import getpass
 import os
 import signal
+import string
 import sys
 import time
 
 from tomahawk.base import BaseContext, BaseExecutor, BaseMain
-from tomahawk.constants import TimeoutError
+from tomahawk.constants import (
+    TimeoutError,
+    DEFAULT_COMMAND_OUTPUT_FORMAT
+)
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import shutdown_by_signal
 
@@ -75,6 +79,10 @@ class CommandMain(BaseMain):
         parser.add_argument(
             '--no-sudo-password', action='store_true',
             help='Never prompt a password for sudo.'
+        )
+        parser.add_argument(
+            '--output-format', default=DEFAULT_COMMAND_OUTPUT_FORMAT,
+            help="Command output format. (default: '%s')" % (DEFAULT_COMMAND_OUTPUT_FORMAT.replace('%', '%%').replace('\n', '\\n'))
         )
         cls.add_common_arguments(parser)
         return parser
@@ -145,6 +153,8 @@ class CommandExecutor(BaseExecutor):
         hosts_count = len(self.hosts)
         finished = 0
         error_hosts = {}
+        output_format_template = string.Template(self.output_format(options['output_format']))
+
         while finished < hosts_count:
             for dict in async_results:
                 host = dict['host']
@@ -169,20 +179,19 @@ class CommandExecutor(BaseExecutor):
                     'output': command_output,
                 }
                 # output template
-                # TODO: specify from command line option
-                output = '%(user)s@%(host)s %% %(command)s\n%(output)s' % output_params
+                output = output_format_template.safe_substitute(output_params)
                 if exit_status == 0:
-                    print >> out, output, '\n'
+                    print >> out, output
                 elif timeout_detail is not None:
                     output += '[error] Command timed out after %d seconds' % (options['timeout'])
-                    print >> out, output, '\n'
+                    print >> out, output
                     error_hosts[host] = 2
                     if self.raise_error:
                         print >> err, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
                         return 1
                 else:
                     output += '[error] Command failed ! (status = %d)' % exit_status
-                    print >> out, output, '\n'
+                    print >> out, output
                     error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
