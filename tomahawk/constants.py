@@ -1,7 +1,8 @@
-VERSION = '0.3.2'
+VERSION = '0.3.4'
 DEFAULT_TIMEOUT = 10
 DEFAULT_EXPECT_DELAY = 0.05
 DEFAULT_EXPECT_ENCODING = 'utf-8'
+DEFAULT_COMMAND_OUTPUT_FORMAT = '${user}@${host} % ${command}\n${output}\n'
 DEFAULT_RSYNC_OPTIONS = '-av'
 
 # TODO: should rename to tomahawk_common ?

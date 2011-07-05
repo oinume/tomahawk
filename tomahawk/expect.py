@@ -30,7 +30,7 @@ class CommandWithExpect(object):
         self.expect_patterns = [
             '^Enter passphrase.+',
             '[Pp]assword:',
-            '^パスワード:', # TODO: japanese character expected as utf-8
+            'パスワード', # TODO: japanese character expected as utf-8
         ]
 
     def execute(self):
@@ -63,6 +63,7 @@ class CommandWithExpect(object):
                 index2 = child.expect(self.expect_patterns)
                 self.log.debug("expect index2 = %d" % (index2))
                 child.sendline(password)
+                child.expect(pexpect.EOF)
             if index == 3:
                 self.log.debug("expect.EOF")
         except pexpect.TIMEOUT:
@@ -88,15 +89,18 @@ class CommandWithExpect(object):
 
         output_lines = []
         expect_regexs = [ re.compile(p) for p in self.expect_patterns ]
+        passwords = []
+        if self.login_password:
+            passwords.append(self.login_password)
+        if self.sudo_password:
+            passwords.append(self.sudo_password)
+
         for line in expect_output.getvalue().split('\n'):
             line = line.strip('\r\n')
-            if line == '':
+            if line == '' or line in passwords:
                 continue
-
-            if self.login_password:
-                line = line.replace(self.login_password, len(self.login_password) * '*')
-            if self.sudo_password:
-                line = line.replace(self.sudo_password, len(self.sudo_password) * '*')
+            for password in passwords:
+                line = line.replace(password, len(password) * '*')
 
             self.log.debug("line = " + line)
             append = True
