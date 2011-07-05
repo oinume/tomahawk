@@ -154,7 +154,7 @@ class CommandExecutor(BaseExecutor):
         finished = 0
         error_hosts = {}
 
-        def create_output(output_format_template, host, command, command_output):
+        def create_output(output_format_template, command, host, command_output):
             return output_format_template.safe_substitute({
                 'user': ssh_user,
                 'host': host,

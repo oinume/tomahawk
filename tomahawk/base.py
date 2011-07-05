@@ -208,7 +208,7 @@ class BaseExecutor(object):
                 async_results.remove(dict)
                 finished += 1
 
-                output = create_output(output_format_template, host, command, command_output)
+                output = create_output(output_format_template, command, host, command_output)
                 if exit_status == 0:
                     print >> out, output
                 elif timeout_detail is not None:
@@ -228,7 +228,7 @@ class BaseExecutor(object):
                     if self.raise_error:
                         #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
 #                        print >> err, '[error] Command "%s" failed on host "%s"' % (command, host)
-                        print >> err, create_failure_raise_error_message(out, err, command, host)
+                        print >> err, create_failure_raise_error_message(command, host)
                         return 1
 
         if len(error_hosts) != 0:
