@@ -134,6 +134,27 @@ def test_07_output_format():
     assert_equal(process.returncode, 0, "execute (--output-format)")
     ok_(re.search(r'localhost @ uptime', out) , "execute (--output-format: output)")
 
+    # \n new line test
+    process2 = Popen(
+        [ TOMAHAWK_PATH, '--hosts=localhost', "--output-format='${host} @ ${command}\noutput:${output}'", 'uptime' ],
+        stdout = PIPE, stderr = PIPE
+    )
+    process2.wait()
+    out2, error2 = process2.communicate()
+
+    assert_equal(process2.returncode, 0, "execute (--output-format)")
+    ok_(re.search(r'localhost @ uptime\noutput:', out2) , "execute (--output-format: output)")
+
+    # \\n no new line test
+    process3 = Popen(
+        [ TOMAHAWK_PATH, '--hosts=localhost', "--output-format='${command} \\n output:${output}'", 'uptime' ],
+        stdout = PIPE, stderr = PIPE
+    )
+    process3.wait()
+    out3, error3 = process3.communicate()
+    assert_equal(process3.returncode, 0, "execute (--output-format)")
+    ok_(re.search(r'uptime \\n output:', out3) , "execute (--output-format: output)")
+
 def test_10_confirm_execution_on_production():
     command = '%s --hosts=localhost,localhost uptime' % (TOMAHAWK_PATH)
     env = os.environ
