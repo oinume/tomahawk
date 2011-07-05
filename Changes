@@ -1,3 +1,6 @@
+0.3.4 2011.07.05
+  - New feature: #8 --output-format option for tomahawk
+
 0.3.3 2011.07.04
   - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
   - Bug fix: #10 tomahawk times out when japanese sudo password prompt
