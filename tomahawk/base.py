@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import multiprocessing
 import os
+import string
 import sys
 
 from tomahawk.constants import (
+    TimeoutError,
     VERSION,
     DEFAULT_TIMEOUT,
     DEFAULT_EXPECT_DELAY,
@@ -174,16 +176,24 @@ class BaseExecutor(object):
     def process_async_results(
         self,
         async_results,
-        output_callback,
-        
+        create_output,
+        create_timeout_message,
+        create_timeout_raise_error_message,
+        create_failure_message,
+        create_failure_raise_error_message,
+        create_failure_last_message,
     ):
         out, err = self.context.out, self.context.err
+        options = self.context.options
         hosts_count = len(self.hosts)
         finished = 0
         error_hosts = {}
+        output_format_template = string.Template(self.output_format(options['output_format']))
+
         while finished < hosts_count:
             for dict in async_results:
                 host = dict['host']
+                command = dict['command']
                 async_result = dict['async_result']
                 if not async_result.ready():
                     continue
@@ -198,27 +208,27 @@ class BaseExecutor(object):
                 async_results.remove(dict)
                 finished += 1
 
-                output = output_callback()
+                output = create_output(output_format_template, host, command, command_output)
                 if exit_status == 0:
                     print >> out, output
                 elif timeout_detail is not None:
 #                    output += '[error] Command timed out after %d seconds' % (options['timeout'])
 #                    print >> out, output
-                    output_timeout_handler(out, err, timeout)
+                    print >> out, create_timeout_message(output, options['timeout'])
                     error_hosts[host] = 2
                     if self.raise_error:
 #                        print >> err, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
-                        output_timeout_raise_error_handler(out, err, command, host, timeout)
+                        print >> err, create_timeout_raise_error_message(command, host, options['timeout'])
                         return 1
                 else:
 #                    output += '[error] Command failed ! (status = %d)' % exit_status
 #                    print >> out, output
-                    output_failure_handler(out, err, exit_status)
+                    print >> out, create_failure_message(output, exit_status)
                     error_hosts[host] = 1
                     if self.raise_error:
                         #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
 #                        print >> err, '[error] Command "%s" failed on host "%s"' % (command, host)
-                        output_failure_raise_error_handler(out, err, command, host)
+                        print >> err, create_failure_raise_error_message(out, err, command, host)
                         return 1
 
         if len(error_hosts) != 0:
@@ -228,7 +238,7 @@ class BaseExecutor(object):
                     hosts += '  %s\n' % (h)
             hosts = hosts.rstrip()
 #            print >> err, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
-            output_failure_last_message_handler(err, command, hosts)
+            print >> err, create_failure_last_message(command, hosts)
             return 1
         
         return 0
