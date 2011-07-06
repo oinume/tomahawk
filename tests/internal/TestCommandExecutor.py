@@ -112,6 +112,47 @@ def test_06_execute_option_ssh_options():
     eq_(0, status, "execute() > option > --ssh-options > status")
     ok_(re.search(r'debug1: Exit status 0', out.getvalue()), "execute() > option > --ssh-options > output")
 
+
+def test_07_output_format():
+    out, err = create_out_and_err()
+    context, executor = create_context_and_executor(
+        out, err,
+        [ '--hosts=localhost', r"--output-format='${host} @ ${command}'", 'uptime' ]
+    )
+    status = executor.execute(context.arguments)
+    eq_(0, status, "execute() > option > --output-format > status")
+    ok_(
+        re.search(r'localhost @ uptime', out.getvalue()) ,
+        "execute() > option > --output-format > output"
+    )
+
+    # \n new line test
+    out2, err2 = create_out_and_err()
+    context, executor = create_context_and_executor(
+        out2, err2,
+        [ '--hosts=localhost', r"--output-format='${host} @ ${command}\noutput:${output}'", 'uptime' ]
+    )
+    status2 = executor.execute(context.arguments)
+    eq_(0, status2, "execute() > option > --output-format > newline > status")
+    ok_(
+        re.search(r'localhost @ uptime', out2.getvalue()) ,
+        "execute() > option > --output-format > newline > output"
+    )
+
+    # \\n no new line test
+    out3, err3 = create_out_and_err()
+    context, executor = create_context_and_executor(
+        out3, err3,
+        [ '--hosts=localhost', r"--output-format='${command} \\n output:${output}'", 'uptime' ]
+    )
+    status3 = executor.execute(context.arguments)
+    eq_(0, status3, "execute() > option > --output-format > no newline > status")
+    ok_(
+        re.search(r'uptime \\\\n output:', out3.getvalue()) ,
+        "execute() > option > --output-format > no newline > output"
+    )
+
+
 def create_out_and_err():
     return cStringIO.StringIO(), cStringIO.StringIO()
 
