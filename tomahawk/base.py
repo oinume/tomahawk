@@ -8,6 +8,7 @@ from tomahawk.constants import (
     TimeoutError,
     VERSION,
     DEFAULT_TIMEOUT,
+    DEFAULT_COMMAND_OUTPUT_FORMAT,
     DEFAULT_EXPECT_DELAY,
     DEFAULT_EXPECT_ENCODING,
     OUTPUT_FORMAT_CONTROLL_CHARS,
@@ -140,7 +141,7 @@ class BaseExecutor(object):
             raise RuntimeError('Argument "hosts" length must be > 0')
 
         options = context.options
-        if options['expect_timeout'] is not None:
+        if options.get('expect_timeout') is not None:
             options['timeout'] = options['expect_timeout']
             log.warn("Option --expect-timeout is duplicated. Use --timeout.")
 
@@ -170,8 +171,8 @@ class BaseExecutor(object):
         self.hosts = hosts
         self.login_password = login_password
         self.sudo_password = sudo_password
-        self.raise_error = False if options['continue_on_error'] else True
-        self.process_pool = multiprocessing.Pool(processes = options['parallel'])
+        self.raise_error = False if options.get('continue_on_error') else True
+        self.process_pool = multiprocessing.Pool(processes = options.get('parallel', 1))
 
     def process_async_results(
         self,
@@ -188,7 +189,8 @@ class BaseExecutor(object):
         hosts_count = len(self.hosts)
         finished = 0
         error_hosts = {}
-        output_format_template = string.Template(self.output_format(options['output_format']))
+        output_format_template = string.Template(self.output_format(options.get('output_format', DEFAULT_COMMAND_OUTPUT_FORMAT)))
+        timeout = options.get('timeout', DEFAULT_TIMEOUT)
 
         while finished < hosts_count:
             for dict in async_results:
@@ -202,7 +204,7 @@ class BaseExecutor(object):
                 command_output = ''
                 timeout_detail = None
                 try:
-                    exit_status, command_output = async_result.get(timeout = options['timeout'])
+                    exit_status, command_output = async_result.get(timeout = timeout)
                 except (TimeoutError, multiprocessing.TimeoutError), error:
                     timeout_detail = str(error)
                 async_results.remove(dict)
@@ -212,10 +214,10 @@ class BaseExecutor(object):
                 if exit_status == 0:
                     print >> out, output
                 elif timeout_detail is not None:
-                    print >> out, create_timeout_message(output, options['timeout'])
+                    print >> out, create_timeout_message(output, timeout)
                     error_hosts[host] = 2
                     if self.raise_error:
-                        print >> err, create_timeout_raise_error_message(command, host, options['timeout'])
+                        print >> err, create_timeout_raise_error_message(command, host, timeout)
                         return 1
                 else:
                     print >> out, create_failure_message(output, exit_status)

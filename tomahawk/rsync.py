@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
 import getpass
-import multiprocessing
 import os
 import signal
 import sys
@@ -11,7 +10,6 @@ from tomahawk.base import BaseContext, BaseMain, BaseExecutor
 from tomahawk.constants import (
     DEFAULT_RSYNC_OUTPUT_FORMAT,
     DEFAULT_RSYNC_OPTIONS,
-    TimeoutError,
 )
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import shutdown_by_signal
@@ -30,8 +28,6 @@ class RsyncMain(BaseMain):
     """
 
     def __init__(self, file):
-        #arg_parser = self.create_argument_parser(file)
-        # setup self.log, self.arg_parser, self.options
         super(RsyncMain, self).__init__(file)
         self.log.debug("options = " + str(self.options))
         self.log.debug("source = " + str(self.options.source))
@@ -144,7 +140,6 @@ class RsyncExecutor(BaseExecutor):
             )
 
         async_results = []
-        error_hosts = {}
         for host in self.hosts:
             c = None
             if mirror_mode == 'push':
