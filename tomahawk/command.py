@@ -148,12 +148,9 @@ class CommandExecutor(BaseExecutor):
                 if options['delay'] != 0:
                     time.sleep(options['delay'])
 
-        out = self.context.out
-        err = self.context.err
-        hosts_count = len(self.hosts)
-        finished = 0
-        error_hosts = {}
-
+        #######################
+        # callbacks
+        #######################
         def create_output(output_format_template, command, host, command_output):
             return output_format_template.safe_substitute({
                 'user': ssh_user,
@@ -180,6 +177,7 @@ class CommandExecutor(BaseExecutor):
         def create_failure_last_message(command, hosts):
             return '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
 
+        # Call BaseExectuor#process_async_results with callbacks
         return self.process_async_results(
             async_results,
             create_output,
@@ -189,56 +187,3 @@ class CommandExecutor(BaseExecutor):
             create_failure_raise_error_message,
             create_failure_last_message
         )
-#        while finished < hosts_count:
-#            for dict in async_results:
-#                host = dict['host']
-#                async_result = dict['async_result']
-#                if not async_result.ready():
-#                    continue
-#
-#                exit_status = 1
-#                command_output = ''
-#                timeout_detail = None
-#                try:
-#                    exit_status, command_output = async_result.get(timeout = options['timeout'] + 1)
-#                except TimeoutError, error:
-#                    timeout_detail = str(error)
-#                async_results.remove(dict)
-#                finished += 1
-#
-#                output_params = {
-#                    'user': ssh_user,
-#                    'host': host,
-#                    'command': dict['command'],
-#                    'output': command_output,
-#                }
-#                # output template
-#                output = output_format_template.safe_substitute(output_params)
-#                if exit_status == 0:
-#                    print >> out, output
-#                elif timeout_detail is not None:
-#                    output += '[error] Command timed out after %d seconds' % (options['timeout'])
-#                    print >> out, output
-#                    error_hosts[host] = 2
-#                    if self.raise_error:
-#                        print >> err, '[error] Command "%s" timed out on host "%s" after %d seconds' % (command, host, options['timeout'])
-#                        return 1
-#                else:
-#                    output += '[error] Command failed ! (status = %d)' % exit_status
-#                    print >> out, output
-#                    error_hosts[host] = 1
-#                    if self.raise_error:
-#                        #raise RuntimeError("[error] Command '%s' failed on host '%s'" % (command, host))
-#                        print >> err, '[error] Command "%s" failed on host "%s"' % (command, host)
-#                        return 1
-#
-#        if len(error_hosts) != 0:
-#            hosts = ''
-#            for h in self.hosts:
-#                if h in error_hosts:
-#                    hosts += '  %s\n' % (h)
-#            hosts = hosts.rstrip()
-#            print >> err, '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
-#            return 1
-#        
-#        return 0

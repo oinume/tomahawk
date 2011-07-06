@@ -3,6 +3,7 @@ DEFAULT_TIMEOUT = 10
 DEFAULT_EXPECT_DELAY = 0.05
 DEFAULT_EXPECT_ENCODING = 'utf-8'
 DEFAULT_COMMAND_OUTPUT_FORMAT = '${user}@${host} % ${command}\n${output}\n'
+DEFAULT_RSYNC_OUTPUT_FORMAT = '% ${command}\n${output}\n'
 DEFAULT_RSYNC_OPTIONS = '-av'
 OUTPUT_FORMAT_CONTROLL_CHARS = {
     'r': '\r',

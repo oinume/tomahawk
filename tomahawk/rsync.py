@@ -9,6 +9,7 @@ import time
 
 from tomahawk.base import BaseContext, BaseMain, BaseExecutor
 from tomahawk.constants import (
+    DEFAULT_RSYNC_OUTPUT_FORMAT,
     DEFAULT_RSYNC_OPTIONS,
     TimeoutError,
 )
@@ -79,6 +80,10 @@ class RsyncMain(BaseMain):
         parser.add_argument(
             '-m', '--mirror-mode',
             help='"push" or "pull". "pull" means copy files remote -> local (default: "push")'
+        )
+        parser.add_argument(
+            '--output-format', default=DEFAULT_RSYNC_OUTPUT_FORMAT,
+            help="rsync command output format. (default: '%s')" % (DEFAULT_RSYNC_OUTPUT_FORMAT.replace('%', '%%').replace('\n', '\\n'))
         )
 #       parser.add_argument(
 #           '-a', '--append-host-suffix', action='store_true', default=True,
@@ -173,59 +178,46 @@ class RsyncExecutor(BaseExecutor):
             if options['delay'] != 0:
                 time.sleep(options['delay'])
 
-        out = self.context.out
-        err = self.context.err
-        finished = 0
-        hosts_count = len(self.hosts)
-        while finished < hosts_count:
-            for dict in async_results:
-                host = dict['host']
-                async_result = dict['async_result']
+        ###########################
+        # callbacks
+        ###########################
+        def create_output(output_format_template, command, host, command_output):
+            return output_format_template.safe_substitute({
+                'host': host,
+                'command': command,
+                'output': command_output,
+            })
 
-                exit_status = 1
-                command_output = ''
-                timeout_detail = None
-                try:
-                    exit_status, command_output = async_result.get(timeout = options['timeout'])
-                except (TimeoutError, multiprocessing.TimeoutError), error:
-                    timeout_detail = str(error)
-                async_results.remove(dict)
-                finished += 1
+        def create_timeout_message(output, timeout):
+            output += '[error] rsync timed out after %d seconds' % (options['timeout'])
+            return output
 
-                output = '%% %s\n%s\n' % (dict['command'], command_output)
-                if exit_status == 0:
-                    print >> out, output
-                elif timeout_detail is not None:
-                    output += '[error] rsync timed out after %d seconds' % (options['timeout'])
-                    print >> out, output
-                    error_hosts[host] = 2
-                    if self.raise_error:
-                        #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
-                        print >> err, '[error] "%s" timed out on host "%s" after %d seconds.' % (c, host, options['timeout'])
-                        return 1
-                else:
-                    output += '[error] rsync failed ! (status = %d)' % exit_status
-                    print >> out, output
-                    error_hosts[host] = 1
-                    if self.raise_error:
-                        #raise RuntimeError("[error] '%s' failed on host '%s'" % (command, host))
-                        # TODO: failure_handler, timeout_handler
-                        print >> err, '[error] "%s" failed on host "%s"' % (c, host)
-                        return 1
+        def create_timeout_raise_error_message(command, host, timeout):
+            return '[error] "%s" timed out on host "%s" after %d seconds.' % (c, host, timeout)
 
-        if len(error_hosts) != 0:
-            hosts = ''
-            for h in self.hosts:
-                if h in error_hosts:
-                    hosts += '  %s\n' % (h)
-            hosts.rstrip()
+        def create_failure_message(output, exit_status):
+            output += '[error] rsync failed ! (status = %d)' % exit_status
+            return output
 
+        def create_failure_raise_error_message(command, host):
+            return '[error] "%s" failed on host "%s"' % (command, host)
+
+        def create_failure_last_message(command, hosts):
             rsync = None
             if mirror_mode == 'push':
                 rsync = rsync_template % ('REMOTE_HOST')
             else:
                 rsync = rsync_template % ('REMOTE_HOST', 'LOCAL')
-            print >> err, '[error] "%s" failed on following hosts\n%s' % (rsync, hosts)
-            return 1
+            return '[error] "%s" failed on following hosts\n%s' % (rsync, hosts)
 
-        return 0
+        # Call BaseExectuor#process_async_results with callbacks
+        return self.process_async_results(
+            async_results,
+            create_output,
+            create_timeout_message,
+            create_timeout_raise_error_message,
+            create_failure_message,
+            create_failure_raise_error_message,
+            create_failure_last_message
+        )
+
