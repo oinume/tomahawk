@@ -151,31 +151,34 @@ class CommandExecutor(BaseExecutor):
         #######################
         # callbacks
         #######################
-        def create_output(output_format_template, command, host, command_output):
+        def create_output(color, output_format_template, command, host, exit_status, command_output):
+            c = command
+            if exit_status == 0:
+                c = color.green(command)
             return output_format_template.safe_substitute({
                 'user': ssh_user,
                 'host': host,
-                'command': command,
+                'command': c,
                 'output': command_output,
             })
 
-        def create_timeout_message(output, timeout):
-            output += '[error] Command timed out after %d seconds' % (options['timeout'])
+        def create_timeout_message(color, output, timeout):
+            output += 'Command timed out after %d seconds' % (options['timeout'])
             return output
 
-        def create_timeout_raise_error_message(command, host, timeout):
-            return '[error] Command "%s" timed out on host "%s" after %d seconds' \
+        def create_timeout_raise_error_message(color, command, host, timeout):
+            return 'Command "%s" timed out on host "%s" after %d seconds' \
                 % (command, host, timeout)
 
-        def create_failure_message(output, exit_status):
-            output += '[error] Command failed ! (status = %d)' % exit_status
+        def create_failure_message(color, output, exit_status):
+            output += 'Command failed ! (status = %d)' % exit_status
             return output
 
-        def create_failure_raise_error_message(command, host):
-            return '[error] Command "%s" failed on host "%s"' % (command, host)
+        def create_failure_raise_error_message(color, command, host):
+            return 'Command "%s" failed on host "%s"' % (command, host)
 
-        def create_failure_last_message(command, hosts):
-            return '[error] Command "%s" failed on following hosts\n%s' % (command, hosts)
+        def create_failure_last_message(color, command, hosts):
+            return 'Command "%s" failed on following hosts\n%s' % (command, hosts)
 
         # Call BaseExectuor#process_async_results with callbacks
         return self.process_async_results(

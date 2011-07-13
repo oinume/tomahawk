@@ -4,6 +4,9 @@ import os
 import string
 import sys
 
+from tomahawk.color import (
+    create_coloring_object
+)
 from tomahawk.constants import (
     TimeoutError,
     VERSION,
@@ -185,12 +188,14 @@ class BaseExecutor(object):
         create_failure_last_message,
     ):
         out, err = self.context.out, self.context.err
+        color = create_coloring_object(out)
         options = self.context.options
         hosts_count = len(self.hosts)
         finished = 0
         error_hosts = {}
         output_format_template = string.Template(self.output_format(options.get('output_format', DEFAULT_COMMAND_OUTPUT_FORMAT)))
         timeout = options.get('timeout', DEFAULT_TIMEOUT)
+        error_prefix = color.red(color.bold('[error]'))
 
         while finished < hosts_count:
             for dict in async_results:
@@ -210,20 +215,32 @@ class BaseExecutor(object):
                 async_results.remove(dict)
                 finished += 1
 
-                output = create_output(output_format_template, command, host, command_output)
+                output = create_output(color, output_format_template, command, host, exit_status, command_output)
                 if exit_status == 0:
                     print >> out, output
                 elif timeout_detail is not None:
-                    print >> out, create_timeout_message(output, timeout)
+                    print >> out, "%s %s" % (
+                        error_prefix,
+                        create_timeout_message(color, output, timeout)
+                    )
                     error_hosts[host] = 2
                     if self.raise_error:
-                        print >> err, create_timeout_raise_error_message(command, host, timeout)
+                        print >> err, "%s %s" % (
+                            error_prefix,
+                            create_timeout_raise_error_message(color, command, host, timeout)
+                        )
                         return 1
                 else:
-                    print >> out, create_failure_message(output, exit_status)
+                    print >> out, "%s %s" % (
+                        error_prefix,
+                        create_failure_message(color, output, exit_status)
+                    )
                     error_hosts[host] = 1
                     if self.raise_error:
-                        print >> err, create_failure_raise_error_message(command, host)
+                        print >> err, "%s %s" % (
+                            error_prefix,
+                            create_failure_raise_error_message(color, command, host)
+                        )
                         return 1
 
         if len(error_hosts) != 0:
@@ -232,7 +249,10 @@ class BaseExecutor(object):
                 if h in error_hosts:
                     hosts += '  %s\n' % (h)
             hosts = hosts.rstrip()
-            print >> err, create_failure_last_message(command, hosts)
+            print >> err, "%s %s" % (
+                error_prefix,
+                create_failure_last_message(color, command, hosts)
+            )
             return 1
         
         return 0
