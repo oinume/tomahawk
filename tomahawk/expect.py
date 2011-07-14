@@ -71,9 +71,6 @@ class CommandWithExpect(object):
             raise TimeoutError("Execution is timed out after %d seconds" % (self.timeout))
         except pexpect.EOF:
             self.log.debug("expect.EOF")
-        finally:
-            #child.close()
-            pass
         return self.get_status_and_output(child, expect_output)
 
     def get_status_and_output(self, child, expect_output):

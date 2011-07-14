@@ -158,7 +158,9 @@ class RsyncExecutor(BaseExecutor):
                         dest = host + '__' + dest
                 else:
                      # if file doesn't exist
-                    source_name = os.path.basename(source[0:len(source)-1]) if source.endswith('/') else os.path.basename(source)
+                    source_name = os.path.basename(source)
+                    if source.endswith('/'):
+                        os.path.basename(source[0:len(source)-1])
                     dest += host + '__' + source_name
                 c = rsync_template % (host, dest)
             

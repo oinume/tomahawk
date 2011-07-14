@@ -174,7 +174,9 @@ class BaseExecutor(object):
         self.hosts = hosts
         self.login_password = login_password
         self.sudo_password = sudo_password
-        self.raise_error = False if options.get('continue_on_error') else True
+        self.raise_error = True
+        if options.get('continue_on_error'):
+            self.raise_error = False
         self.process_pool = multiprocessing.Pool(processes = options.get('parallel', 1))
 
     def process_async_results(
