@@ -179,9 +179,12 @@ class RsyncExecutor(BaseExecutor):
         # callbacks
         ###########################
         def create_output(color, output_format_template, command, host, exit_status, command_output):
+            c = command
+            if exit_status == 0:
+                c = color.green(command)
             return output_format_template.safe_substitute({
                 'host': host,
-                'command': command,
+                'command': c,
                 'output': command_output,
             })
 
