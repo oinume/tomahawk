@@ -29,11 +29,11 @@ def test_03_mirror_mode_pull():
     status = call(
         [ TOMAHAWK_RSYNC_PATH, '--hosts=localhost,127.0.0.1', '--mirror-mode=pull',
           hello_file, TMP_DIR ],
-        stdout = PIPE, stderr = PIPE)
+        stdout = PIPE, stderr = PIPE
+    )
 
     assert_equal(status, 0, "rsync (--mirror-mode=pull)")
     for f in ('localhost__hello', '127.0.0.1__hello'):
-        print os.path.exists(os.path.join(TMP_DIR, f))
         assert_true(
             os.path.exists(os.path.join(TMP_DIR, f)),
             "rsync (--mirror-mode=pull:%s exists)" % (f)
