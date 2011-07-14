@@ -32,7 +32,7 @@ setup(
         'multiprocessing',
         'pexpect>=2.4',
     ],
-    test_require = [
+    tests_require = [
         'nose'
     ],
     test_suite = 'nose.collector',
@@ -43,8 +43,10 @@ setup(
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
         'Operating System :: Unix',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.4',
         'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Clustering',
         'Topic :: System :: Systems Administration',
