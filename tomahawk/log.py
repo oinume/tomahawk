@@ -1,8 +1,11 @@
 import logging
 
 def create_logger(debug_enabled=False):
+    level = logging.INFO
+    if debug_enabled:
+        level = logging.DEBUG
     logging.basicConfig(
-        level = logging.DEBUG if debug_enabled else logging.INFO,
+        level = level,
         format = '[%(levelname)s] %(message)s'
     )
     return logging
