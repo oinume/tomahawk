@@ -30,10 +30,10 @@ setup(
     install_requires = [
         'argparse',
         'multiprocessing',
-        'pexpect>=2.4',
+        'pexpect >= 2.4',
     ],
     tests_require = [
-        'nose'
+        'nose >= 0.11'
     ],
     test_suite = 'nose.collector',
     classifiers = [
