@@ -4,12 +4,14 @@ import os
 import string
 import sys
 
+from tomahawk import (
+    __version__
+)
 from tomahawk.color import (
     create_coloring_object
 )
 from tomahawk.constants import (
     TimeoutError,
-    VERSION,
     DEFAULT_TIMEOUT,
     DEFAULT_COMMAND_OUTPUT_FORMAT,
     DEFAULT_EXPECT_DELAY,
@@ -121,7 +123,7 @@ class BaseMain(object):
             '--profile', action='store_true', help='Enable profiling.'
         )
         parser.add_argument(
-            '--version', action='version', version='%(prog)s ' + VERSION
+            '--version', action='version', version='%(prog)s ' + __version__
         )
         return parser
 

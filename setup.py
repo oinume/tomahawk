@@ -1,6 +1,11 @@
 from setuptools import setup
 import os
-from tomahawk.constants import VERSION
+from tomahawk import (
+    __author__,
+    __author_email__,
+    __status__,
+    __version__
+)
 
 def get_long_description():
     file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README')
@@ -8,19 +13,19 @@ def get_long_description():
     try:
         f = open(file)
         long_description = ''.join(f.readlines())
+        f.close()
     except IOError:
         print 'Failed to open file "%s".' % (file)
-    finally:
         f.close()
     return long_description
 
 setup(
     name = 'tomahawk',
-    version = VERSION,
+    version = __version__,
     url = 'http://github.com/oinume/tomahawk/',
     license = 'LGPL',
-    author = 'Kazuhiro Oinuma',
-    author_email = 'oinume@gmail.com',
+    author = __author__,
+    author_email = __author_email__,
     description = 'A simple ssh wrapper for executing commands for many hosts.',
     long_description = get_long_description(),
     packages = [ 'tomahawk' ],
@@ -37,7 +42,7 @@ setup(
     ],
     test_suite = 'nose.collector',
     classifiers = [
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 5 - ' + __status__,
         'Environment :: Console',
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
