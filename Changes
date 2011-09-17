@@ -1,3 +1,6 @@
+0.4.1 2011.09.18
+  - Bug fix: #15 setup.py is not ready for python 2.4
+
 0.4.0 2011.07.14
   - New feature: #13 Coloring output
   - New feature: #14 Support python 2.4
