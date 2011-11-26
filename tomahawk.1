@@ -1,0 +1,83 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH TOMAHAWK 1 "November  4, 2011"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+tomahawk \- executes commands into many hosts with `ssh' command.
+.SH SYNOPSIS
+.B tomahawk
+.RI [ options ] " files" ...
+.br
+.SH DESCRIPTION
+This manual page documents briefly the
+.B tomahawk
+commands.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics,
+.\" respectively.
+\fBtomahawk\fP is a program that executes commands into many hosts with `ssh' command.
+.SH OPTIONS
+These programs follow the usual GNU command line syntax, with long
+options starting with two dashes (`-').
+A summary of options is included below.
+For a complete description, see the Info files.
+.TP
+.B \-h, \-\-host
+specifies host names for sending commands. You can specify multiple hosts with `,'.
+.TP
+.B \-f, \-\-hosts\-files
+specifies hosts files which listed host names for sending commands. You can specify multiple hosts files with `,'.
+.TP
+.B \-l, \-\-prompt\-login\-password
+Prompt a password for ssh authentication at first. If the password is all the same between target hosts, you’ll input a password just once.
+.TP
+.B \-s, \-\-prompt\-sudo\-password
+prompt a password for sudo explicitly. If the password is all the same between target hosts, you’ll input a password just once. If commands include `sudo', tomahawk asks sudo password automatically.
+.TP
+.B \-c, \-\-continue\-on\-error
+Continues to send commands even If any errors. The default behavior is fail\-safe, it means tomahawk will stop if any errors.
+.TP
+.B \-p, \-\-parallel
+Specify a number of processes for parallel command execution(default: 1). If you machine has many cpu cores, \-parallel 2 .. N might be faster
+.TP
+.B \-t, \-\-timeout
+Specify timeout seconds for a command.
+.TP
+.B \-\-expect\-timeout
+Duplicated. Use t (\-timeout) instead.
+.TP
+.B \-u, \-\-ssh\-user
+Specify ssh user. The default is a current logged in user.
+.TP
+.B \-o, \-\-ssh\-options
+Specify ssh options.
+.TP
+.B \-\-output\-format
+Specify command output format. The default is ‘${user}@${host} % ${command}\\n${output}\\n'
+.TP
+.SH SEE ALSO
+.BR tomahawk-rsync (1),
+.BR ssh (1),
+.BR scp (1)
+.br
+The programs are documented fully by
+.IR https://github.com/oinume/tomahawk/wiki
+.SH AUTHOR
+tomahawk was written by oinume <oinume@gmail.com>.
+.PP
+This manual page was written by Kouhei Maeda <mkouhei@palmtb.net>,
+for the Debian project (and may be used by others).
