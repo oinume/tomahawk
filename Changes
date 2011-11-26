@@ -1,34 +1,38 @@
-0.4.1 2011.09.18
+0.4.2 2011-11-27T08:48:30+09:00
+  - Updated a license(LGPL -> LGPL 2.1)
+  - Added man page (Thanks mkouhei)
+
+0.4.1 2011-09-18T00:00:00+09:00
   - Bug fix: #15 setup.py is not ready for python 2.4
 
-0.4.0 2011.07.14
+0.4.0 2011-07-14T00:00:00+09:00
   - New feature: #13 Coloring output
   - New feature: #14 Support python 2.4
   - Bug fix: #12 Unknown distribution option: 'test_require'
   - Refactoring whole source and adding more tests
 
-0.3.4 2011.07.05
+0.3.4 2011-07-05T00:00:00+09:00
   - New feature: #8 --output-format option for tomahawk
 
-0.3.3 2011.07.04
+0.3.3 2011-07-04T00:00:00+09:00
   - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
   - Bug fix: #10 tomahawk times out when japanese sudo password prompt
   - Change: #11 --expect-encoding is now obsoleted
   - Change: #9 release.py problem
 
-0.3.2 2011.06.18
+0.3.2 2011-06-18T00:00:00+09:00
   - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
   - Bug fix: #7 Password is not masked even --debug
 
-0.3.1 2011.06.16
+0.3.1 2011-06-16T00:00:00+09:00
   - Bug fix: #4 Pass a directory to -f option, traceback occurrs
   - Bug fix: #6 Timeout problem when both ssh authentication and sudo password required
 
-0.3.0 2011.05.15
+0.3.0 2011-05-15T00:00:00+09:00
   - Improve handling keyboard interrupt.
   - Fix tests.
 
-0.3.0-rc1 2011.04.17
+0.3.0-rc1 2011-04-17T00:00:00+09:00
   - Bug fix: When execution timed out, looks like just failure.
   - Bug fix: All host names are not displayed when tomahawk-rsync with --continue-on-error fails.
   - Bug fix: Displays error hosts with specified order when --continue-on-error option specified.
@@ -37,37 +41,37 @@
   - Change: Changed filename format from '%(filename)__%(host)' to '%(host)__%(filename)' when tomahawk-rsync --mirror-mode=pull.
   - Output further debug messages when --debug.
 
-0.2.6 2011.04.13
+0.2.6 2011-04-13T00:00:00+09:00
   - New feature: --no-sudo-password is now available.
 
-0.2.5 2011.02.24
+0.2.5 2011-02-24T00:00:00+09:00
   - Bug fix: When no sudo password, no command output.
 
-0.2.4 2011.02.08
+0.2.4 2011-02-08T00:00:00+09:00
   - Bug fix: #3 tomahawk-rsync in tomahawk-0.2.3 is broken.
     See https://github.com/oinume/tomahawk/issues#issue/3
 
-0.2.3 2011.02.07
+0.2.3 2011-02-07T00:00:00+09:00
   - Bug fix: #2 Shell quote problem. See https://github.com/oinume/tomahawk/issues/closed#issue/2
 
-0.2.2 2011.01.25
+0.2.2 2011-01-25T00:00:00+09:00
   - Bug fix: when tomahawk-rsync -m pull specified, always appends hostname to local filename.
 
-0.2.1 2011.01.24
+0.2.1 2011-01-24T00:00:00+09:00
   - Bug fix: tomahawk-rsync always outputs same hostname.
 
-0.2.0 2010.12.07
+0.2.0 2010-12-07T00:00:00+09:00
   - New feature: When environment "TOMAHAWK_ENV" is "production", tomahawk confirms command execution.
   - New feature: --version option is now available.
 
-0.1.2 2010.12.06
+0.1.2 2010-12-06T00:00:00+09:00
   - Bug fix: tomahawk prints a password to stdout.
 
-0.1.1 2010.12.02
+0.1.1 2010-12-02T00:00:00+09:00
   - Renamed. tomahawk.py -> tomahawk, tomahawk-rsync.py -> tomahawk-rsync
   - Fixed many bugs
 
-0.1.0  2010.11.26
+0.1.0  2010-11-26T00:00:00+09:00
   - The first release of python version.
   - Brand new option: -p (--parallel)
   - -C option is now obsoleted. Use -c
