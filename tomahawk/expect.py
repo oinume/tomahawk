@@ -29,7 +29,7 @@ class CommandWithExpect(object):
         self.log = create_logger(debug_enabled)
         self.expect_patterns = [
             '^Enter passphrase.+',
-            '[Pp]assword:',
+            '[Pp]assword.*:',
             'パスワード', # TODO: japanese character expected as utf-8
         ]
 
