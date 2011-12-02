@@ -1,3 +1,7 @@
+0.4.3 2011-12-03T03:49:19+09:00
+  - Bug fix: #21 Support sudo prompt in Ubuntu. (Thanks t9md)
+  - Added files. AUTHORS, COPYING
+
 0.4.2 2011-11-27T08:48:30+09:00
   - Updated a license(LGPL -> LGPL 2.1)
   - Added man page (Thanks mkouhei)
