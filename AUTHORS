@@ -1,0 +1,9 @@
+              ===================
+              Authors of tomahawk
+              ===================
+
+Kazuhiro Oinuma (oinume): Originally wrote all of tomahawk.
+
+mkouhei: Made man pages.
+
+t9md: Support sudo prompt in Ubuntu.
