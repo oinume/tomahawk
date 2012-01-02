@@ -1,0 +1,32 @@
+How to install tomahawk
+=======================
+
+Requirements
+------------
+
+* python >= 2.4
+* argparse
+* multiprocessing (required only with python < 2.6)
+* pexpect
+* nose (required when testing)
+
+Installation
+------------
+
+.. highlight:: bash
+
+tomahawk distributions is in the `pypi <http://pypi.python.org/pypi/tomahawk/>`_, so the easiest way is using pip or easy_install ::
+
+  $ pip install tomahawk
+
+or::
+
+  $ easy_install tomahawk
+
+
+Or you can use traditional way ::
+
+  $ tar xvzf tomahawk-x.y.z.tar.gz
+  $ cd tomahawk-x.y.z
+  $ sudo python setup.py install
+
