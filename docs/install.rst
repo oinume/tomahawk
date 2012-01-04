@@ -17,11 +17,11 @@ Installation
 
 tomahawk distributions is in the `pypi <http://pypi.python.org/pypi/tomahawk/>`_, so the easiest way is using pip or easy_install ::
 
-  $ pip install tomahawk
+  $ sudo pip install tomahawk
 
-or::
+or ::
 
-  $ easy_install tomahawk
+  $ sudo easy_install tomahawk
 
 
 Or you can use traditional way ::

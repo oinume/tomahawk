@@ -8,17 +8,23 @@ tomahawk |release| documentation
 
 What is tomahawk?
 -----------------
-
 tomahawk enables following 3 things.
 
-* Executes commands into many remote hosts
-* Copy files into many remote hosts.
-* Copy files from remote hosts to local.
+* Executes a command into many remote hosts
+* Copy files to many remote hosts
+* Copy files from remote hosts to local
+
+Executes a command into many remote hosts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. include:: _tomahawk_description.rst
+
+Copy files to many remote hosts or copy files from remote hosts to local
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. include:: _tomahawk-rsync_description.rst
 
 
 Contents:
 ---------
-
 .. toctree::
    :maxdepth: 2
 
@@ -28,7 +34,6 @@ Contents:
 
 Indices and tables
 ==================
-
-* :ref:`genindex`
-* :ref:`modindex`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
 * :ref:`search`
