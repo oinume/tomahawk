@@ -2,9 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import tomahawk_bootstrap
-# Add TOMAHAWK_HOME, TOMAHAWK_HOME/lib to sys.path
-parent, bin_dir = tomahawk_bootstrap.set_lib_path(__file__)
+
+try:
+    import bootstrap
+    # Add TOMAHAWK_HOME, TOMAHAWK_HOME/lib to sys.path
+    parent, bin_dir = bootstrap.set_lib_path(__file__)
+except:
+    pass
 
 from tomahawk.command import CommandMain
 
