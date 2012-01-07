@@ -1,79 +1,131 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH TOMAHAWK-RSYNC 1 "November  4, 2011"
-.\" Please adjust this date whenever revising the manpage.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for manpage-specific macros, see man(7)
+.TH "TOMAHAWK-RSYNC" "1" "January 04, 2012" "0.4.4" "tomahawk"
 .SH NAME
-tomahawk\-rsync \- copies files into many hosts.
+tomahawk-rsync \- enables to copy files to many hosts
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.\" Man page generated from reStructeredText.
+.
 .SH SYNOPSIS
-.B tomahawk\-rsync
-.RI [ options ] " files" ...
-.br
+.sp
+\fBtomahawk\-rsync\fP [\fIoptions\fP] source destination
 .SH DESCRIPTION
-This manual page documents briefly the
-.B tomahawk\-rsync
-commands.
-.PP
-.\" TeX users may be more comfortable with the \fB<whatever>\fP and
-.\" \fI<whatever>\fP escape sequences to invode bold face and italics,
-.\" respectively.
-\fBtomahawk\-rsync\fP is a program that copies files into many hosts.
+.sp
+\fBtomahawk\-rsync\fP is a program that enables to copy files <into/from> many hosts.
+.sp
+.nf
+.ft C
+$ tomahawk\-rsync \-h host1,host2,host3 test.py /tmp/test.py
+.ft P
+.fi
+.sp
+\-\-\-> "test.py" is copied to host1, host2 and host3.
+.sp
+.nf
+.ft C
+$ tomahawk\-rsync \-f web.list /usr/local/apache2/conf/httpd.conf /tmp/httpd.conf
+.ft P
+.fi
+.sp
+\-\-\-> "httpd.conf" is copied to hosts which listed in "web.list".
+.sp
+.nf
+.ft C
+$ tomahawk\-rsync \-h host1,host2 \-m pull /usr/local/apache2/conf/httpd.conf /tmp/conf/
+.ft P
+.fi
+.sp
+\-\-\-> "httpd.conf" is copied from host1 and host2 to local directory /tmp/conf as "host1__httpd.conf" and "host2__httpd.conf".
 .SH OPTIONS
-These programs follow the usual GNU command line syntax, with long
-options starting with two dashes (`-').
+.sp
+These programs follow the usual GNU command line syntax, with long options starting with two dashes (\(aq\-\-\(aq).
 A summary of options is included below.
 For a complete description, see the Info files.
-.TP
-.B \-h, \-\-host
-specifies host names for sending commands. You can specify multiple hosts with `,'.
-.TP
-.B \-f, \-\-hosts\-files
-specifies hosts files which listed host names for sending commands. You can specify multiple hosts files with `,'.
-.TP
-.B \-l, \-\-prompt\-login\-password
-Prompt a password for ssh authentication at first. If the password is all the same between target hosts, you’ll input a password just once.
-.TP
-.B \-c, \-\-continue\-on\-error
-Continues to send commands even If any errors. The default behavior is fail\-safe, it means tomahawk will stop if any errors.
-.TP
-.B \-p, \-\-parallel
-Specify a number of processes for parallel command execution(default: 1). If you machine has many cpu cores, \-parallel 2 .. N might be faster
-.TP
-.B \-t, \-\-timeout
-Specify timeout seconds for a command.
-.TP
-.B \-\-output\-format
-Specify command output format. The default is ‘${user}@${host} % ${command}\\n${output}\\n'
-.TP
-.B \-u, \-\-rsync\-user
-Specify rsync user. The default is a current logged in user.
-.TP
-.B \-o, \-\-rsync\-options
-Specify rsync options. The default is `\-avz'
-.TP
-.B \-m, \-\-mirror\-mode
-Specify `push' or `pull'. `pull' means copy files from remote to local (default: `push')
-.TP
+.SS \-h, \-\-hosts
+.sp
+Specifies host names for sending commands. You can specify multiple hosts with \(aq,\(aq.
+.SS \-f, \-\-hosts\-files
+.sp
+Specifies hosts files which listed host names for sending commands.
+You can specify multiple hosts files with \(aq,\(aq.
+.sp
+Format of hosts file is below.
+.sp
+.nf
+.ft C
+web01
+web02
+#web03
+web04
+.ft P
+.fi
+.sp
+A line of starting with \(aq#\(aq disables a host.
+.SS \-l, \-\-prompt\-login\-password
+.sp
+Prompts a password for ssh authentication at first. If the password is all the same between target hosts, you\(aqll input a password just once.
+.SS \-c, \-\-continue\-on\-error
+.sp
+Continues to send commands even if any errors.
+The default behavior is fail\-safe, means that tomahawk will stop if any errors.
+.SS \-p, \-\-parallel
+.sp
+Specifies a number of processes for parallel command execution. (default: 1)
+If your machine has many cpu cores, \-\-parallel 2 .. N might be faster.
+.SS \-t, \-\-timeout
+.sp
+Specifies timeout seconds for a command.
+.SS \-\-output\-format
+.sp
+Specifies command output format.
+The default is \fI\%'${user}@${host\fP} % ${command}n${output}n\(aq
+.SS \-u, \-\-rsync\-user
+.sp
+Specifies rsync user. The default is a current logged in user.
+.SS \-o, \-\-rsync\-options
+.sp
+Specifies rsync options. The default is \(aq\-avz\(aq
+.SS \-m, \-\-mirror\-mode
+.sp
+Selection of "push" or "pull".
+"pull" means copy files from remote to local (default: "push")
 .SH SEE ALSO
-.BR tomahawk (1),
-.BR rsync (1)
-.br
-The programs are documented fully by
-.IR https://github.com/oinume/tomahawk/wiki
+.INDENT 0.0
+.IP \(bu 2
+\fItomahawk(1)\fP
+.IP \(bu 2
+\fIssh(1)\fP
+.IP \(bu 2
+\fIrsync(1)\fP
+.UNINDENT
 .SH AUTHOR
-tomahawk was written by oinume <oinume@gmail.com>.
-.PP
-This manual page was written by Kouhei Maeda <mkouhei@palmtb.net>,
-for the Debian project (and may be used by others).
+Kazuhiro Oinuma, Kohei Maeda
+.SH COPYRIGHT
+2011, Kazuhiro Oinuma
+.\" Generated by docutils manpage writer.
+.\" 
+.
