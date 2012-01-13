@@ -1,4 +1,4 @@
-0.4.4 2012-01-07T17:26:14+09:00
+0.4.4 2012-01-14T00:37:37+09:00
   - New documentation with sphinx.
   - bin/tomahawk_bootstrap.py was moved to tomahawk directory. (Thanks mkouhei)
   - Created tools directory for developers.
