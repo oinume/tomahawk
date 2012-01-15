@@ -1,3 +1,6 @@
+0.4.5 2012-01-15T17:47:17+09:00
+  - Fixed installation error for 0.4.4
+
 0.4.4 2012-01-14T00:37:37+09:00
   - New documentation with sphinx.
   - bin/tomahawk_bootstrap.py was moved to tomahawk directory. (Thanks mkouhei)
