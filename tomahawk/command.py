@@ -121,7 +121,10 @@ class CommandExecutor(BaseExecutor):
         ssh_options = ''
         if options.get('ssh_options'):
             ssh_options = options['ssh_options'] + ' '
-        ssh_options += '-t -l ' + ssh_user
+        ssh_options += '-l ' + ssh_user
+        if ssh_options.find('-T') == -1:
+            # if '-T' isn't specified, turn 'pseudo-tty allocation' on
+            ssh_options += ' -t'
 
         async_results = []
         for host in self.hosts:
