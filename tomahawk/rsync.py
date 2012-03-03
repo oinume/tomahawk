@@ -12,7 +12,10 @@ from tomahawk.constants import (
     DEFAULT_RSYNC_OPTIONS,
 )
 from tomahawk.expect import CommandWithExpect
-from tomahawk.utils import shutdown_by_signal
+from tomahawk.utils import (
+    shutdown_by_signal,
+    check_required_command
+)
 
 class RsyncContext(BaseContext):
     """
@@ -41,6 +44,7 @@ class RsyncMain(BaseMain):
             sys.stdout,
             sys.stderr
         )
+        check_required_command('rsync')
         hosts = self.check_hosts()
 
         # prompt when production environment

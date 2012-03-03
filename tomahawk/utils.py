@@ -28,9 +28,9 @@ def get_run_user():
 
 def check_hosts(options, log, usage_func):
     if options.get('hosts') is not None and options.get('hosts_files') is not None:
-        log.error("Cannot specify both options --hosts and --hosts-files.")
-        log.error(usage_func())
-        sys.exit(2)
+        print >>sys.stderr, "Cannot specify both options --hosts and --hosts-files."
+        print >>sys.stderr, usage_func()
+        sys.exit(1)
 
     # initialize target hosts with --hosts or --hosts-files
     hosts = []
@@ -54,9 +54,9 @@ def check_hosts(options, log, usage_func):
                 print >> sys.stderr, "Failed to open '%s'. (%s)" % (file, e)
                 sys.exit(4)
     else:
-        log.error("Specify --hosts or --hosts-files option.")
-        log.error(usage_func())
-        sys.exit(2)
+        print >>sys.stderr, "Specify -h/--hosts or -f/--hosts-files option."
+        print >>sys.stderr, usage_func()
+        sys.exit(1)
 
     return hosts
 
@@ -69,3 +69,17 @@ def get_home_dir(file):
         parent, dir = os.path.split(os.path.dirname(os.path.abspath(file)))
     return parent
 
+def check_required_command(command):
+    def is_executable(path):
+        return os.path.exists(path) and os.access(path, os.X_OK)
+
+    dir, name = os.path.split(command)
+    if dir and is_executable(command):
+        return
+    else:
+        for dir in os.environ['PATH'].split(os.pathsep):
+            exe = os.path.join(dir, command)
+            if is_executable(exe):
+                return
+    print >>sys.stderr, "Program '%s' is not executable. Check installation." % (command)
+    sys.exit(1)

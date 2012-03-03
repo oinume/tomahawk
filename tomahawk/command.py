@@ -3,17 +3,18 @@ import argparse
 import getpass
 import os
 import signal
-import string
 import sys
 import time
 
 from tomahawk.base import BaseContext, BaseExecutor, BaseMain
 from tomahawk.constants import (
-    TimeoutError,
     DEFAULT_COMMAND_OUTPUT_FORMAT
 )
 from tomahawk.expect import CommandWithExpect
-from tomahawk.utils import shutdown_by_signal
+from tomahawk.utils import (
+    shutdown_by_signal,
+    check_required_command
+)
 
 class CommandContext(BaseContext):
     """
@@ -41,6 +42,7 @@ class CommandMain(BaseMain):
             sys.stdout,
             sys.stderr
         )
+        check_required_command('ssh')
         hosts = self.check_hosts()
 
         # prompt when production environment
