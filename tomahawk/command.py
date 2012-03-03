@@ -121,7 +121,7 @@ class CommandExecutor(BaseExecutor):
         ssh_options = ''
         if options.get('ssh_options'):
             ssh_options = options['ssh_options'] + ' '
-        ssh_options += '-l ' + ssh_user
+        ssh_options += '-t -l ' + ssh_user
 
         async_results = []
         for host in self.hosts:
