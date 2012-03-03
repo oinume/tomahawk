@@ -201,6 +201,7 @@ class BaseExecutor(object):
         timeout = options.get('timeout', DEFAULT_TIMEOUT)
         error_prefix = color.red(color.bold('[error]'))
 
+        # Main loop continues until all processes are done
         while finished < hosts_count:
             for dict in async_results:
                 host = dict['host']
@@ -246,6 +247,9 @@ class BaseExecutor(object):
                             create_failure_raise_error_message(color, command, host)
                         )
                         return 1
+        
+        # Free process pool
+        self.destory_process_pool()
 
         if len(error_hosts) != 0:
             hosts = ''
@@ -284,6 +288,7 @@ class BaseExecutor(object):
     def destory_process_pool(self):
         if self.process_pool is not None:
             self.process_pool.close()
+            self.process_pool.join()
 
     def __del__(self):
         self.destory_process_pool()
