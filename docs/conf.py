@@ -16,7 +16,6 @@ import sys
 
 def set_lib_path(file):
     parent, bin_dir = os.path.split(os.path.dirname(os.path.abspath(file)))
-    print "parent = %s, bin_dir = %s" % (parent, bin_dir)
     if os.path.exists(parent):
         sys.path.insert(0, parent)
 
