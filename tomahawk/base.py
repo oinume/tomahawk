@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import multiprocessing
 import os
+import platform
 import string
 import sys
 
@@ -21,8 +22,8 @@ from tomahawk.constants import (
 from tomahawk.log import create_logger
 from tomahawk.utils import (
     check_hosts,
-    read_login_password,
-    read_sudo_password,
+    read_password,
+    read_password_from_stdin
 )
 class BaseContext(object):
     def __init__(self, options = {}, out = sys.stdout, err = sys.stderr):
@@ -93,7 +94,15 @@ class BaseMain(object):
         )
         parser.add_argument(
             '-l', '--prompt-login-password', action='store_true',
+            help='DEPRECATED. Use -P/--prompt-password.'
+        )
+        parser.add_argument(
+            '-P', '--prompt-password', action='store_true',
             help='Prompt a password for ssh authentication.'
+        )
+        parser.add_argument(
+            '--password-from-stdin', action='store_true',
+            help='Read a password from stdin.'
         )
         parser.add_argument(
             '-t', '--timeout', metavar='SECONDS', type=int, default=DEFAULT_TIMEOUT,
@@ -101,7 +110,7 @@ class BaseMain(object):
         )
         parser.add_argument(
             '--expect-timeout', metavar='SECONDS', type=int,
-            help='Duplicated. Use --timeout'
+            help='DUPLICATED. Use --timeout'
         )
         parser.add_argument(
             '--expect-encoding', metavar='ENCODING', default=DEFAULT_EXPECT_ENCODING,
@@ -123,7 +132,10 @@ class BaseMain(object):
             '--profile', action='store_true', help='Enable profiling.'
         )
         parser.add_argument(
-            '--version', action='version', version='%(prog)s ' + __version__
+            '--version', action='version',
+            version='%(prog)s ' + __version__
+            + ' with Python ' + '.'.join(map(str, sys.version_info[0:3]))
+            + ' (' + platform.platform() + ')'
         )
         return parser
 
@@ -148,24 +160,26 @@ class BaseExecutor(object):
         options = context.options
         if options.get('expect_timeout') is not None:
             options['timeout'] = options['expect_timeout']
-            log.warn("Option --expect-timeout is duplicated. Use --timeout.")
+            log.warn("Option --expect-timeout is DUPLICATED. Use --timeout. (Will be deleted in v0.6.0)")
+        if options.get('prompt_login_password'):
+            options['prompt_password'] = options['prompt_login_password']
+            log.warn("Option -l/--prompt-login-password is DUPLICATED. Use -P/--prompt-password. (Will be deleted in v0.6.0)")
+        if options.get('prompt_sudo_password'):
+            log.warn("Option --prompt-sudo-password is OBSOLETED. (Will be deleted in v0.6.0)")
+        if options.get('no_sudo_password'):
+            log.warn("Option --no-sudo-password is OBSOLETED. (Will be deleted in v0.6.0)")
 
         newline = False
-        login_password = None
-        if 'login_password' in kwargs:
-            login_password = kwargs['login_password']
-        elif options.get('prompt_login_password'):
-            login_password = read_login_password()
-            newline = True
-        
-        sudo_password = None
-        if 'sudo_password' in kwargs:
-            sudo_password = kwargs['sudo_password']
-        elif options.get('prompt_sudo_password') \
-             or (not options.get('no_sudo_password') \
-                 and context.arguments is not None
-                 and context.arguments[0].startswith('sudo')):
-            sudo_password = read_sudo_password()
+        password = None
+        if 'password' in kwargs:
+            password = kwargs['password']
+        elif options.get('prompt_password') and options.get('password_from_stdin'):
+            log.error("Cannot specify -P/--prompt-password and --password-from-stdin both.")
+            sys.exit(1)
+        elif options.get('password_from_stdin'):
+            password = read_password_from_stdin()
+        elif options.get('prompt_password'):
+            password = read_password()
             newline = True
 
         if newline:
@@ -174,8 +188,7 @@ class BaseExecutor(object):
         self.context = context
         self.log = log
         self.hosts = hosts
-        self.login_password = login_password
-        self.sudo_password = sudo_password
+        self.password = password
         self.raise_error = True
         if options.get('continue_on_error'):
             self.raise_error = False
@@ -215,6 +228,7 @@ class BaseExecutor(object):
                 timeout_detail = None
                 try:
                     exit_status, command_output = async_result.get(timeout = timeout)
+                    self.log.debug("host = %s, exit_status = %d" % (host, exit_status))
                 except (TimeoutError, multiprocessing.TimeoutError), error:
                     timeout_detail = str(error)
                 async_results.remove(dict)
@@ -286,7 +300,7 @@ class BaseExecutor(object):
         return ''.join(seq)
 
     def destory_process_pool(self):
-        if self.process_pool is not None:
+        if hasattr(self, 'process_pool'):
             self.process_pool.close()
             self.process_pool.join()
 

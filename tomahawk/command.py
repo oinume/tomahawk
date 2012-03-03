@@ -74,11 +74,11 @@ class CommandMain(BaseMain):
         )
         parser.add_argument(
             '-s', '--prompt-sudo-password', action='store_true',
-            help='Prompt a password for sudo.'
+            help='OBSOLETED. Prompt a password for sudo.'
         )
         parser.add_argument(
             '--no-sudo-password', action='store_true',
-            help='Never prompt a password for sudo.'
+            help='OBSOLETED. Never prompt a password for sudo.'
         )
         parser.add_argument(
             '--output-format', default=DEFAULT_COMMAND_OUTPUT_FORMAT,
@@ -88,7 +88,7 @@ class CommandMain(BaseMain):
         return parser
 
 def _command(
-    command, command_args, login_password, sudo_password,
+    command, command_args, password,
     timeout, expect_delay, debug_enabled):
     """
     Execute a command.
@@ -97,8 +97,8 @@ def _command(
     signal.signal(signal.SIGINT, shutdown_by_signal)
 
     return CommandWithExpect(
-        command, command_args, login_password,
-        sudo_password, timeout, expect_delay, debug_enabled
+        command, command_args, password,
+        timeout, expect_delay, debug_enabled
     ).execute()
 
 class CommandExecutor(BaseExecutor):
@@ -139,12 +139,11 @@ class CommandExecutor(BaseExecutor):
                 # execute a command with shell because we want to use pipe(|) and so on.
                 command_args.extend([ '/bin/sh', '-c', '"%s"' % (c) ])
 
-                # host, command, ssh_user, ssh_option, login_password, sudo_password
+                # host, command, ssh_user, ssh_option, password
                 async_result = self.process_pool.apply_async(
                     _command,
-                    ( 'ssh', command_args, self.login_password,
-                      self.sudo_password, options['timeout'],
-                      options['expect_delay'], options['debug'] ),
+                    ( 'ssh', command_args, self.password,
+                      options['timeout'], options['expect_delay'], options['debug'] ),
                 )
                 async_results.append({ 'host': host, 'command': command, 'async_result': async_result })
 

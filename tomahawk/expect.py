@@ -17,13 +17,11 @@ class CommandWithExpect(object):
     """
     A command executor through expect.
     """
-    def __init__(self, command, command_args, login_password,
-                 sudo_password, timeout = DEFAULT_TIMEOUT,
-                 expect_delay = DEFAULT_EXPECT_DELAY, debug_enabled = False):
+    def __init__(self, command, command_args, password,
+                 timeout = DEFAULT_TIMEOUT, expect_delay = DEFAULT_EXPECT_DELAY, debug_enabled = False):
         self.command = command
         self.command_args = command_args
-        self.login_password = login_password
-        self.sudo_password = sudo_password
+        self.password = password
         self.timeout = timeout
         self.expect_delay = expect_delay
         self.log = create_logger(debug_enabled)
@@ -53,16 +51,15 @@ class CommandWithExpect(object):
             self.log.debug("expect index = %d" % (index))
 
             if index in (0, 1, 2):
-                password = self.sudo_password or self.login_password
-                if password is None:
+                if self.password is None:
                     self.log.debug("Password is None")
                     #print >> stderr, "[error] Password is empty. Use -l or -s"
-                    raise CommandError("Password is empty. Use -l or -s .")
+                    raise CommandError("Password is empty. Use -P/--prompt-password or --password-from-stdin.")
 
-                child.sendline(password)
+                child.sendline(self.password)
                 index2 = child.expect(self.expect_patterns)
                 self.log.debug("expect index2 = %d" % (index2))
-                child.sendline(password)
+                child.sendline(self.password)
                 child.expect(pexpect.EOF)
             if index == 3:
                 self.log.debug("expect.EOF")
@@ -70,12 +67,14 @@ class CommandWithExpect(object):
             self.log.debug("expect.TIMEOUT")
             raise TimeoutError("Execution is timed out after %d seconds" % (self.timeout))
         except pexpect.EOF:
-            self.log.debueg("expect.EOF")
+            self.log.debug("expect.EOF")
         except KeyboardInterrupt:
             self.log.debug("KeyboardInterrupt")
             child.close()
+        except CommandError, e:
+            raise e, None, sys.exc_info()[2]
         except:
-            self.log.debug("Unexpected error: " + sys.exc_info()[0])
+            self.log.debug("Unexpected error: %s" % (sys.exc_info()[0]))
             child.close()
 
         return self.get_status_and_output(child, expect_output)
@@ -93,20 +92,22 @@ class CommandWithExpect(object):
 
         output_lines = []
         expect_regexs = [ re.compile(p) for p in self.expect_patterns ]
+        expect_regexs.append(re.compile('Connection to .* closed'))
+
         passwords = []
-        if self.login_password:
-            passwords.append(self.login_password)
-        if self.sudo_password:
-            passwords.append(self.sudo_password)
+        if self.password:
+            passwords.append(self.password)
 
         for line in expect_output.getvalue().split('\n'):
             line = line.strip('\r\n')
             if line == '' or line in passwords:
                 continue
-            for password in passwords:
-                line = line.replace(password, len(password) * '*')
 
+            for password in passwords:
+                # for debug output
+                line = line.replace(password, len(password) * '*')
             self.log.debug("line = " + line)
+
             append = True
             for regex in expect_regexs:
                 if regex.search(line):
