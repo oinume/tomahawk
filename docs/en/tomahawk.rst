@@ -17,7 +17,7 @@ DESCRIPTION
 
 hosts file
 ^^^^^^^^^^
--h option enables you to specify hosts, another option ‘-f’, which is specifying hosts files.
+-h option enables you to specify hosts, another option '-f', which is specifying hosts files.
 hosts file is listing host names like this ::
 
   host1
@@ -60,13 +60,19 @@ A line of starting with '#' disables a host.
 
 -l, --prompt-login-password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+DUPLICATED. Use -P/--prompt-password. Will be deleted in v0.6.0
+
+-P, --prompt-password
+^^^^^^^^^^^^^^^^^^^^^
 Prompts a password for ssh authentication at first. If the password is all the same between target hosts, you'll input a password just once.
+
+--password-from-stdin
+^^^^^^^^^^^^^^^^^^^^^
+Read a password from stdin instead of prompting.
 
 -s, --prompt-sudo-password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Prompts a password for sudo explicitly. If the password is all the same between target hosts,
-you'll input a password just once.
-If commands include "sudo", tomahawk asks sudo password automatically.
+OBSOLETED. Will be deleted in v0.6.0
 
 -c, --continue-on-error
 ^^^^^^^^^^^^^^^^^^^^^^^

@@ -41,6 +41,10 @@ A line of starting with '#' disables a host.
 
 -l, --prompt-login-password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+DUPLICATED. Use -P/--prompt-password. Will be deleted in v0.6.0
+
+-P, --prompt-password
+^^^^^^^^^^^^^^^^^^^^^
 Prompts a password for ssh authentication at first. If the password is all the same between target hosts, you'll input a password just once.
 
 -c, --continue-on-error

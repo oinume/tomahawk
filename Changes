@@ -3,10 +3,11 @@
   - New feature: #22 Output OS version, Python version, libraries versions
   - Bug fix: #27 Should call Pool#join() after all processes are finished
   - Bug fix: #26 tomahawk-rsync should say an easier error message when rsync command is not found.
-  - Change: #16 Now tomahawk sends command with 'ssh -t'.
+  - Change: #16 Now tomahawk sends command with 'ssh -t', allocates pseudo-tty.
             This changes default behavior of `tomahawk'.
             Sended commands on remote host will be cancelled after `tomahawk' stops. (Ctrl-C or something)
             Old behavior is that remote commands never stop even if `tomahawk' stops.
+            If you want old behavior, use --ssh-options='-T'. It disables pseudo-tty allocation.
   - Change: #19 --prompt-sudo-password is obsoleted 
   - Change: #20 --no-sudo-password is obsoleted
   

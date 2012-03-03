@@ -16,8 +16,9 @@ import sys
 
 def set_lib_path(file):
     parent, bin_dir = os.path.split(os.path.dirname(os.path.abspath(file)))
-    if os.path.exists(parent):
-        sys.path.insert(0, parent)
+    pparent, d = os.path.split(parent)
+    if os.path.exists(pparent):
+        sys.path.insert(0, pparent)
 
 set_lib_path(__file__)
 import tomahawk
