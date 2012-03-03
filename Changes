@@ -1,4 +1,4 @@
-0.5.0 2012-03-04T01:04:02+09:00
+0.5.0-rc1 2012-03-04T01:04:02+09:00
   - New feature: #26 --password-from-stdin option added. Read a password from stdin instead of prompting.
   - New feature: #22 Output OS version, Python version, libraries versions
   - Bug fix: #27 Should call Pool#join() after all processes are finished
@@ -10,7 +10,7 @@
             If you want old behavior, use --ssh-options='-T'. It disables pseudo-tty allocation.
   - Change: #19 --prompt-sudo-password is obsoleted 
   - Change: #20 --no-sudo-password is obsoleted
-  
+
 0.4.5 2012-01-15T17:47:17+09:00
   - Fixed installation error for 0.4.4
 
