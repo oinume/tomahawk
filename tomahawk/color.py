@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # This code is stolen from pssh-2.2.2
 
+from termstyle import *
+
 def create_coloring_object(stream):
     if has_colors(stream):
         return ColoringEnabled()
@@ -52,14 +54,15 @@ def has_colors(stream):
     '''Returns boolean indicating whether or not the supplied stream supports
     ANSI color.
     '''
-    if not hasattr(stream, "isatty"):
-        return False
-    if not stream.isatty():
-        return False # auto color only on TTYs
     try:
-        import curses
-        curses.setupterm()
-        return curses.tigetnum("colors") > 2
+        if hasattr(stream, 'isatty'):
+            if stream.isatty():
+                return True
+            else:
+                return False
+#        import curses
+#        curses.setupterm()
+#        return curses.tigetnum('colors') > 2
     except:
         # guess false in case of error
         return False
