@@ -93,7 +93,7 @@ class RsyncMain(BaseMain):
         return parser
 
 
-def _rsync(command, login_password, timeout, expect_delay, debug_enabled):
+def _rsync(command, password, timeout, expect_delay, debug_enabled):
     """
     Execute rsync
     """
@@ -101,8 +101,8 @@ def _rsync(command, login_password, timeout, expect_delay, debug_enabled):
     signal.signal(signal.SIGINT, shutdown_by_signal)
 
     return CommandWithExpect(
-        command, [], login_password,
-        None, timeout, expect_delay, debug_enabled
+        command, [], password,
+        timeout, expect_delay, debug_enabled
     ).execute()
 
 class RsyncExecutor(BaseExecutor):
@@ -172,7 +172,7 @@ class RsyncExecutor(BaseExecutor):
 
             async_result = self.process_pool.apply_async(
                 _rsync,
-                ( c, self.login_password, options['timeout'], options['expect_delay'], options['debug'] )
+                ( c, self.password, options['timeout'], options['expect_delay'], options['debug'] )
             )
             async_results.append({ 'host': host, 'command': c, 'async_result': async_result })
 

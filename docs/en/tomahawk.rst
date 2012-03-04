@@ -2,18 +2,37 @@
 
 .. highlight:: bash
 
-tomahawk-rsync manual page
-==========================
+tomahawk manual page
+====================
 
 SYNOPSIS
 --------
 
-**tomahawk-rsync** [*options*] source destination
+**tomahawk** [*options*] command
 
 DESCRIPTION
 -----------
 
-.. include:: _tomahawk-rsync_description.rst
+.. include:: _tomahawk_description.rst
+
+hosts file
+^^^^^^^^^^
+-h option enables you to specify hosts, another option '-f', which is specifying hosts files.
+hosts file is listing host names like this ::
+
+  host1
+  host2
+  host3
+  #host4
+
+Starting with "#" means commenting the host out. 
+
+shell operators
+^^^^^^^^^^^^^^^
+tomahawk executes commands via shell(/bin/sh), so you can use "|" (pipe), &&, || operators and so on. ::
+
+  $ tomahawk -h host1,host2 'ps auxww | grep python'
+
 
 OPTIONS
 -------
@@ -41,7 +60,19 @@ A line of starting with '#' disables a host.
 
 -l, --prompt-login-password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+DUPLICATED. Use -P/--prompt-password. Will be deleted in v0.6.0
+
+-P, --prompt-password
+^^^^^^^^^^^^^^^^^^^^^
 Prompts a password for ssh authentication at first. If the password is all the same between target hosts, you'll input a password just once.
+
+--password-from-stdin
+^^^^^^^^^^^^^^^^^^^^^
+Read a password from stdin instead of prompting.
+
+-s, --prompt-sudo-password
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+OBSOLETED. Will be deleted in v0.6.0
 
 -c, --continue-on-error
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,27 +88,26 @@ If your machine has many cpu cores, --parallel 2 .. N might be faster.
 ^^^^^^^^^^^^^
 Specifies timeout seconds for a command.
 
+--expect-timeout
+^^^^^^^^^^^^^^^^
+Duplicated. Use t (-timeout) instead.
+
+-u, --ssh-user
+^^^^^^^^^^^^^^
+Specifies ssh user. The default is a current logged in user.
+
+-o, --ssh-options
+^^^^^^^^^^^^^^^^^
+Specifies ssh options.
+
 --output-format
 ^^^^^^^^^^^^^^^
 Specifies command output format.
 The default is '${user}@${host} % ${command}\n${output}\n'
 
--u, --rsync-user
-^^^^^^^^^^^^^^^^
-Specifies rsync user. The default is a current logged in user.
-
--o, --rsync-options
-^^^^^^^^^^^^^^^^^^^
-Specifies rsync options. The default is '-avz'
-
--m, --mirror-mode
-^^^^^^^^^^^^^^^^^
-Selection of "push" or "pull".
-"pull" means copy files from remote to local (default: "push")
-
 
 SEE ALSO
 --------
-* :manpage:`tomahawk(1)`
+* :manpage:`tomahawk-rsync(1)`
 * :manpage:`ssh(1)`
-* :manpage:`rsync(1)`
+* :manpage:`scp(1)`
