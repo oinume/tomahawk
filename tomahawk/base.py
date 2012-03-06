@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import multiprocessing
 import os
+import re
 import platform
 import string
 import sys
@@ -212,7 +213,7 @@ class BaseExecutor(object):
         error_hosts = {}
         output_format_template = string.Template(self.output_format(options.get('output_format', DEFAULT_COMMAND_OUTPUT_FORMAT)))
         timeout = options.get('timeout', DEFAULT_TIMEOUT)
-        error_prefix = color.red(color.bold('[error]'))
+        error_prefix = color.red(color.bold('[error]')) # insert newline for error messages
 
         # Main loop continues until all processes are done
         while finished < hosts_count:
@@ -235,22 +236,25 @@ class BaseExecutor(object):
                 finished += 1
 
                 output = create_output(color, output_format_template, command, host, exit_status, command_output)
+                if command_output == '':
+                    # if command_output is empty, chomp last newline character for ugly output
+                    output = re.sub(os.linesep + r'\Z', '', output)
                 if exit_status == 0:
                     print >> out, output
                 elif timeout_detail is not None:
-                    print >> out, "%s %s" % (
+                    print >> out, "%s %s\n" % (
                         error_prefix,
                         create_timeout_message(color, output, timeout)
                     )
                     error_hosts[host] = 2
                     if self.raise_error:
-                        print >> err, "%s %s" % (
+                        print >> err, "%s %s\n" % (
                             error_prefix,
                             create_timeout_raise_error_message(color, command, host, timeout)
                         )
                         return 1
                 else:
-                    print >> out, "%s %s" % (
+                    print >> out, "%s %s\n" % (
                         error_prefix,
                         create_failure_message(color, output, exit_status)
                     )
