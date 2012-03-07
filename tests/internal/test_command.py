@@ -106,11 +106,11 @@ def test_06_execute_option_ssh_options():
     out, err = create_out_and_err()
     context, executor = create_context_and_executor(
         out, err,
-        [ '--hosts=localhost', '-D', "--ssh-options=-o LogLevel=debug", 'uptime' ]
+        [ '--hosts=localhost', '-D', "--ssh-options=-c arcfour", 'echo "hello world!"' ]
     )
     status = executor.execute(context.arguments)
     eq_(0, status, "execute() > option > --ssh-options > status")
-    ok_(re.search(r'debug1: Exit status 0', out.getvalue()), "execute() > option > --ssh-options > output")
+    ok_(re.search(r'hello world!', out.getvalue()), "execute() > option > --ssh-options > output")
 
 
 def test_07_output_format():
