@@ -305,7 +305,9 @@ class BaseExecutor(object):
 
     def destory_process_pool(self):
         if hasattr(self, 'process_pool'):
-            self.process_pool.close()
+            #self.process_pool.close()
+            self.log.debug("terminating process_pool")
+            self.process_pool.terminate()
             self.process_pool.join()
 
     def __del__(self):
