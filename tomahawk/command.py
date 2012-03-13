@@ -52,7 +52,7 @@ class CommandMain(BaseMain):
         # prompt when production environment
         self.confirm_execution_on_production(
             'Command "%s" will be executed to %s hosts. Are you sure? [yes/NO]: '
-            % (color.bold(' '.join(context.arguments)), color.bold(len(hosts)))
+            % (color.green(' '.join(context.arguments)), color.green(len(hosts)))
         )
 
         executor = CommandExecutor(context, self.log, hosts)

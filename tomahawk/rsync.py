@@ -7,6 +7,9 @@ import sys
 import time
 
 from tomahawk.base import BaseContext, BaseMain, BaseExecutor
+from tomahawk.color import (
+    create_coloring_object
+)
 from tomahawk.constants import (
     DEFAULT_RSYNC_OUTPUT_FORMAT,
     DEFAULT_RSYNC_OPTIONS,
@@ -47,11 +50,12 @@ class RsyncMain(BaseMain):
         check_required_command('rsync')
         hosts = self.check_hosts()
 
-        # prompt when production environment
         rsync_command = 'rsync %s %s %s' % (context.options['rsync_options'], context.source, context.destination)
+        color = create_coloring_object(sys.stdout)
+        # prompt when production environment
         self.confirm_execution_on_production(
-            'Rsync command "%s" will be executed %d hosts. Are you sure? [yes/NO]: '
-            % (rsync_command, len(hosts))
+            'Rsync command "%s" will be executed %s hosts. Are you sure? [yes/NO]: '
+            % (color.green(rsync_command), color.green(len(hosts)))
         )
 
         executor = RsyncExecutor(context, self.log, hosts)
