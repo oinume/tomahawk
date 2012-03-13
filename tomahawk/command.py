@@ -7,6 +7,9 @@ import sys
 import time
 
 from tomahawk.base import BaseContext, BaseExecutor, BaseMain
+from tomahawk.color import (
+    create_coloring_object
+)
 from tomahawk.constants import (
     DEFAULT_COMMAND_OUTPUT_FORMAT
 )
@@ -45,10 +48,11 @@ class CommandMain(BaseMain):
         check_required_command('ssh')
         hosts = self.check_hosts()
 
+        color = create_coloring_object(sys.stdout)
         # prompt when production environment
         self.confirm_execution_on_production(
-            'Command "%s" will be executed to %d hosts. Are you sure? [yes/NO]: '
-            % (' '.join(context.arguments), len(hosts))
+            'Command "%s" will be executed to %s hosts. Are you sure? [yes/NO]: '
+            % (color.bold(' '.join(context.arguments)), color.bold(len(hosts)))
         )
 
         executor = CommandExecutor(context, self.log, hosts)
