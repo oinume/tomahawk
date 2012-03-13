@@ -1,3 +1,6 @@
+0.5.0-rc2 2012-03-13T20:54:27+09:00
+  - Bug fix: tomahawk doesn't stop completely when SIGINT(Ctrl-C) received 
+
 0.5.0-rc1 2012-03-04T20:34:51+09:00
   - New feature: #26 --password-from-stdin option added. Read a password from stdin instead of prompting.
   - New feature: #22 Output OS version, Python version, libraries versions
