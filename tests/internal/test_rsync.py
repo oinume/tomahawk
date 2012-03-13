@@ -50,7 +50,7 @@ def test_03_execute_timeout():
     out, err = create_out_and_err()
     context, executor = create_context_and_executor(
         out, err,
-        [ '--hosts=localhost', '--timeout=1', '--rsync-options=-av --dry-run', '/', TMP_DIR ]
+        [ '--hosts=localhost', '--timeout=1', '--rsync-options=-av --dry-run', '/usr', TMP_DIR ]
     )
     status = executor.execute(context.source, context.destination)
     eq_(1, status, "execute() > timeout > status")
