@@ -9,14 +9,25 @@ def shutdown_by_signal(signum, frame):
     # TODO: this function called twice
     sys.exit(signum);
 
-def read_password():
+def read_login_password():
     password = None
     while True:
-        password = getpass('Enter a password for ssh authentication: ')
+        password = getpass("Enter a password for ssh authentication: ")
         if len(password) > 0:
             return password
 
-def read_password_from_stdin():
+def read_login_password_from_stdin():
+    for line in sys.stdin:
+        return line.rstrip()
+
+def read_sudo_password():
+    password = None
+    while True:
+        password = getpass("Enter a password for sudo: ")
+        if len(password) > 0:
+            return password
+
+def read_sudo_password_from_stdin():
     for line in sys.stdin:
         return line.rstrip()
 

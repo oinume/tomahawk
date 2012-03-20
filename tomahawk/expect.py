@@ -17,11 +17,12 @@ class CommandWithExpect(object):
     """
     A command executor through expect.
     """
-    def __init__(self, command, command_args, password,
+    def __init__(self, command, command_args, login_password, sudo_password,
                  timeout = DEFAULT_TIMEOUT, expect_delay = DEFAULT_EXPECT_DELAY, debug_enabled = False):
         self.command = command
         self.command_args = command_args
-        self.password = password
+        self.login_password = login_password
+        self.sudo_password = sudo_password
         self.timeout = timeout
         self.expect_delay = expect_delay
         self.log = create_logger(debug_enabled)
@@ -49,17 +50,23 @@ class CommandWithExpect(object):
         try:
             index = child.expect(self.expect_patterns)
             self.log.debug("expect index = %d" % (index))
-
+            password = self.login_password or self.sudo_password
             if index in (0, 1, 2):
-                if self.password is None:
+                if password is None:
                     self.log.debug("Password is None")
                     #print >> stderr, "[error] Password is empty. Use -l or -s"
-                    raise CommandError("Password is empty. Use -P/--prompt-password or --password-from-stdin.")
+                    raise CommandError("Password is empty. Use -l/--prompt-login-password or --login-password-stdin.")
 
-                child.sendline(self.password)
+                if index == 0:
+                    child.sendline(self.login_password) # for ssh passphrase
+                else:
+                    child.sendline(self.sudo_password)
                 index2 = child.expect(self.expect_patterns)
                 self.log.debug("expect index2 = %d" % (index2))
-                child.sendline(self.password)
+                if index2 == 0:
+                    child.sendline(self.login_password) # for ssh passphrase
+                else:
+                    child.sendline(password)
                 child.expect(pexpect.EOF)
             if index == 3:
                 self.log.debug("expect.EOF")
@@ -89,9 +96,10 @@ class CommandWithExpect(object):
         expect_regexs.append(re.compile('Connection to .* closed'))
 
         passwords = []
-        if self.password:
-            passwords.append(self.password)
-
+        if self.login_password:
+            passwords.append(self.login_password)
+        if self.sudo_password:
+            passwords.append(self.sudo_password)
         for line in expect_output.getvalue().split('\n'):
             line = line.strip('\r\n')
             if line == '' or line in passwords:

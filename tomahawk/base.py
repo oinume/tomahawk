@@ -23,8 +23,10 @@ from tomahawk.constants import (
 from tomahawk.log import create_logger
 from tomahawk.utils import (
     check_hosts,
-    read_password,
-    read_password_from_stdin
+    read_login_password,
+    read_login_password_from_stdin,
+    read_sudo_password,
+    read_sudo_password_from_stdin
 )
 class BaseContext(object):
     def __init__(self, options = {}, out = sys.stdout, err = sys.stderr):
@@ -95,15 +97,11 @@ class BaseMain(object):
         )
         parser.add_argument(
             '-l', '--prompt-login-password', action='store_true',
-            help='DEPRECATED. Use -P/--prompt-password.'
-        )
-        parser.add_argument(
-            '-P', '--prompt-password', action='store_true',
             help='Prompt a password for ssh authentication.'
         )
         parser.add_argument(
-            '--password-from-stdin', action='store_true',
-            help='Read a password from stdin.'
+            '--login-password-stdin', action='store_true',
+            help='Read a password for ssh authentication from stdin.'
         )
         parser.add_argument(
             '-t', '--timeout', metavar='SECONDS', type=int, default=DEFAULT_TIMEOUT,
@@ -162,26 +160,26 @@ class BaseExecutor(object):
         if options.get('expect_timeout') is not None:
             options['timeout'] = options['expect_timeout']
             log.warn("Option --expect-timeout is DUPLICATED. Use --timeout. (Will be deleted in v0.6.0)")
-        if options.get('prompt_login_password'):
-            options['prompt_password'] = options['prompt_login_password']
-            log.warn("Option -l/--prompt-login-password is DUPLICATED. Use -P/--prompt-password. (Will be deleted in v0.6.0)")
-        if options.get('prompt_sudo_password'):
-            log.warn("Option --prompt-sudo-password is OBSOLETED. (Will be deleted in v0.6.0)")
         if options.get('no_sudo_password'):
             log.warn("Option --no-sudo-password is OBSOLETED. (Will be deleted in v0.6.0)")
 
         newline = False
-        password = None
-        if 'password' in kwargs:
-            password = kwargs['password']
-        elif options.get('prompt_password') and options.get('password_from_stdin'):
-            log.error("Cannot specify -P/--prompt-password and --password-from-stdin both.")
-            sys.exit(1)
-        elif options.get('password_from_stdin'):
-            password = read_password_from_stdin()
-        elif options.get('prompt_password'):
-            password = read_password()
+        login_password = None
+        if 'login_password' in kwargs:
+            login_password = kwargs['login_password']
+        elif options.get('prompt_login_password'):
+            login_password = read_login_password()
             newline = True
+        elif options.get('login_password_stdin'):
+            password = read_login_password_from_stdin()
+
+        sudo_password = None
+        if 'sudo_password' in kwargs:
+            sudo_password = kwargs['sudo_password']
+        elif options.get('prompt_sudo_password'):
+            sudo_password = read_sudo_password()
+        elif options.get('sudo_password_stdin'):
+            password = read_sudo_password_from_stdin()
 
         if newline:
             print
@@ -189,7 +187,8 @@ class BaseExecutor(object):
         self.context = context
         self.log = log
         self.hosts = hosts
-        self.password = password
+        self.login_password = login_password
+        self.sudo_password = sudo_password
         self.raise_error = True
         if options.get('continue_on_error'):
             self.raise_error = False
