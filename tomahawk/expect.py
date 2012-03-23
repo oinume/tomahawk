@@ -60,7 +60,7 @@ class CommandWithExpect(object):
                 if index == 0:
                     child.sendline(self.login_password) # for ssh passphrase
                 else:
-                    child.sendline(self.sudo_password)
+                    child.sendline(password)
                 index2 = child.expect(self.expect_patterns)
                 self.log.debug("expect index2 = %d" % (index2))
                 if index2 == 0:

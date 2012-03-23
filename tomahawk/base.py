@@ -40,7 +40,7 @@ class BaseMain(object):
         self.script_path = script_path
         self.arg_parser = self.create_argument_parser(script_path)
         self.options = self.arg_parser.parse_args()
-        self.log = create_logger(self.options.debug)
+        self.log = create_logger(self.options.debug or self.options.deep_debug, self.options.deep_debug)
 
     def run(self):
         try:
@@ -128,6 +128,10 @@ class BaseMain(object):
             help='Enable debug output.',
         )
         parser.add_argument(
+            '--deep-debug', action='store_true', default=False,
+            help='Enable deeper debug output.',
+        )
+        parser.add_argument(
             '--profile', action='store_true', help='Enable profiling.'
         )
         parser.add_argument(
@@ -151,6 +155,7 @@ class BaseExecutor(object):
         log -- log
         hosts -- target hosts
         """
+        self.processes_terminated = False
         if context is None:
             raise RuntimeError('Argument "context" required.')
         if len(hosts) == 0:
@@ -171,7 +176,7 @@ class BaseExecutor(object):
             login_password = read_login_password()
             newline = True
         elif options.get('login_password_stdin'):
-            password = read_login_password_from_stdin()
+            login_password = read_login_password_from_stdin()
 
         sudo_password = None
         if 'sudo_password' in kwargs:
@@ -179,7 +184,7 @@ class BaseExecutor(object):
         elif options.get('prompt_sudo_password'):
             sudo_password = read_sudo_password()
         elif options.get('sudo_password_stdin'):
-            password = read_sudo_password_from_stdin()
+            sudo_password = read_sudo_password_from_stdin()
 
         if newline:
             print
@@ -266,7 +271,7 @@ class BaseExecutor(object):
                         return 1
         
         # Free process pool
-        self.destory_process_pool()
+        self.terminate_processes()
 
         if len(error_hosts) != 0:
             hosts = ''
@@ -302,12 +307,13 @@ class BaseExecutor(object):
 
         return ''.join(seq)
 
-    def destory_process_pool(self):
-        if hasattr(self, 'process_pool'):
+    def terminate_processes(self):
+        if hasattr(self, 'process_pool') and not self.processes_terminated:
             #self.process_pool.close()
-            self.log.debug("terminating process_pool")
+            self.log.debug("terminating processes")
             self.process_pool.terminate()
             self.process_pool.join()
+            self.processes_terminated = True
 
     def __del__(self):
-        self.destory_process_pool()
+        self.terminate_processes()
