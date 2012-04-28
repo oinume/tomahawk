@@ -4,3 +4,4 @@ tomahawk.egg-info/
 dist/
 tmp/hello*
 .coverage
+.tox
