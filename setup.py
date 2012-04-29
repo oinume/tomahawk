@@ -38,7 +38,9 @@ setup(
         'pexpect >= 2.4',
     ],
     tests_require = [
-        'nose >= 0.11'
+#        'nose >= 0.11',
+        'mock',
+        'pytest',
     ],
     test_suite = 'nose.collector',
     classifiers = [
