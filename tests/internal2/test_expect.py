@@ -1,24 +1,20 @@
-import os
-import sys
 import mock
 import pexpect
-
-sys.path.insert(0, os.path.abspath('.'))
-
-print sys.path
-
+import utils
+utils.append_home_to_path(__file__)
 import tomahawk.expect
 
-def test_execute():
-    target = create_object()
+class TestCommandWithExpect(object):
     
-    p = mock.patch('pexpect.spawn.expect')
-    #print "p = " + str(p)
-    p.start()
-    pexpect.spawn.expect.return_value = 0
-    print "target = " + str(target)
-    target.execute()
-    assert 1 == 'fuga'
-
-def create_object():
-    return tomahawk.expect.CommandWithExpect('ssh', [ '-t' ], 'hoge', 'hoge', debug_enabled=True)
+    def test_01_execute(self):
+        target = self._create_object()
+        patch = mock.patch('pexpect.spawn.expect')
+        patch.start()
+        pexpect.spawn.expect.return_value = 0
+       #print "target = " + str(target)
+        target.execute()
+        assert 1 == 'fuga'
+    
+    def _create_object(self):
+        return tomahawk.expect.CommandWithExpect(
+            'ssh', [ '-t' ], 'hoge', 'hoge', debug_enabled=True)
