@@ -18,7 +18,8 @@ class CommandWithExpect(object):
     A command executor through expect.
     """
     def __init__(self, command, command_args, login_password, sudo_password,
-                 timeout = DEFAULT_TIMEOUT, expect_delay = DEFAULT_EXPECT_DELAY, debug_enabled = False):
+                 timeout=DEFAULT_TIMEOUT, expect_delay=DEFAULT_EXPECT_DELAY,
+                 debug_enabled = False, expect_out = None):
         self.command = command
         self.command_args = command_args
         self.login_password = login_password
@@ -31,6 +32,10 @@ class CommandWithExpect(object):
             '[Pp]assword.*:',
             'パスワード', # TODO: japanese character expected as utf-8
         ]
+        if expect_out is None:
+            self.expect_out = cStringIO.StringIO()
+        else:
+            self.expect_out = expect_out
 
     def execute(self):
         """
@@ -38,12 +43,11 @@ class CommandWithExpect(object):
         
         Returns: command result status, output string
         """
-        expect_output = cStringIO.StringIO()
         child = pexpect.spawn(
             self.command,
             self.command_args,
             timeout = self.timeout,
-            logfile = expect_output
+            logfile = self.expect_out
         )
         self.log.debug("command = %s, args = %s" % (self.command, str(self.command_args)))
 
@@ -78,9 +82,9 @@ class CommandWithExpect(object):
         except CommandError, e:
             raise e, None, sys.exc_info()[2]
 
-        return self.get_status_and_output(child, expect_output)
+        return self.get_status_and_output(child, self.expect_out)
 
-    def get_status_and_output(self, child, expect_output):
+    def get_status_and_output(self, child, expect_out):
         # Need a litte bit sleep because of failure of expect
         time.sleep(self.expect_delay)
         child.close()
@@ -100,7 +104,7 @@ class CommandWithExpect(object):
             passwords.append(self.login_password)
         if self.sudo_password:
             passwords.append(self.sudo_password)
-        for line in expect_output.getvalue().split('\n'):
+        for line in expect_out.getvalue().split('\n'):
             line = line.strip('\r\n')
             if line == '' or line in passwords:
                 continue
