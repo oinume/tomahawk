@@ -1,11 +1,7 @@
 import cStringIO
 from mock import Mock
-import os
 import pexpect
 import pytest
-import sys
-import mock
-import pexpect
 import utils
 utils.append_home_to_path(__file__)
 
@@ -73,21 +69,4 @@ class MockPexpect(object):
     def set_exitstatus(self, exitstatus):
         self._exitstatus = exitstatus
 
-<<<<<<< HEAD
     exitstatus = property(get_exitstatus, set_exitstatus)
-=======
-class TestCommandWithExpect(object):
-    
-    def test_01_execute(self):
-        target = self._create_object()
-        patch = mock.patch('pexpect.spawn.expect')
-        patch.start()
-        pexpect.spawn.expect.return_value = 0
-       #print "target = " + str(target)
-        target.execute()
-        assert 1 == 'fuga'
-    
-    def _create_object(self):
-        return tomahawk.expect.CommandWithExpect(
-            'ssh', [ '-t' ], 'hoge', 'hoge', debug_enabled=True)
->>>>>>> 96af136d0f5644cfbbdefae9fc3348e305788ff0
