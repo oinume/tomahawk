@@ -17,11 +17,12 @@ class CommandWithExpect(object):
     """
     A command executor through expect.
     """
-    def __init__(self, command, command_args, login_password, sudo_password,
-                 timeout=DEFAULT_TIMEOUT, expect_delay=DEFAULT_EXPECT_DELAY,
-                 debug_enabled = False, expect_out = None):
-        self.command = command
-        self.command_args = command_args
+    def __init__(
+        self, command, command_args, login_password, sudo_password,
+        timeout = DEFAULT_TIMEOUT, expect_delay = DEFAULT_EXPECT_DELAY,
+        debug_enabled = False, expect = None,
+        expect_out = cStringIO.StringIO()
+    ):
         self.login_password = login_password
         self.sudo_password = sudo_password
         self.timeout = timeout
@@ -32,10 +33,17 @@ class CommandWithExpect(object):
             '[Pp]assword.*:',
             'パスワード', # TODO: japanese character expected as utf-8
         ]
-        if expect_out is None:
-            self.expect_out = cStringIO.StringIO()
+        if expect is None:
+            self.expect = pexpect.spawn(
+                command,
+                command_args,
+                timeout = timeout,
+                logfile = expect_out
+            )
         else:
-            self.expect_out = expect_out
+            self.expect = expect
+        self.expect_out = expect_out
+        self.log.debug("command = %s, command_args = %s" % (command, str(command_args)))
 
     def execute(self):
         """
@@ -43,16 +51,9 @@ class CommandWithExpect(object):
         
         Returns: command result status, output string
         """
-        child = pexpect.spawn(
-            self.command,
-            self.command_args,
-            timeout = self.timeout,
-            logfile = self.expect_out
-        )
-        self.log.debug("command = %s, args = %s" % (self.command, str(self.command_args)))
 
         try:
-            index = child.expect(self.expect_patterns)
+            index = self.expect.expect(self.expect_patterns)
             self.log.debug("expect index = %d" % (index))
             password = self.login_password or self.sudo_password
             if index in (0, 1, 2):
@@ -62,16 +63,16 @@ class CommandWithExpect(object):
                     raise CommandError("Password is empty. Use -l/--prompt-login-password or --login-password-stdin.")
 
                 if index == 0:
-                    child.sendline(self.login_password) # for ssh passphrase
+                    self.expect.sendline(self.login_password) # for ssh passphrase
                 else:
-                    child.sendline(password)
-                index2 = child.expect(self.expect_patterns)
+                    self.expect.sendline(password)
+                index2 = self.expect.expect(self.expect_patterns)
                 self.log.debug("expect index2 = %d" % (index2))
                 if index2 == 0:
-                    child.sendline(self.login_password) # for ssh passphrase
+                    self.expect.sendline(self.login_password) # for ssh passphrase
                 else:
-                    child.sendline(password)
-                child.expect(pexpect.EOF)
+                    self.expect.sendline(password)
+                self.expect.expect(pexpect.EOF)
             if index == 3:
                 self.log.debug("expect.EOF")
         except pexpect.TIMEOUT:
@@ -82,7 +83,7 @@ class CommandWithExpect(object):
         except CommandError, e:
             raise e, None, sys.exc_info()[2]
 
-        return self.get_status_and_output(child, self.expect_out)
+        return self.get_status_and_output(self.expect, self.expect_out)
 
     def get_status_and_output(self, child, expect_out):
         # Need a litte bit sleep because of failure of expect
@@ -111,7 +112,8 @@ class CommandWithExpect(object):
 
             for password in passwords:
                 # for debug output
-                line = line.replace(password, len(password) * '*')
+                if line == password:
+                    line = line.replace(password, len(password) * '*')
             self.log.debug("line = " + line)
 
             append = True
