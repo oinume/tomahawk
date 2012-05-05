@@ -1,3 +1,4 @@
+import argparse
 import cStringIO
 import os
 import sys
@@ -15,6 +16,18 @@ def get_bin_dir(file):
 
 def append_home_to_path(file):
     sys.path.insert(0, get_home_dir(file))
+
+def create_argparse_namespace(**kwargs):
+    defaults = {
+        'command': [ '' ], 'continue_on_error': None,
+        'debug': True, 'deep_debug': True,
+        'delay': 0, 'expect_delay': 0.1,
+        'hosts': 'localhost', 'profile': False,
+        'timeout': 10
+    }
+    for k, v in defaults.iteritems():
+        kwargs.setdefault(k, v)
+    return argparse.Namespace(**kwargs)
 
 append_home_to_path(__file__)
 from tomahawk.expect import CommandWithExpect
