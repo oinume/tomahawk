@@ -25,6 +25,10 @@ try:
 except ImportError:
     from distutils.core import setup
 
+if sys.version_info < (2, 4):
+    print >>sys.stderr, "tomahawk requires at least Python 2.4 to run."
+    sys.exit(1)
+
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
