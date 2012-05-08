@@ -52,6 +52,9 @@ setup(
         'pytest',
     ],
 #    test_suite = 'nose.collector',
+    data_files = [
+        ('man/man1', [ 'tomahawk.1', 'tomahawk-rsync.1' ])
+    ],
     classifiers = [
         'Development Status :: 5 - ' + __status__,
         'Environment :: Console',
