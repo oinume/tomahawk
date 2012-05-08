@@ -29,6 +29,14 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
+install_requires = [
+    'pexpect >= 2.4',
+]
+if sys.version_info < (2, 6):
+    install_requires.append('multiprocessing')
+if sys.version_info < (2, 7):
+    install_requires.append('argparse')
+
 setup(
     name = 'tomahawk',
     version = __version__,
@@ -42,11 +50,7 @@ setup(
     scripts = [ os.path.join('bin', p) for p in [ 'tomahawk', 'tomahawk-rsync' ] ],
     zip_safe = False,
     platforms = 'unix',
-    install_requires = [
-        'argparse',
-        'multiprocessing',
-        'pexpect >= 2.4',
-    ],
+    install_requires = install_requires,
     tests_require = [
         'mock',
         'pytest',
