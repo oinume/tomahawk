@@ -40,7 +40,11 @@ class BaseMain(object):
         self.script_path = script_path
         self.arg_parser = self.create_argument_parser(script_path)
         self.options = self.arg_parser.parse_args()
-        self.log = create_logger(self.options.debug or self.options.deep_debug, self.options.deep_debug)
+        self.log = create_logger(
+            None,
+            self.options.debug or self.options.deep_debug,
+            self.options.deep_debug
+        )
 
     def run(self):
         try:

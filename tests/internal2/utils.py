@@ -17,13 +17,13 @@ def get_bin_dir(file):
 def append_home_to_path(file):
     sys.path.insert(0, get_home_dir(file))
 
-def create_argparse_namespace(**kwargs):
+def create_command_namespace(**kwargs):
     defaults = {
         'command': [ '' ], 'continue_on_error': None,
-        'debug': True, 'deep_debug': True,
+        'debug': False, 'deep_debug': False,
         'delay': 0, 'expect_delay': 0.1,
-        'hosts': 'localhost', 'profile': False,
-        'timeout': 10
+        'output_file': None, 'hosts': 'localhost', 'profile': False,
+        'ssh_user': 'tomahawk',  'timeout': 10
     }
     for k, v in defaults.iteritems():
         kwargs.setdefault(k, v)
@@ -35,6 +35,36 @@ from tomahawk.constants import (
     DEFAULT_TIMEOUT,
     DEFAULT_EXPECT_DELAY
 )
+
+class StdoutCapture(object):
+    def __init__(self):
+        self.captured = cStringIO.StringIO()
+
+    def start(self):
+        sys.stdout = self.captured
+        return self
+
+    def stop(self):
+        sys.stdout = sys.__stdout__
+        return self
+
+    def captured_value(self):
+        return self.captured.getvalue()
+
+    def close(self):
+        self.captured.close()
+
+class StderrCapture(StdoutCapture):
+    def __init__(self):
+        super(StderrCapture, self).__init__()
+
+    def start(self):
+        sys.stderr = self.captured
+        return self
+
+    def stop(self):
+        sys.stderr = sys.__stderr__
+        return self
 
 class MockPexpect(object):
     def __init__(
