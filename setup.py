@@ -1,5 +1,5 @@
-from setuptools import setup
 import os
+import sys
 from tomahawk import (
     __author__,
     __author_email__,
@@ -18,6 +18,16 @@ def get_long_description():
         print 'Failed to open file "%s".' % (file)
         f.close()
     return long_description
+
+try:
+    from setuptools import setup
+    setup
+except ImportError:
+    from distutils.core import setup
+
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    sys.exit()
 
 setup(
     name = 'tomahawk',
@@ -38,11 +48,10 @@ setup(
         'pexpect >= 2.4',
     ],
     tests_require = [
-#        'nose >= 0.11',
         'mock',
         'pytest',
     ],
-    test_suite = 'nose.collector',
+#    test_suite = 'nose.collector',
     classifiers = [
         'Development Status :: 5 - ' + __status__,
         'Environment :: Console',
