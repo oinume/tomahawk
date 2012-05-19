@@ -1,5 +1,6 @@
 from setuptools import setup
 import os
+import sys
 from tomahawk import (
     __author__,
     __author_email__,
@@ -8,7 +9,7 @@ from tomahawk import (
 )
 
 def get_long_description():
-    file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README')
+    file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.rst')
     long_description = ''
     try:
         f = open(file)
@@ -18,6 +19,13 @@ def get_long_description():
         print 'Failed to open file "%s".' % (file)
         f.close()
     return long_description
+
+
+install_requires = [ 'pexpect >= 2.4' ]
+if sys.version_info < (2, 7):
+    install_requires.append('argparse')
+if sys.version_info < (2, 6):
+    install_requires.append('multiprocessing')
 
 setup(
     name = 'tomahawk',
@@ -32,11 +40,7 @@ setup(
     scripts = [ os.path.join('bin', p) for p in [ 'tomahawk', 'tomahawk-rsync' ] ],
     zip_safe = False,
     platforms = 'unix',
-    install_requires = [
-        'argparse',
-        'multiprocessing',
-        'pexpect >= 2.4',
-    ],
+    install_requires = install_requires,
     tests_require = [
 #        'nose >= 0.11',
         'mock',
