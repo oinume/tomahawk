@@ -78,7 +78,7 @@ def test_02_run_timeout(monkeypatch):
     assert status == 1
     assert re.search(r'timed out on host', stderr.stop().captured_value())
 
-def test_03_run_option_host_files(monkeypatch):
+def test_10_run_option_host_files(monkeypatch):
     EXPECTED = {
         'command': 'echo "hello world"',
         'command_output': "hello world",
@@ -101,7 +101,7 @@ def test_03_run_option_host_files(monkeypatch):
     assert status == 0
     assert re.search(r'hello world', stdout.stop().captured_value())
 
-def test_04_run_option_continue_on_error(monkeypatch):
+def test_20_run_option_continue_on_error(monkeypatch):
     EXPECTED = {
         'command': 'failure_command',
         'command_output': "hello world",
@@ -112,7 +112,7 @@ def test_04_run_option_continue_on_error(monkeypatch):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             continue_on_error = True,
-            hosts = 'localhost,localhost',
+            hosts = 'localhost,127.0.0.1',
         )
     monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
 
@@ -126,7 +126,7 @@ def test_04_run_option_continue_on_error(monkeypatch):
     assert status == 1
     assert len(err.split('\n')) == 4
 
-def test_05_run_option_paralle_continue_on_error(monkeypatch):
+def test_21_run_option_paralle_continue_on_error(monkeypatch):
     EXPECTED = {
         'command': 'failure_command',
         'command_output': "hello world",
@@ -166,7 +166,7 @@ def test_05_run_option_paralle_continue_on_error(monkeypatch):
                 hosts.append(h)
     assert hosts == target_hosts
 
-def test_06_execute_option_ssh_options(monkeypatch):
+def test_30_execute_option_ssh_options(monkeypatch):
     EXPECTED = {
         'command': 'echo "hello world"',
         'command_output': "hello world",
@@ -189,7 +189,7 @@ def test_06_execute_option_ssh_options(monkeypatch):
     assert status == 0
     assert re.search(EXPECTED['command_output'], stdout.stop().captured_value())
 
-def test_07_output_format(monkeypatch):
+def test_40_output_format(monkeypatch):
     EXPECTED = {
         'command': 'uptime',
         'command_output': r'localhost @ uptime',
@@ -213,7 +213,7 @@ def test_07_output_format(monkeypatch):
     assert status == 0
     assert EXPECTED['command_output'] == out.strip()
 
-def test_08_output_format_newline(monkeypatch):
+def test_41_output_format_newline(monkeypatch):
     """\n new line test"""
     EXPECTED = {
         'command': 'uptime',
@@ -237,7 +237,7 @@ def test_08_output_format_newline(monkeypatch):
     assert status == 0
     assert EXPECTED['command_output'] == stdout.stop().captured_value().strip()
 
-def test_09_output_format_no_newline(monkeypatch):
+def test_42_output_format_no_newline(monkeypatch):
     """\\n no new line test"""
     EXPECTED = {
         'command': 'uptime',

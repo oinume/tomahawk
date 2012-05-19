@@ -33,9 +33,7 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-install_requires = [
-    'pexpect >= 2.4',
-]
+install_requires = [ 'pexpect >= 2.4' ]
 if sys.version_info < (2, 6):
     install_requires.append('multiprocessing')
 if sys.version_info < (2, 7):
@@ -55,11 +53,7 @@ setup(
     zip_safe = False,
     platforms = 'unix',
     install_requires = install_requires,
-    tests_require = [
-        'mock',
-        'pytest',
-    ],
-#    test_suite = 'nose.collector',
+    tests_require = [ 'mock', 'pytest' ],
     data_files = [
         ('man/man1', [ 'man/man1/tomahawk.1', 'man/man1/tomahawk-rsync.1' ])
     ],
