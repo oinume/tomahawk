@@ -1,7 +1,7 @@
 A simple ssh wrapper for executing a command to many hosts.
 
 EXAMPLES
---------
+========
 
 $ tomahawk -h host1,host2,host3 uptime
 
