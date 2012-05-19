@@ -7,13 +7,13 @@ import string
 import sys
 
 from tomahawk import (
-    __version__
+    __version__,
+    TimeoutError,
 )
 from tomahawk.color import (
     create_coloring_object
 )
 from tomahawk.constants import (
-    TimeoutError,
     DEFAULT_TIMEOUT,
     DEFAULT_COMMAND_OUTPUT_FORMAT,
     DEFAULT_EXPECT_DELAY,
