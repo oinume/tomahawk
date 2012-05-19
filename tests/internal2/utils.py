@@ -36,6 +36,12 @@ from tomahawk.constants import (
     DEFAULT_EXPECT_DELAY
 )
 
+def capture_stdout_stderr():
+    o = StdoutCapture()
+    e = StderrCapture()
+    o.start(), e.start()
+    return o, e
+
 class StdoutCapture(object):
     def __init__(self):
         self.captured = cStringIO.StringIO()
@@ -120,3 +126,4 @@ class MockCommandWithExpect(CommandWithExpect):
 
     def execute(self):
         return 0, ''
+
