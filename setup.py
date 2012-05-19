@@ -1,4 +1,3 @@
-from setuptools import setup
 import os
 import sys
 from tomahawk import (
@@ -20,12 +19,27 @@ def get_long_description():
         f.close()
     return long_description
 
+try:
+    from setuptools import setup
+    setup
+except ImportError:
+    from distutils.core import setup
 
-install_requires = [ 'pexpect >= 2.4' ]
-if sys.version_info < (2, 7):
-    install_requires.append('argparse')
+if sys.version_info < (2, 4):
+    print >>sys.stderr, "tomahawk requires at least Python 2.4 to run."
+    sys.exit(1)
+
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    sys.exit()
+
+install_requires = [
+    'pexpect >= 2.4',
+]
 if sys.version_info < (2, 6):
     install_requires.append('multiprocessing')
+if sys.version_info < (2, 7):
+    install_requires.append('argparse')
 
 setup(
     name = 'tomahawk',
@@ -42,11 +56,13 @@ setup(
     platforms = 'unix',
     install_requires = install_requires,
     tests_require = [
-#        'nose >= 0.11',
         'mock',
         'pytest',
     ],
-    test_suite = 'nose.collector',
+#    test_suite = 'nose.collector',
+    data_files = [
+        ('man/man1', [ 'man/man1/tomahawk.1', 'man/man1/tomahawk-rsync.1' ])
+    ],
     classifiers = [
         'Development Status :: 5 - ' + __status__,
         'Environment :: Console',
