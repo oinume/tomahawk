@@ -17,24 +17,40 @@ def get_bin_dir(file):
 def append_home_to_path(file):
     sys.path.insert(0, get_home_dir(file))
 
+append_home_to_path(__file__)
+from tomahawk.expect import CommandWithExpect
+from tomahawk.constants import (
+    DEFAULT_TIMEOUT,
+    DEFAULT_EXPECT_DELAY,
+    DEFAULT_RSYNC_OPTIONS,
+)
+
 def create_command_namespace(**kwargs):
     defaults = {
         'command': [ '' ], 'continue_on_error': None,
         'debug': False, 'deep_debug': False,
         'delay': 0, 'expect_delay': 0.1,
-        'output_file': None, 'hosts': 'localhost', 'profile': False,
-        'ssh_user': 'tomahawk',  'timeout': 10
+        'hosts': 'localhost', 'profile': False,
+        'ssh_user': 'tomahawk',  'timeout': DEFAULT_TIMEOUT
     }
     for k, v in defaults.iteritems():
         kwargs.setdefault(k, v)
     return argparse.Namespace(**kwargs)
 
-append_home_to_path(__file__)
-from tomahawk.expect import CommandWithExpect
-from tomahawk.constants import (
-    DEFAULT_TIMEOUT,
-    DEFAULT_EXPECT_DELAY
-)
+def create_rsync_namespace(**kwargs):
+    defaults = {
+        'source': None, 'destination': None,
+        'continue_on_error': None,
+        'debug': False, 'deep_debug': False,
+        'delay': 0, 'expect_delay': 0.1,
+        'hosts': 'localhost', 'profile': False,
+        'rsync_user': 'tomahawk',  'rsync_options': DEFAULT_RSYNC_OPTIONS,
+        'timeout': DEFAULT_TIMEOUT,
+    }
+    for k, v in defaults.iteritems():
+        kwargs.setdefault(k, v)
+    return argparse.Namespace(**kwargs)
+
 
 def capture_stdout_stderr():
     o = StdoutCapture()
