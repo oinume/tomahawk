@@ -29,38 +29,33 @@ hosts file
 
 shell operators
 ^^^^^^^^^^^^^^^
-tomahawk executes commands via shell(/bin/sh), so you can use "|" (pipe), &&, || operators and so on. ::
+tomahawkはコマンドを実行する際、シェル(/bin/sh)を介して実行するため、 '|' (パイプ)や '&&'、'||'などのオペレータを使うことができる。 ::
 
   $ tomahawk -h host1,host2 'ps auxww | grep python'
 
 
 OPTIONS
 -------
-These programs follow the usual GNU command line syntax, with long options starting with two dashes ('--').
-A summary of options is included below.
-For a complete description, see the Info files.
 
 -h, --hosts
 ^^^^^^^^^^^
-Specifies host names for sending commands. You can specify multiple hosts with ','.
+コマンドを実行するリモートホストの名前を指定する。','で区切ることで複数のホストを指定することが可能。
 
 -f, --hosts-files
 ^^^^^^^^^^^^^^^^^
-Specifies hosts files which listed host names for sending commands.
-You can specify multiple hosts files with ','.
-
-Format of hosts file is below. ::
+リモートホストの名前が記載されたファイルを指定する。','で区切ることで複数のファイルを指定することが可能。
+ファイルのフォーマットは下記の通り。 ::
 
   web01
   web02
   #web03
   web04
 
-A line of starting with '#' disables a host.
+'#'で始まる行はコメントとして解釈されるので、無視される。
 
 -l, --prompt-login-password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-DUPLICATED. Use -P/--prompt-password. Will be deleted in v0.6.0
+推奨されていない。代わりに -P/--prompt-password を使うこと。v0.6.0で削除される予定。
 
 -P, --prompt-password
 ^^^^^^^^^^^^^^^^^^^^^

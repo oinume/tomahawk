@@ -29,7 +29,7 @@ Starting with "#" means commenting the host out.
 
 shell operators
 ^^^^^^^^^^^^^^^
-tomahawk executes commands via shell(/bin/sh), so you can use "|" (pipe), &&, || operators and so on. ::
+tomahawk executes commands via shell(/bin/sh), so you can use '|' (pipe), '&&', '||' operators and so on. ::
 
   $ tomahawk -h host1,host2 'ps auxww | grep python'
 
