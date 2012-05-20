@@ -92,7 +92,7 @@ def test_02_run_timeout(monkeypatch):
 
     main = RsyncMain('tomahawk-rsync')
     status = main.run()
-    err = stderr.stop().captured_value()
+    err = stderr.stop().value()
     assert status == EXPECTED['exit_status']
     assert re.search(r'timed out on host', err)
 
@@ -174,6 +174,6 @@ def test_21_run_option_continue_on_error(monkeypatch):
 
     main = RsyncMain('tomahawk-rsync')
     status = main.run()
-    err = stderr.stop().captured_value()
+    err = stderr.stop().value()
     assert status == EXPECTED['exit_status']
     assert len(err.split('\n')) == 4

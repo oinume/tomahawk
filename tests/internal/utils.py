@@ -70,11 +70,21 @@ class StdoutCapture(object):
         sys.stdout = sys.__stdout__
         return self
 
-    def captured_value(self):
+    def value(self):
+        self.captured.flush()
         return self.captured.getvalue()
 
     def close(self):
         self.captured.close()
+
+#    def __enter__(self):
+#        self.start()
+#        with StdoutCapture() as c:
+#            c.value()
+#   c = StdoutCapture()
+#   c.__enter__() -> c.start()
+#   c.value()
+#   c.__exit__() -> c.stop()
 
 class StderrCapture(StdoutCapture):
     def __init__(self):

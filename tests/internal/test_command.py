@@ -26,7 +26,7 @@ def test_00_run(monkeypatch):
 
     main = CommandMain('tomahawk')
     status = main.run()
-    o = stdout.stop().captured_value()
+    o = stdout.stop().value()
 
     assert status == 0
     s = \
@@ -54,7 +54,7 @@ def test_01_run_error(monkeypatch):
     main = CommandMain('tomahawk')
     status = main.run()
     assert status == 1
-    assert re.search(r'failed on host', stderr.stop().captured_value())
+    assert re.search(r'failed on host', stderr.stop().value())
 
 def test_02_run_timeout(monkeypatch):
     EXPECTED = {
@@ -76,7 +76,7 @@ def test_02_run_timeout(monkeypatch):
     main = CommandMain('tomahawk')
     status = main.run()
     assert status == 1
-    assert re.search(r'timed out on host', stderr.stop().captured_value())
+    assert re.search(r'timed out on host', stderr.stop().value())
 
 def test_10_run_option_host_files(monkeypatch):
     EXPECTED = {
@@ -99,7 +99,7 @@ def test_10_run_option_host_files(monkeypatch):
     main = CommandMain('tomahawk')
     status = main.run()
     assert status == 0
-    assert re.search(r'hello world', stdout.stop().captured_value())
+    assert re.search(r'hello world', stdout.stop().value())
 
 def test_20_run_option_continue_on_error(monkeypatch):
     EXPECTED = {
@@ -122,7 +122,7 @@ def test_20_run_option_continue_on_error(monkeypatch):
 
     main = CommandMain('tomahawk')
     status = main.run()
-    err = stderr.stop().captured_value()
+    err = stderr.stop().value()
     assert status == 1
     assert len(err.split('\n')) == 4
 
@@ -156,7 +156,7 @@ def test_21_run_option_paralle_continue_on_error(monkeypatch):
     # parse output to collect failure hosts.
     hosts = []
     hosts_start = False
-    for line in stderr.stop().captured_value().split('\n'):
+    for line in stderr.stop().value().split('\n'):
         if re.search(r'failed on following hosts', line, re.I):
             hosts_start = True
             continue
@@ -187,7 +187,7 @@ def test_30_execute_option_ssh_options(monkeypatch):
     main = CommandMain('tomahawk')
     status = main.run()
     assert status == 0
-    assert re.search(EXPECTED['command_output'], stdout.stop().captured_value())
+    assert re.search(EXPECTED['command_output'], stdout.stop().value())
 
 def test_40_output_format(monkeypatch):
     EXPECTED = {
@@ -209,7 +209,7 @@ def test_40_output_format(monkeypatch):
 
     main = CommandMain('tomahawk')
     status = main.run()
-    out = stdout.stop().captured_value()
+    out = stdout.stop().value()
     assert status == 0
     assert EXPECTED['command_output'] == out.strip()
 
@@ -235,7 +235,7 @@ def test_41_output_format_newline(monkeypatch):
     main = CommandMain('tomahawk')
     status = main.run()
     assert status == 0
-    assert EXPECTED['command_output'] == stdout.stop().captured_value().strip()
+    assert EXPECTED['command_output'] == stdout.stop().value().strip()
 
 def test_42_output_format_no_newline(monkeypatch):
     """\\n no new line test"""
@@ -259,5 +259,5 @@ def test_42_output_format_no_newline(monkeypatch):
     main = CommandMain('tomahawk')
     status = main.run()
     assert status == 0
-    assert EXPECTED['command_output'] == stdout.stop().captured_value().strip()
+    assert EXPECTED['command_output'] == stdout.stop().value().strip()
 
