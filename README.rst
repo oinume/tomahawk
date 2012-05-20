@@ -28,12 +28,8 @@ See more usages: http://readthedocs.org/docs/tomahawk/en/latest/
 
 Documentation
 =============
-http://readthedocs.org/docs/tomahawk/en/latest/
+See http://readthedocs.org/docs/tomahawk/en/latest/
 
-How to install
-==============
-.. include:: docs/en/install.rst
-
-Changes
-=======
-.. include:: Changes
+Bug report
+==========
+https://github.com/oinume/tomahawk/issues
