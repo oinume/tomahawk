@@ -15,6 +15,10 @@ DESCRIPTION
 
 .. include:: _tomahawk-rsync_description.rst
 
+rsync
+^^^^^
+tomahawk-rsync copies files via `rsync'. You can specify options for rsync with -o/--rsync-ooptions.
+
 OPTIONS
 -------
 These programs follow the usual GNU command line syntax, with long options starting with two dashes ('--').
@@ -43,9 +47,9 @@ A line of starting with '#' disables a host.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 DUPLICATED. Use -P/--prompt-password. Will be deleted in v0.6.0
 
--P, --prompt-password
-^^^^^^^^^^^^^^^^^^^^^
-Prompts a password for ssh authentication at first. If the password is all the same between target hosts, you'll input a password just once.
+-P, --prompt-login-password
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Prompts a password for ssh authentication of rsync at first. If the password is all the same between target hosts, you'll input a password just once.
 
 -c, --continue-on-error
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -72,12 +76,12 @@ Specifies rsync user. The default is a current logged in user.
 
 -o, --rsync-options
 ^^^^^^^^^^^^^^^^^^^
-Specifies rsync options. The default is '-avz'
+Specifies rsync options. The default is '-av'
 
 -m, --mirror-mode
 ^^^^^^^^^^^^^^^^^
-Selection of "push" or "pull".
-"pull" means copy files from remote to local (default: "push")
+Selection of 'push' or 'pull'.
+'pull' means copy files from remote to local. The default is 'push'.
 
 
 SEE ALSO

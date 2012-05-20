@@ -15,6 +15,10 @@ DESCRIPTION
 
 .. include:: _tomahawk_description.rst
 
+ssh
+^^^
+tomahawkは引数のコマンドを`ssh'を介して実行する。-o/--ssh-options でsshを実行する際のオプションを指定できる他、$HOME/.ssh/config で柔軟な設定が可能である。
+
 hosts file
 ^^^^^^^^^^
 -h オプションでホストを指定する。-f オプションではホストが記載されたファイルのパスを指定する。
@@ -59,46 +63,46 @@ OPTIONS
 
 -P, --prompt-password
 ^^^^^^^^^^^^^^^^^^^^^
-Prompts a password for ssh authentication at first. If the password is all the same between target hosts, you'll input a password just once.
+最初のSSH認証のためのパスワードを尋ねる。
 
---password-from-stdin
-^^^^^^^^^^^^^^^^^^^^^
-Read a password from stdin instead of prompting.
+--login-password-stdin
+^^^^^^^^^^^^^^^^^^^^^^
+SSHの認証パスワードを尋ねる代わりに標準入力から読み取る。
 
 -s, --prompt-sudo-password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-OBSOLETED. Will be deleted in v0.6.0
+sudoを含むコマンドを実行する際、sudoのためのパスワードを尋ねる。
 
 -c, --continue-on-error
 ^^^^^^^^^^^^^^^^^^^^^^^
-Continues to send commands even if any errors.
-The default behavior is fail-safe, means that tomahawk will stop if any errors.
+コマンドが失敗した場合、デフォルトでは tomahawk は実行をそのホストでストップするが、このオプションを指定すると、コマンドが失敗した場合でも処理を継続する。
 
 -p, --parallel
 ^^^^^^^^^^^^^^
-Specifies a number of processes for parallel command execution. (default: 1)
-If your machine has many cpu cores, --parallel 2 .. N might be faster.
+リモートホストでのコマンド実行を並列で実行するためのプロセス数を指定する。(デフォルトは1)
+CPUコアが複数ある場合 --parallel=2 などとすると処理速度が向上するであろう。
+このオプションを指定した場合、リモートホストに対してコマンドを実行する順番は保証されなくなる。
 
 -t, --timeout
 ^^^^^^^^^^^^^
-Specifies timeout seconds for a command.
+タイムアウト秒数を指定する。
 
 --expect-timeout
 ^^^^^^^^^^^^^^^^
-Duplicated. Use t (-timeout) instead.
+推奨されていない。代わりに -t/--timeout を使うこと。v0.6.0で削除される予定。
 
 -u, --ssh-user
 ^^^^^^^^^^^^^^
-Specifies ssh user. The default is a current logged in user.
+sshでコマンドを実行する際のユーザ名を指定する。デフォルトはログインしているユーザ。
 
 -o, --ssh-options
 ^^^^^^^^^^^^^^^^^
-Specifies ssh options.
+sshでコマンドを実行する際のオプションを指定する。
 
 --output-format
 ^^^^^^^^^^^^^^^
-Specifies command output format.
-The default is '${user}@${host} % ${command}\n${output}\n'
+コマンドの出力フォーマットを指定する。
+デフォルトは '${user}@${host} % ${command}\n${output}\n'
 
 
 SEE ALSO
