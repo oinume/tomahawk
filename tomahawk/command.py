@@ -145,7 +145,12 @@ class CommandExecutor(BaseExecutor):
                     command_args.append(option.strip())
 
                 command_args.append(host)
-                c = command.replace('"', '\\"')
+                # Escape shell special chars
+                c = command.replace('\\', '\\\\') \
+                        .replace('"', '\"') \
+                        .replace('$', '\$') \
+                        .replace('`', '\`')
+
                 # execute a command with shell because we want to use pipe(|) and so on.
                 command_args.extend([ '/bin/sh', '-c', '"%s"' % (c) ])
 
