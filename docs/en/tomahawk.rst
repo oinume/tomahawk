@@ -17,7 +17,7 @@ DESCRIPTION
 
 ssh
 ^^^
-tomahawk executes a command via `ssh'. You can specify options for ssh with -o/--ssh-options and can configure ssh behavior with $HOME/.ssh/config.
+tomahawk executes a command via 'ssh'. You can specify options for ssh with -o/--ssh-options and can configure ssh behavior with $HOME/.ssh/config.
 
 hosts file
 ^^^^^^^^^^
@@ -110,8 +110,13 @@ Specifies command output format.
 The default is '${user}@${host} % ${command}\n${output}\n'
 
 
+ENVIRONMENT VARIABLES
+---------------------
+.. include:: _tomahawk_env_vars.rst
+
+
 SEE ALSO
 --------
 * :manpage:`tomahawk-rsync(1)`
 * :manpage:`ssh(1)`
-* :manpage:`scp(1)`
+

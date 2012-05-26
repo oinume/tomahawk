@@ -9,7 +9,7 @@ Requirements
 * multiprocessing (required only with python < 2.6)
 * pexpect
 * pytest (required for testing)
-* mock (required for testing)
+* flexmock (required for testing)
 
 Installation
 ------------

@@ -84,6 +84,11 @@ Selection of 'push' or 'pull'.
 'pull' means copy files from remote to local. The default is 'push'.
 
 
+ENVIRONMENT VARIABLES
+---------------------
+.. include:: _tomahawk_env_vars.rst
+
+
 SEE ALSO
 --------
 * :manpage:`tomahawk(1)`
