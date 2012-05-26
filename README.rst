@@ -1,6 +1,4 @@
-tomahawk
-========
-A simple ssh wrapper for executing a command to many hosts.
+.. -*- restructuredtext -*-
 
 .. image:: https://secure.travis-ci.org/oinume/tomahawk.png?branch=0.5-hotfix
 
@@ -33,3 +31,4 @@ See http://readthedocs.org/docs/tomahawk/en/latest/
 Bug report
 ==========
 https://github.com/oinume/tomahawk/issues
+
