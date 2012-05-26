@@ -1,5 +1,5 @@
 import cStringIO
-from mock import Mock
+from flexmock import flexmock
 import pexpect
 import pytest
 import utils
@@ -22,7 +22,9 @@ def test_00_execute():
 def test_01_execute_timeout():
     """Timeout"""
     target = create_object(cStringIO.StringIO())
-    utils.MockPexpect.expect = Mock(side_effect = pexpect.TIMEOUT('timeout'))
+    flexmock(utils.MockPexpect) \
+        .should_receive('expect') \
+        .and_raise(pexpect.TIMEOUT, "Timed out")
     pytest.raises(TimeoutError, target.execute)
 
 def create_object(expect_out):

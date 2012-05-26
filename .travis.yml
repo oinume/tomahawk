@@ -5,7 +5,7 @@ python:
   - "2.7"
 install:
   - pip install . --use-mirrors
-  - pip install mock>=0.8 pytest>=2.2 pytest-cov>=1.5
+  - pip install flexmock>=0.8 pytest>=2.2 pytest-cov>=1.5
 script:
   - py.test tests/internal
 

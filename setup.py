@@ -53,7 +53,7 @@ setup(
     zip_safe = False,
     platforms = 'unix',
     install_requires = install_requires,
-    tests_require = [ 'mock', 'pytest', 'pytest-cov' ],
+    tests_require = [ 'flexmock', 'pytest', 'pytest-cov' ],
     data_files = [
         ('man/man1', [ 'man/man1/tomahawk.1', 'man/man1/tomahawk-rsync.1' ])
     ],

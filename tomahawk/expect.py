@@ -27,7 +27,7 @@ class CommandWithExpect(object):
         self.sudo_password = sudo_password
         self.timeout = timeout
         self.expect_delay = expect_delay
-        self.log = create_logger(debug_enabled)
+        self.log = create_logger(None, debug_enabled)
         self.expect_patterns = [
             '^Enter passphrase.+',
             '[Pp]assword.*:',

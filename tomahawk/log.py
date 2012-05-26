@@ -1,7 +1,7 @@
 import logging
 import sys
 
-def create_logger(file_path = None, debug_enabled=False, deep_debug_enabled=False):
+def create_logger(file_path = None, debug_enabled = False, deep_debug_enabled = False):
     level = logging.INFO
     if debug_enabled:
         level = logging.DEBUG
