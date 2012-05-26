@@ -1,3 +1,12 @@
+0.5.1 2012-05-26T16:18:29+09:00
+  - Bug fix: #33 tomahawk should escape '$' and '`'
+  - Bug fix: #34 parallel numer should be smaller than specified value when count of hosts is smal
+  - Updated documentation.
+  - Updated testing codes (uses pytest and flexmock)
+
+0.5.0 2012-04-01T02:00:16+09:00
+  - Nothing changed from 0.5.0-rc3
+
 0.5.0 2012-04-01T02:00:16+09:00
   - Nothing changed from 0.5.0-rc3
 
