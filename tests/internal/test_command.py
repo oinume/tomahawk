@@ -78,6 +78,30 @@ def test_02_run_timeout(monkeypatch):
     assert status == 1
     assert re.search(r'timed out on host', stderr.stop().value())
 
+def test_03_run_escape_shell_chars(monkeypatch):
+    EXPECTED = {
+        'command': 'echo \\\\',
+        'command_output': "\\",
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            debug_enabled = True,
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return EXPECTED['exit_status'], EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    main.run()
+    o = stdout.stop().value().strip()
+    assert o == "tomahawk@localhost % echo \\\\\n\\"
+
 def test_10_run_option_host_files(monkeypatch):
     EXPECTED = {
         'command': 'echo "hello world"',
@@ -122,9 +146,9 @@ def test_20_run_option_continue_on_error(monkeypatch):
 
     main = CommandMain('tomahawk')
     status = main.run()
-    err = stderr.stop().value()
+    err = stderr.stop().value().strip()
     assert status == 1
-    assert len(err.split('\n')) == 4
+    assert len(err.split('\n')) == 3
 
 def test_21_run_option_parallel_continue_on_error(monkeypatch):
     EXPECTED = {
@@ -209,9 +233,9 @@ def test_40_output_format(monkeypatch):
 
     main = CommandMain('tomahawk')
     status = main.run()
-    out = stdout.stop().value()
+    out = stdout.stop().value().strip()
     assert status == 0
-    assert EXPECTED['command_output'] == out.strip()
+    assert EXPECTED['command_output'] == out
 
 def test_41_output_format_newline(monkeypatch):
     """\n new line test"""
