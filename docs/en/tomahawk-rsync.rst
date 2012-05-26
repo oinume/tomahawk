@@ -17,7 +17,7 @@ DESCRIPTION
 
 rsync
 ^^^^^
-tomahawk-rsync copies files via `rsync'. You can specify options for rsync with -o/--rsync-ooptions.
+tomahawk-rsync copies files via 'rsync'. You can specify options for rsync with -o/--rsync-ooptions.
 
 OPTIONS
 -------
