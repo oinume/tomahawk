@@ -40,7 +40,7 @@ class RsyncMain(BaseMain):
         self.log.debug("destination = " + str(self.options.destination))
 
     def do_run(self):
-        context = RsyncContext(
+        self.context = RsyncContext(
             self.options.source,
             self.options.destination,
             self.options.__dict__,
@@ -50,7 +50,11 @@ class RsyncMain(BaseMain):
         check_required_command('rsync')
         hosts = self.check_hosts()
 
-        rsync_command = 'rsync %s %s %s' % (context.options['rsync_options'], context.source, context.destination)
+        rsync_command = 'rsync %s %s %s' % (
+            self.context.options['rsync_options'],
+            self.context.source,
+            self.context.destination
+        )
         color = create_coloring_object(sys.stdout)
         # prompt when production environment
         self.confirm_execution_on_production(
@@ -58,8 +62,8 @@ class RsyncMain(BaseMain):
             % (color.green(rsync_command), color.green(len(hosts)))
         )
 
-        executor = RsyncExecutor(context, self.log, hosts)
-        return executor.execute(context.source, context.destination)
+        executor = RsyncExecutor(self.context, self.log, hosts)
+        return executor.execute(self.context.source, self.context.destination)
 
     @classmethod
     def create_argument_parser(cls, file):

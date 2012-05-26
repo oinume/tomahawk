@@ -66,6 +66,11 @@ def check_hosts(options, log, usage_func):
         print >>sys.stderr, usage_func()
         sys.exit(1)
 
+    # Adjust parallel execution numbers with count of hosts
+    parallel = options.get('parallel', 1)
+    if len(hosts) < parallel:
+        options['parallel'] = len(hosts)
+    
     return hosts
 
 def get_home_dir(file):

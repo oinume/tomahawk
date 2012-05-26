@@ -39,7 +39,7 @@ class CommandMain(BaseMain):
         self.log.debug("arguments = " + str(self.options.command))
 
     def do_run(self):
-        context = CommandContext(
+        self.context = CommandContext(
             self.options.command,
             self.options.__dict__,
             sys.stdout,
@@ -52,11 +52,11 @@ class CommandMain(BaseMain):
         # prompt when production environment
         self.confirm_execution_on_production(
             'Command "%s" will be executed to %s hosts. Are you sure? [yes/NO]: '
-            % (color.green(' '.join(context.arguments)), color.green(len(hosts)))
+            % (color.green(' '.join(self.context.arguments)), color.green(len(hosts)))
         )
 
-        executor = CommandExecutor(context, self.log, hosts)
-        return executor.execute(context.arguments)
+        executor = CommandExecutor(self.context, self.log, hosts)
+        return executor.execute(self.context.arguments)
 
     @classmethod
     def create_argument_parser(cls, file):

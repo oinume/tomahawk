@@ -126,7 +126,7 @@ def test_20_run_option_continue_on_error(monkeypatch):
     assert status == 1
     assert len(err.split('\n')) == 4
 
-def test_21_run_option_paralle_continue_on_error(monkeypatch):
+def test_21_run_option_parallel_continue_on_error(monkeypatch):
     EXPECTED = {
         'command': 'failure_command',
         'command_output': "hello world",
@@ -260,4 +260,21 @@ def test_42_output_format_no_newline(monkeypatch):
     status = main.run()
     assert status == 0
     assert EXPECTED['command_output'] == stdout.stop().value().strip()
+
+def test_50_parallel_adjustment(monkeypatch):
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ 'uptime' ], parallel = 10
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 0, "mock execute"
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    main.run()
+    assert main.context.options['parallel'] == 1
 
