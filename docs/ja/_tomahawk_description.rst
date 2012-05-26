@@ -4,7 +4,7 @@
 
   $ tomahawk -h host1,host2,host3 uptime
 
----> "uptime" command will be executed in host1, host2, and host3 with following output. ::
+---> 'uptime' command will be executed in host1, host2, and host3 with following output. ::
 
   oinume@host1 % uptime
   22:41:27 up 10 days,  3:26,  1 users,  load average: 1.11, 1.13, 1.11 
