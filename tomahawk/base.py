@@ -218,11 +218,12 @@ class BaseExecutor(object):
         options = self.context.options
         hosts_count = len(self.hosts)
         finished = 0
-        error_hosts = {}
+        error_hosts_count = 0
         output_format_template = string.Template(self.output_format(options.get('output_format', DEFAULT_COMMAND_OUTPUT_FORMAT)))
         timeout = options.get('timeout', DEFAULT_TIMEOUT)
         error_prefix = color.red(color.bold('[error]')) # insert newline for error messages
 
+        execution_info = {}
         # Main loop continues until all processes are done
         while finished < hosts_count:
             for dict in async_results:
@@ -240,13 +241,20 @@ class BaseExecutor(object):
                     self.log.debug("host = %s, exit_status = %d" % (host, exit_status))
                 except (TimeoutError, multiprocessing.TimeoutError), error:
                     timeout_detail = str(error)
+                    execution_info[host] = { 'timeout': 1 }
                 async_results.remove(dict)
                 finished += 1
 
                 output = create_output(color, output_format_template, command, host, exit_status, command_output)
+                execution_info[host] = {
+                    'exit_status': exit_status,
+                    'command_output': command_output,
+                    'timeout': False,
+                }
                 if command_output == '':
                     # if command_output is empty, chomp last newline character for ugly output
                     output = re.sub(os.linesep + r'\Z', '', output)
+
                 if exit_status == 0:
                     print >> out, output
                 elif timeout_detail is not None:
@@ -254,7 +262,8 @@ class BaseExecutor(object):
                         error_prefix,
                         create_timeout_message(color, output, timeout)
                     )
-                    error_hosts[host] = 2
+                    execution_info[host]['timeout'] = True
+                    error_hosts_count += 1
                     if self.raise_error:
                         print >> err, "%s %s\n" % (
                             error_prefix,
@@ -266,7 +275,7 @@ class BaseExecutor(object):
                         error_prefix,
                         create_failure_message(color, output, exit_status)
                     )
-                    error_hosts[host] = 1
+                    error_hosts_count += 1
                     if self.raise_error:
                         print >> err, "%s %s" % (
                             error_prefix,
@@ -277,10 +286,31 @@ class BaseExecutor(object):
         # Free process pool
         self.terminate_processes()
 
-        if len(error_hosts) != 0:
+        if options.get('verify_output'):
+            has_different_output = False
+            prev_output = None
             hosts = ''
             for h in self.hosts:
-                if h in error_hosts:
+                output = execution_info[h]['command_output']
+                self.log.debug("host: '%s', prev_output: '%s', output = '%s'" % (h, prev_output, output))
+                if prev_output != None and output != prev_output:
+                    hosts += '  %s\n' % (h)
+                    has_different_output = True
+                prev_output = output
+            hosts = hosts.rstrip()
+
+            if has_different_output:
+                print >> err, "%s Detected different command output." % (color.red(error_prefix))
+                for h in self.hosts:
+                    print >> err, "  %s: \"%s\"" % (h, execution_info[h]['command_output'])
+                return 3
+            else:
+                print >> out, color.green("Verified output.")
+
+        if error_hosts_count > 0:
+            hosts = ''
+            for h in self.hosts:
+                if execution_info[h]['exit_status'] != 0:
                     hosts += '  %s\n' % (h)
             hosts = hosts.rstrip()
             print >> err, "%s %s" % (
@@ -288,7 +318,7 @@ class BaseExecutor(object):
                 create_failure_last_message(color, command, hosts)
             )
             return 1
-        
+
         return 0
 
     def output_format(self, format):
