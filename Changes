@@ -1,3 +1,6 @@
+0.5.2 2012-06-01T00:20:19+09:00
+  - Bug fix: #35 A duplicated command output.
+
 0.5.1 2012-05-26T16:18:29+09:00
   - Bug fix: #33 tomahawk should escape '$' and '`'
   - Bug fix: #34 parallel numer should be smaller than specified value when count of hosts is smal
