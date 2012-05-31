@@ -15,6 +15,10 @@ DESCRIPTION
 
 .. include:: _tomahawk_description.rst
 
+ssh
+^^^
+tomahawk executes a command via 'ssh'. You can specify options for ssh with -o/--ssh-options and can configure ssh behavior with $HOME/.ssh/config.
+
 hosts file
 ^^^^^^^^^^
 -h option enables you to specify hosts, another option '-f', which is specifying hosts files.
@@ -29,7 +33,7 @@ Starting with "#" means commenting the host out.
 
 shell operators
 ^^^^^^^^^^^^^^^
-tomahawk executes commands via shell(/bin/sh), so you can use "|" (pipe), &&, || operators and so on. ::
+tomahawk executes commands via shell(/bin/sh), so you can use '|' (pipe), '&&', '||' operators and so on. ::
 
   $ tomahawk -h host1,host2 'ps auxww | grep python'
 
@@ -62,17 +66,17 @@ A line of starting with '#' disables a host.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 DUPLICATED. Use -P/--prompt-password. Will be deleted in v0.6.0
 
--P, --prompt-password
-^^^^^^^^^^^^^^^^^^^^^
+-P, --prompt-login-password
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Prompts a password for ssh authentication at first. If the password is all the same between target hosts, you'll input a password just once.
 
---password-from-stdin
-^^^^^^^^^^^^^^^^^^^^^
-Read a password from stdin instead of prompting.
+--login-password-stdin
+^^^^^^^^^^^^^^^^^^^^^^
+Read a SSH password from stdin instead of prompting.
 
 -s, --prompt-sudo-password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-OBSOLETED. Will be deleted in v0.6.0
+Prompts a password for sudo.
 
 -c, --continue-on-error
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -82,7 +86,7 @@ The default behavior is fail-safe, means that tomahawk will stop if any errors.
 -p, --parallel
 ^^^^^^^^^^^^^^
 Specifies a number of processes for parallel command execution. (default: 1)
-If your machine has many cpu cores, --parallel 2 .. N might be faster.
+If your machine has multiple cpu cores, --parallel 2 .. N might be faster.
 
 -t, --timeout
 ^^^^^^^^^^^^^
@@ -90,7 +94,7 @@ Specifies timeout seconds for a command.
 
 --expect-timeout
 ^^^^^^^^^^^^^^^^
-Duplicated. Use t (-timeout) instead.
+DUPLICATED. Use t (-timeout) instead. Will be deleted in v0.6.0.
 
 -u, --ssh-user
 ^^^^^^^^^^^^^^
@@ -106,8 +110,13 @@ Specifies command output format.
 The default is '${user}@${host} % ${command}\n${output}\n'
 
 
+ENVIRONMENT VARIABLES
+---------------------
+.. include:: _tomahawk_env_vars.rst
+
+
 SEE ALSO
 --------
 * :manpage:`tomahawk-rsync(1)`
 * :manpage:`ssh(1)`
-* :manpage:`scp(1)`
+

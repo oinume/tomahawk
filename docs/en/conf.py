@@ -44,14 +44,14 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The encoding of source files.
-#source_encoding = 'utf-8-sig'
+source_encoding = 'utf-8'
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
 project = u'tomahawk'
-copyright = u'2011-2012, Kazuhiro Oinuma'
+copyright = tomahawk.__copyright__ + ', ' + tomahawk.__author__
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -197,7 +197,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'tomahawk.tex', u'tomahawk Documentation',
-   u'Kazuhiro Oinuma', 'manual'),
+   tomahawk.__author__, 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -255,7 +255,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'tomahawk', u'tomahawk Documentation',
-   u'Kazuhiro Oinuma', 'tomahawk', 'One line description of project.',
+   tomahawk.__author__, 'tomahawk', 'One line description of project.',
    'Miscellaneous'),
 ]
 

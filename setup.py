@@ -1,5 +1,5 @@
-from setuptools import setup
 import os
+import sys
 from tomahawk import (
     __author__,
     __author_email__,
@@ -8,7 +8,7 @@ from tomahawk import (
 )
 
 def get_long_description():
-    file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README')
+    file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.rst')
     long_description = ''
     try:
         f = open(file)
@@ -18,6 +18,26 @@ def get_long_description():
         print 'Failed to open file "%s".' % (file)
         f.close()
     return long_description
+
+try:
+    from setuptools import setup
+    setup
+except ImportError:
+    from distutils.core import setup
+
+if sys.version_info < (2, 4):
+    print >>sys.stderr, "tomahawk requires at least Python 2.4 to run."
+    sys.exit(1)
+
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    sys.exit()
+
+install_requires = [ 'pexpect >= 2.4' ]
+if sys.version_info < (2, 6):
+    install_requires.append('multiprocessing')
+if sys.version_info < (2, 7):
+    install_requires.append('argparse')
 
 setup(
     name = 'tomahawk',
@@ -32,15 +52,11 @@ setup(
     scripts = [ os.path.join('bin', p) for p in [ 'tomahawk', 'tomahawk-rsync' ] ],
     zip_safe = False,
     platforms = 'unix',
-    install_requires = [
-        'argparse',
-        'multiprocessing',
-        'pexpect >= 2.4',
+    install_requires = install_requires,
+    tests_require = [ 'flexmock', 'pytest', 'pytest-cov' ],
+    data_files = [
+        ('man/man1', [ 'man/man1/tomahawk.1', 'man/man1/tomahawk-rsync.1' ])
     ],
-    tests_require = [
-        'nose >= 0.11'
-    ],
-    test_suite = 'nose.collector',
     classifiers = [
         'Development Status :: 5 - ' + __status__,
         'Environment :: Console',

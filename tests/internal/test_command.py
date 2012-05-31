@@ -1,97 +1,186 @@
-import cStringIO
-import os
+import argparse
 import re
-from nose.tools import eq_, ok_
+import utils
 
-from tomahawk.base import BaseMain
-from tomahawk.command import CommandContext, CommandExecutor, CommandMain
-from tomahawk.log import create_logger
-from tomahawk.utils import check_hosts
+utils.append_home_to_path(__file__)
 
-TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
+from tomahawk.command import CommandMain
+from tomahawk.constants import TimeoutError
+from tomahawk.expect import CommandWithExpect
 
-def test_01_execute():
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', 'echo "hello world!"' ]
-    )
-    status = executor.execute(context.arguments)
-    eq_(0, status, "execute() > status")
-    ok_(re.search(r'hello world', out.getvalue()), "execute() > output")
+def test_00_run(monkeypatch):
+    EXPECTED = {
+        'command': 'uptime',
+        'command_output': "0:40  up 1 day,  8:19, 4 users, load averages: 0.00 0.50 1.00",
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
 
-def test_02_execute_error():
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', 'failure_command' ]
-    )
-    status = executor.execute(context.arguments)
-    eq_(1, status, "execute() > error > status")
-    ok_(re.search(r'failed on host', err.getvalue()), "execute() > error > output")
+    def mock_parse_args(self):
+        return utils.create_command_namespace(command = [ EXPECTED['command'] ])
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
 
-def test_03_execute_timeout():
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', '--timeout=1', 'sleep 5' ]
-    )
-    status = executor.execute(context.arguments)
-    eq_(1, status, "execute() > timeout > status")
-    ok_(re.search(r'timed out on host', err.getvalue()), "execute() > timeout > output")
+    def mock_execute(self):
+        return EXPECTED['exit_status'], EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
 
-def test_04_execute_option_host_files():
-    out, err = create_out_and_err()
-    hosts_files = os.path.join(TESTS_DIR, 'localhost_2.hosts')
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts-files=' + hosts_files, 'echo "hello world!"' ]
-    )
-    status = executor.execute(context.arguments)
-    eq_(0, status, "execute() > option > --hosts-files > status")
-    ok_(re.search(r'hello world', out.getvalue()), "execute() > option > --hosts-files > output")
+    main = CommandMain('tomahawk')
+    status = main.run()
+    o = stdout.stop().value()
 
-def test_05_execute_option_continue_on_error():
-    # without --continue-on-error
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost,localhost', 'failure_command' ]
-    )
-    executor.execute(context.arguments)
+    assert status == 0
+    s = \
+"""tomahawk@localhost %% %(command)s
+%(command_output)s
 
-    # with --continue-on-error
-    out_continue, err_continue = create_out_and_err()
-    context_continue, executor_continue = create_context_and_executor(
-        out_continue, err_continue,
-        [ '--hosts=localhost,localhost', '--continue-on-error', 'failure_command' ]
-    )
-    status_continue = executor_continue.execute(context_continue.arguments)
-    eq_(1, status_continue, "execute() > option > --continue-on-error > status")
+""" % EXPECTED
+    assert o == s
 
-    # err_continue's length must be longer because the command continues even when error
-    ok_(
-        len(err_continue.getvalue()) > len(err.getvalue()),
-        "execute > option > --continue-on-error > output"
-    )
+def test_01_run_error(monkeypatch):
+    EXPECTED = {
+        'command': 'command_not_found',
+        'exit_status': 127,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
 
+    def mock_parse_args(self):
+        return utils.create_command_namespace(command = [ EXPECTED['command'] ])
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return EXPECTED['exit_status'], "/bin/sh: command_not_found: command not found"
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    assert status == 1
+    assert re.search(r'failed on host', stderr.stop().value())
+
+def test_02_run_timeout(monkeypatch):
+    EXPECTED = {
+        'command': 'sleep 3',
+        'command_output': "/bin/sh: command_not_found: command not found",
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ], timeout = 1
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        raise TimeoutError()
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    assert status == 1
+    assert re.search(r'timed out on host', stderr.stop().value())
+
+def test_03_run_escape_shell_chars(monkeypatch):
+    EXPECTED = {
+        'command': 'echo \\\\',
+        'command_output': "\\",
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            debug_enabled = True,
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return EXPECTED['exit_status'], EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    main.run()
+    o = stdout.stop().value().strip()
+    assert o == "tomahawk@localhost % echo \\\\\n\\"
+
+def test_10_run_option_host_files(monkeypatch):
+    EXPECTED = {
+        'command': 'echo "hello world"',
+        'command_output': "hello world",
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            hosts = 'localhost,localhost',
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 0, EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    assert status == 0
+    assert re.search(r'hello world', stdout.stop().value())
+
+def test_20_run_option_continue_on_error(monkeypatch):
+    EXPECTED = {
+        'command': 'failure_command',
+        'command_output': "hello world",
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            continue_on_error = True,
+            hosts = 'localhost,127.0.0.1',
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 127, EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    err = stderr.stop().value().strip()
+    assert status == 1
+    assert len(err.split('\n')) == 3
+
+def test_21_run_option_parallel_continue_on_error(monkeypatch):
+    EXPECTED = {
+        'command': 'failure_command',
+        'command_output': "hello world",
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
     target_hosts = [
         'localhost', 'localhost', 'localhost', 'localhost',
         '127.0.0.1', '127.0.0.1', '127.0.0.1', '127.0.0.1',
     ]
-    out_order, err_order = create_out_and_err()
-    context_order, executor_order = create_context_and_executor(
-        out_order, err_order,
-        [ '--hosts=%s' % (','.join(target_hosts)),
-          'failure_command', '--continue-on-error', '--parallel=2' ]
-    )
-    status_order = executor_order.execute(context_order.arguments)
-    eq_(1, status_order, "execute() > option > --continue-on-error, --parallel > status")
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            continue_on_error = True,
+            parallel = 2,
+            hosts = ','.join(target_hosts),
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 127, EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    assert status == 1
 
     # parse output to collect failure hosts.
     hosts = []
     hosts_start = False
-    for line in err_order.getvalue().split('\n'):
+    for line in stderr.stop().value().split('\n'):
         if re.search(r'failed on following hosts', line, re.I):
             hosts_start = True
             continue
@@ -99,72 +188,117 @@ def test_05_execute_option_continue_on_error():
             h = line.strip()
             if h != '':
                 hosts.append(h)
+    assert hosts == target_hosts
 
-    eq_(hosts, target_hosts, "execute > option > --continue-on-error > error hosts order")
+def test_30_execute_option_ssh_options(monkeypatch):
+    EXPECTED = {
+        'command': 'echo "hello world"',
+        'command_output': "hello world",
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
 
-def test_06_execute_option_ssh_options():
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', '-D', "--ssh-options=-o LogLevel=debug", 'uptime' ]
-    )
-    status = executor.execute(context.arguments)
-    eq_(0, status, "execute() > option > --ssh-options > status")
-    ok_(re.search(r'debug1: Exit status 0', out.getvalue()), "execute() > option > --ssh-options > output")
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            ssh_options = '-c arcfour',
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
 
+    def mock_execute(self):
+        return 0, EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
 
-def test_07_output_format():
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', r"--output-format='${host} @ ${command}'", 'uptime' ]
-    )
-    status = executor.execute(context.arguments)
-    eq_(0, status, "execute() > option > --output-format > status")
-    ok_(
-        re.search(r'localhost @ uptime', out.getvalue()) ,
-        "execute() > option > --output-format > output"
-    )
+    main = CommandMain('tomahawk')
+    status = main.run()
+    assert status == 0
+    assert re.search(EXPECTED['command_output'], stdout.stop().value())
 
-    # \n new line test
-    out2, err2 = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out2, err2,
-        [ '--hosts=localhost', r"--output-format='${host} @ ${command}\noutput:${output}'", 'uptime' ]
-    )
-    status2 = executor.execute(context.arguments)
-    eq_(0, status2, "execute() > option > --output-format > newline > status")
-    ok_(
-        re.search(r'localhost @ uptime', out2.getvalue()) ,
-        "execute() > option > --output-format > newline > output"
-    )
+def test_40_output_format(monkeypatch):
+    EXPECTED = {
+        'command': 'uptime',
+        'command_output': r'localhost @ uptime',
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
 
-    # \\n no new line test
-    out3, err3 = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out3, err3,
-        [ '--hosts=localhost', r"--output-format='${command} \\n output:${output}'", 'uptime' ]
-    )
-    status3 = executor.execute(context.arguments)
-    eq_(0, status3, "execute() > option > --output-format > no newline > status")
-    ok_(
-        re.search(r'uptime \\\\n output:', out3.getvalue()) ,
-        "execute() > option > --output-format > no newline > output"
-    )
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            output_format = r'${host} @ ${command}',
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
 
+    def mock_execute(self):
+        return 0, EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
 
-def create_out_and_err():
-    return cStringIO.StringIO(), cStringIO.StringIO()
+    main = CommandMain('tomahawk')
+    status = main.run()
+    out = stdout.stop().value().strip()
+    assert status == 0
+    assert EXPECTED['command_output'] == out
 
-def create_context_and_executor(out, err, args):
-    arg_parser = create_command_argument_parser(__file__)
-    log = create_logger(True)
-    options = arg_parser.parse_args(args)
-    context = CommandContext(options.command, options.__dict__, out, err)
-    hosts = check_hosts(options.__dict__, log, arg_parser.format_usage)
-    return context, CommandExecutor(context, log, hosts)
+def test_41_output_format_newline(monkeypatch):
+    """\n new line test"""
+    EXPECTED = {
+        'command': 'uptime',
+        'command_output': "localhost\nuptime",
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
 
-def create_command_argument_parser(file):
-    parser = CommandMain.create_argument_parser(file)
-    BaseMain.add_common_arguments(parser)
-    return parser
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            output_format = r"${host}\n${command}",
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 0, EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    assert status == 0
+    assert EXPECTED['command_output'] == stdout.stop().value().strip()
+
+def test_42_output_format_no_newline(monkeypatch):
+    """\\n no new line test"""
+    EXPECTED = {
+        'command': 'uptime',
+        'command_output': r"localhost \\n uptime",
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            output_format = r'${host} \\n ${command}',
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 0, EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    assert status == 0
+    assert EXPECTED['command_output'] == stdout.stop().value().strip()
+
+def test_50_parallel_adjustment(monkeypatch):
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ 'uptime' ], parallel = 10
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 0, "mock execute"
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    main.run()
+    assert main.context.options['parallel'] == 1
+

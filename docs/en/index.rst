@@ -11,7 +11,7 @@ What is tomahawk?
 tomahawk enables following 3 things.
 
 * Executes a command into many remote hosts
-* Copy files to many remote hosts
+* Copy local files to many remote hosts
 * Copy files from remote hosts to local
 
 Executes a command into many remote hosts
@@ -36,4 +36,4 @@ Indices and tables
 ==================
 .. * :ref:`genindex`
 .. * :ref:`modindex`
-* :ref:`search`
+.. * :ref:`search`

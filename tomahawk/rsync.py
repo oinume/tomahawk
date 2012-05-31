@@ -7,6 +7,9 @@ import sys
 import time
 
 from tomahawk.base import BaseContext, BaseMain, BaseExecutor
+from tomahawk.color import (
+    create_coloring_object
+)
 from tomahawk.constants import (
     DEFAULT_RSYNC_OUTPUT_FORMAT,
     DEFAULT_RSYNC_OPTIONS,
@@ -37,7 +40,7 @@ class RsyncMain(BaseMain):
         self.log.debug("destination = " + str(self.options.destination))
 
     def do_run(self):
-        context = RsyncContext(
+        self.context = RsyncContext(
             self.options.source,
             self.options.destination,
             self.options.__dict__,
@@ -47,15 +50,20 @@ class RsyncMain(BaseMain):
         check_required_command('rsync')
         hosts = self.check_hosts()
 
+        rsync_command = 'rsync %s %s %s' % (
+            self.context.options['rsync_options'],
+            self.context.source,
+            self.context.destination
+        )
+        color = create_coloring_object(sys.stdout)
         # prompt when production environment
-        rsync_command = 'rsync %s %s %s' % (context.options['rsync_options'], context.source, context.destination)
         self.confirm_execution_on_production(
-            'Rsync command "%s" will be executed %d hosts. Are you sure? [yes/NO]: '
-            % (rsync_command, len(hosts))
+            'Rsync command "%s" will be executed %s hosts. Are you sure? [yes/NO]: '
+            % (color.green(rsync_command), color.green(len(hosts)))
         )
 
-        executor = RsyncExecutor(context, self.log, hosts)
-        return executor.execute(context.source, context.destination)
+        executor = RsyncExecutor(self.context, self.log, hosts)
+        return executor.execute(self.context.source, self.context.destination)
 
     @classmethod
     def create_argument_parser(cls, file):
@@ -93,7 +101,7 @@ class RsyncMain(BaseMain):
         return parser
 
 
-def _rsync(command, password, timeout, expect_delay, debug_enabled):
+def _rsync(command, login_password, timeout, expect_delay, debug_enabled):
     """
     Execute rsync
     """
@@ -101,7 +109,7 @@ def _rsync(command, password, timeout, expect_delay, debug_enabled):
     signal.signal(signal.SIGINT, shutdown_by_signal)
 
     return CommandWithExpect(
-        command, [], password,
+        command, [], login_password, None,
         timeout, expect_delay, debug_enabled
     ).execute()
 
@@ -172,7 +180,7 @@ class RsyncExecutor(BaseExecutor):
 
             async_result = self.process_pool.apply_async(
                 _rsync,
-                ( c, self.password, options['timeout'], options['expect_delay'], options['debug'] )
+                ( c, self.login_password, options['timeout'], options['expect_delay'], options['debug'] )
             )
             async_results.append({ 'host': host, 'command': c, 'async_result': async_result })
 

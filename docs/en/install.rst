@@ -5,10 +5,11 @@ Requirements
 ------------
 
 * python >= 2.4
-* argparse
+* argparse (required only with python < 2.7)
 * multiprocessing (required only with python < 2.6)
 * pexpect
-* nose (required when testing)
+* pytest (required for testing)
+* flexmock (required for testing)
 
 Installation
 ------------

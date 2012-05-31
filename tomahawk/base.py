@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 import multiprocessing
 import os
+import re
 import platform
 import string
 import sys
 
 from tomahawk import (
-    __version__
+    __version__,
+    TimeoutError,
 )
 from tomahawk.color import (
     create_coloring_object
 )
 from tomahawk.constants import (
-    TimeoutError,
     DEFAULT_TIMEOUT,
     DEFAULT_COMMAND_OUTPUT_FORMAT,
     DEFAULT_EXPECT_DELAY,
@@ -22,8 +23,10 @@ from tomahawk.constants import (
 from tomahawk.log import create_logger
 from tomahawk.utils import (
     check_hosts,
-    read_password,
-    read_password_from_stdin
+    read_login_password,
+    read_login_password_from_stdin,
+    read_sudo_password,
+    read_sudo_password_from_stdin
 )
 class BaseContext(object):
     def __init__(self, options = {}, out = sys.stdout, err = sys.stderr):
@@ -37,7 +40,11 @@ class BaseMain(object):
         self.script_path = script_path
         self.arg_parser = self.create_argument_parser(script_path)
         self.options = self.arg_parser.parse_args()
-        self.log = create_logger(self.options.debug)
+        self.log = create_logger(
+            None,
+            self.options.debug or self.options.deep_debug,
+            self.options.deep_debug
+        )
 
     def run(self):
         try:
@@ -94,15 +101,11 @@ class BaseMain(object):
         )
         parser.add_argument(
             '-l', '--prompt-login-password', action='store_true',
-            help='DEPRECATED. Use -P/--prompt-password.'
-        )
-        parser.add_argument(
-            '-P', '--prompt-password', action='store_true',
             help='Prompt a password for ssh authentication.'
         )
         parser.add_argument(
-            '--password-from-stdin', action='store_true',
-            help='Read a password from stdin.'
+            '--login-password-stdin', action='store_true',
+            help='Read a password for ssh authentication from stdin.'
         )
         parser.add_argument(
             '-t', '--timeout', metavar='SECONDS', type=int, default=DEFAULT_TIMEOUT,
@@ -129,6 +132,10 @@ class BaseMain(object):
             help='Enable debug output.',
         )
         parser.add_argument(
+            '--deep-debug', action='store_true', default=False,
+            help='Enable deeper debug output.',
+        )
+        parser.add_argument(
             '--profile', action='store_true', help='Enable profiling.'
         )
         parser.add_argument(
@@ -152,6 +159,7 @@ class BaseExecutor(object):
         log -- log
         hosts -- target hosts
         """
+        self.processes_terminated = False
         if context is None:
             raise RuntimeError('Argument "context" required.')
         if len(hosts) == 0:
@@ -161,26 +169,26 @@ class BaseExecutor(object):
         if options.get('expect_timeout') is not None:
             options['timeout'] = options['expect_timeout']
             log.warn("Option --expect-timeout is DUPLICATED. Use --timeout. (Will be deleted in v0.6.0)")
-        if options.get('prompt_login_password'):
-            options['prompt_password'] = options['prompt_login_password']
-            log.warn("Option -l/--prompt-login-password is DUPLICATED. Use -P/--prompt-password. (Will be deleted in v0.6.0)")
-        if options.get('prompt_sudo_password'):
-            log.warn("Option --prompt-sudo-password is OBSOLETED. (Will be deleted in v0.6.0)")
         if options.get('no_sudo_password'):
             log.warn("Option --no-sudo-password is OBSOLETED. (Will be deleted in v0.6.0)")
 
         newline = False
-        password = None
-        if 'password' in kwargs:
-            password = kwargs['password']
-        elif options.get('prompt_password') and options.get('password_from_stdin'):
-            log.error("Cannot specify -P/--prompt-password and --password-from-stdin both.")
-            sys.exit(1)
-        elif options.get('password_from_stdin'):
-            password = read_password_from_stdin()
-        elif options.get('prompt_password'):
-            password = read_password()
+        login_password = None
+        if 'login_password' in kwargs:
+            login_password = kwargs['login_password']
+        elif options.get('prompt_login_password'):
+            login_password = read_login_password()
             newline = True
+        elif options.get('login_password_stdin'):
+            login_password = read_login_password_from_stdin()
+
+        sudo_password = None
+        if 'sudo_password' in kwargs:
+            sudo_password = kwargs['sudo_password']
+        elif options.get('prompt_sudo_password'):
+            sudo_password = read_sudo_password()
+        elif options.get('sudo_password_stdin'):
+            sudo_password = read_sudo_password_from_stdin()
 
         if newline:
             print
@@ -188,7 +196,8 @@ class BaseExecutor(object):
         self.context = context
         self.log = log
         self.hosts = hosts
-        self.password = password
+        self.login_password = login_password
+        self.sudo_password = sudo_password
         self.raise_error = True
         if options.get('continue_on_error'):
             self.raise_error = False
@@ -212,7 +221,7 @@ class BaseExecutor(object):
         error_hosts = {}
         output_format_template = string.Template(self.output_format(options.get('output_format', DEFAULT_COMMAND_OUTPUT_FORMAT)))
         timeout = options.get('timeout', DEFAULT_TIMEOUT)
-        error_prefix = color.red(color.bold('[error]'))
+        error_prefix = color.red(color.bold('[error]')) # insert newline for error messages
 
         # Main loop continues until all processes are done
         while finished < hosts_count:
@@ -235,22 +244,25 @@ class BaseExecutor(object):
                 finished += 1
 
                 output = create_output(color, output_format_template, command, host, exit_status, command_output)
+                if command_output == '':
+                    # if command_output is empty, chomp last newline character for ugly output
+                    output = re.sub(os.linesep + r'\Z', '', output)
                 if exit_status == 0:
                     print >> out, output
                 elif timeout_detail is not None:
-                    print >> out, "%s %s" % (
+                    print >> out, "%s %s\n" % (
                         error_prefix,
                         create_timeout_message(color, output, timeout)
                     )
                     error_hosts[host] = 2
                     if self.raise_error:
-                        print >> err, "%s %s" % (
+                        print >> err, "%s %s\n" % (
                             error_prefix,
                             create_timeout_raise_error_message(color, command, host, timeout)
                         )
                         return 1
                 else:
-                    print >> out, "%s %s" % (
+                    print >> out, "%s %s\n" % (
                         error_prefix,
                         create_failure_message(color, output, exit_status)
                     )
@@ -263,7 +275,7 @@ class BaseExecutor(object):
                         return 1
         
         # Free process pool
-        self.destory_process_pool()
+        self.terminate_processes()
 
         if len(error_hosts) != 0:
             hosts = ''
@@ -299,10 +311,13 @@ class BaseExecutor(object):
 
         return ''.join(seq)
 
-    def destory_process_pool(self):
-        if hasattr(self, 'process_pool'):
-            self.process_pool.close()
+    def terminate_processes(self):
+        if hasattr(self, 'process_pool') and not self.processes_terminated:
+            #self.process_pool.close()
+            self.log.debug("terminating processes")
+            self.process_pool.terminate()
             self.process_pool.join()
+            self.processes_terminated = True
 
     def __del__(self):
-        self.destory_process_pool()
+        self.terminate_processes()

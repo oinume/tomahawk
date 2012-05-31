@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # This code is stolen from pssh-2.2.2
 
-from termstyle import *
-
 def create_coloring_object(stream):
     if has_colors(stream):
         return ColoringEnabled()

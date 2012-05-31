@@ -1,7 +1,9 @@
-A simple ssh wrapper for executing a command to many hosts.
+.. -*- restructuredtext -*-
 
-EXAMPLES
---------
+.. image:: https://secure.travis-ci.org/oinume/tomahawk.png?branch=0.5-hotfix
+
+Examples
+========
 
 $ tomahawk -h host1,host2,host3 uptime
 
@@ -21,3 +23,12 @@ $ tomahawk-rsync -h host1,host2,host3 test.py /tmp/test.py
 --> 'test.py' is copied to host1, host2 and host3.
 
 See more usages: http://readthedocs.org/docs/tomahawk/en/latest/
+
+Documentation
+=============
+See http://readthedocs.org/docs/tomahawk/en/latest/
+
+Bug report
+==========
+https://github.com/oinume/tomahawk/issues
+

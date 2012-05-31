@@ -1,15 +1,17 @@
-import cStringIO
+import argparse
 import os
 import re
-from nose.tools import eq_, ok_
+import shutil
+import utils
 
-from tomahawk.base import BaseMain
-from tomahawk.rsync import RsyncContext, RsyncExecutor, RsyncMain
-from tomahawk.log import create_logger
-from tomahawk.utils import check_hosts, get_home_dir
+utils.append_home_to_path(__file__)
+
+from tomahawk.rsync import RsyncMain
+from tomahawk.constants import TimeoutError
+from tomahawk.expect import CommandWithExpect
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
-TMP_DIR = os.path.join(get_home_dir(__file__), 'tmp')
+TMP_DIR = os.path.join(utils.get_home_dir(__file__), 'tmp')
 if not os.path.exists(TMP_DIR):
     os.mkdir(TMP_DIR)
 
@@ -25,133 +27,153 @@ handle = open(hello_file, 'w')
 handle.write('hello world')
 handle.close()
 
-def test_01_execute():
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', hello_file, hello_file_copied ]
-    )
-    status = executor.execute(context.source, context.destination)
-    eq_(0, status, "execute() > status")
-    ok_(os.path.exists(hello_file_copied), "execute() > rsync copy")
+def test_00_run(monkeypatch):
+    EXPECTED = {
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
 
-def test_02_execute_error():
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', 'file_does_not_exist', TMP_DIR ]
-    )
-    status = executor.execute('file_does_not_exist', TMP_DIR)
-    eq_(1, status, "execute() > error > status")
-    ok_(not os.path.exists(os.path.join(TMP_DIR, 'file_does_not_exist')),
-        "execute() > error > rsync failure")
+    def mock_parse_args(self):
+        return utils.create_rsync_namespace(
+            source = hello_file,
+            destination = hello_file_copied,
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
 
-def test_03_execute_timeout():
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', '--timeout=1', '--rsync-options=-av --dry-run', '/', TMP_DIR ]
-    )
-    status = executor.execute(context.source, context.destination)
-    eq_(1, status, "execute() > timeout > status")
-    ok_(re.search(r'timed out on host', err.getvalue()), "execute() > timeout > output")
+    def mock_execute(self):
+        shutil.copyfile(hello_file, hello_file_copied)
+        return EXPECTED['exit_status'], ''
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
 
-def test_04_execute_option_rsync_options():
+    main = RsyncMain('tomahawk-rsync')
+    status = main.run()
+    assert status == EXPECTED['exit_status']
+    assert os.path.exists(hello_file_copied)
+
+def test_01_run_error(monkeypatch):
+    EXPECTED = {
+        'exit_status': 1,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_rsync_namespace(
+            source = 'file_does_not_exist',
+            destination = TMP_DIR,
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        shutil.copyfile(hello_file, hello_file_copied)
+        return EXPECTED['exit_status'], ''
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = RsyncMain('tomahawk-rsync')
+    status = main.run()
+    assert status == 1
+    assert not os.path.exists(os.path.join(TMP_DIR, 'file_does_not_exist'))
+
+def test_02_run_timeout(monkeypatch):
+    EXPECTED = {
+        'exit_status': 1,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_rsync_namespace(
+            source = 'file_does_not_exist',
+            destination = TMP_DIR,
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        raise TimeoutError()
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = RsyncMain('tomahawk-rsync')
+    status = main.run()
+    err = stderr.stop().value()
+    assert status == EXPECTED['exit_status']
+    assert re.search(r'timed out on host', err)
+
+def test_10_run_option_rsync_options(monkeypatch):
+    EXPECTED = {
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
     hello_file_dry_run = os.path.join(TMP_DIR, 'hello.dry-run')
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost', '--rsync-options=-av --dry-run',
-          hello_file, hello_file_dry_run ]
-    )
-    status = executor.execute(context.source, context.destination)
-    eq_(0, status, "execute() > option > --rsync-options > status")
-    ok_(not os.path.exists(hello_file_dry_run),
-        "execute() > option > --rsync-options > --dry-run file not copied")
 
-def test_05_execute_option_mirror_mode_pull():
+    def mock_parse_args(self):
+        return utils.create_rsync_namespace(
+            source = hello_file,
+            destination = hello_file_copied,
+            rsync_options = '-av --dry-run',
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return EXPECTED['exit_status'], ''
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = RsyncMain('tomahawk-rsync')
+    status = main.run()
+    assert status == EXPECTED['exit_status']
+    assert not os.path.exists(hello_file_dry_run)
+
+def test_11_run_option_mirror_mode_pull(monkeypatch):
+    EXPECTED = {
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
     target_files = ( 'localhost__hello', '127.0.0.1__hello' )
+    # remove target_files
     for f in target_files:
         path = os.path.join(TMP_DIR, f)
         if os.path.exists(path):
             os.remove(path)
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost,127.0.0.1', '--mirror-mode=pull',
-          hello_file, TMP_DIR ]
-    )
-    status = executor.execute(context.source, context.destination)
-    eq_(0, status, "execute() > option > --mirror-mode=pull > status")
+
+    def mock_parse_args(self):
+        return utils.create_rsync_namespace(
+            source = hello_file,
+            destination = TMP_DIR,
+            hosts = 'localhost,127.0.0.1',
+            mirror_mode = 'pull',
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        for f in target_files:
+            shutil.copyfile(hello_file, os.path.join(TMP_DIR, f))
+        return EXPECTED['exit_status'], ''
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = RsyncMain('tomahawk-rsync')
+    status = main.run()
+    assert status == EXPECTED['exit_status']
     for f in target_files:
-        ok_(os.path.exists(os.path.join(TMP_DIR, f)),
-            "execute() > option > --mirror-mode=pull > %s exists" % (f))
+        assert os.path.exists(os.path.join(TMP_DIR, f))
 
+def test_21_run_option_continue_on_error(monkeypatch):
+    EXPECTED = {
+        'exit_status': 1,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
 
-def test_06_execute_option_continue_on_error():
-    # without --continue-on-error
-    out, err = create_out_and_err()
-    context, executor = create_context_and_executor(
-        out, err,
-        [ '--hosts=localhost,localhost', 'file_does_not_exist', TMP_DIR ]
-    )
-    executor.execute(context.source, context.destination)
+    def mock_parse_args(self):
+        return utils.create_rsync_namespace(
+            source = hello_file,
+            destination = TMP_DIR,
+            hosts = 'localhost,127.0.0.1',
+            continue_on_error = True,
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
 
-    # with --continue-on-error
-    out_continue, err_continue = create_out_and_err()
-    context_continue, executor_continue = create_context_and_executor(
-        out_continue, err_continue,
-        [ '--hosts=localhost,localhost', '--continue-on-error',
-          'file_does_not_exist', TMP_DIR ]
-    )
-    status_continue = executor_continue.execute(context.source, context.destination)
-    eq_(1, status_continue, "execute() > option > --continue-on-error > status")
+    def mock_execute(self):
+        return 127, 'error when rsync'
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
 
-    # err_continue's length must be longer because the command continues even when error
-    ok_(
-        len(err_continue.getvalue()) > len(err.getvalue()),
-        "execute > option > --continue-on-error > output"
-    )
-
-#    target_hosts = [
-#        'localhost', 'localhost', 'localhost', 'localhost',
-#        '127.0.0.1', '127.0.0.1', '127.0.0.1', '127.0.0.1',
-#    ]
-#    out_order, err_order = create_out_and_err()
-#    context_order, executor_order = create_context_and_executor(
-#        out_order, err_order,
-#        [ '--hosts=%s' % (','.join(target_hosts)),
-#          'failure_command', '--continue-on-error', '--parallel=2' ]
-#    )
-#    status_order = executor_order.execute(context_order.arguments)
-#    eq_(1, status_order, "execute() > option > --continue-on-error, --parallel > status")
-#
-#    # parse output to collect failure hosts.
-#    hosts = []
-#    hosts_start = False
-#    for line in err_order.getvalue().split('\n'):
-#        if re.search(r'failed on following hosts', line, re.I):
-#            hosts_start = True
-#            continue
-#        if hosts_start:
-#            h = line.strip()
-#            if h != '':
-#                hosts.append(h)
-#
-#    eq_(hosts, target_hosts, "execute > option > --continue-on-error > error hosts order")
-
-def create_out_and_err():
-    return cStringIO.StringIO(), cStringIO.StringIO()
-
-def create_context_and_executor(out, err, args):
-    arg_parser = create_rsync_argument_parser(__file__)
-    log = create_logger(True)
-    options = arg_parser.parse_args(args)
-    context = RsyncContext(options.source, options.destination, options.__dict__, out, err)
-    hosts = check_hosts(options.__dict__, log, arg_parser.format_usage)
-    return context, RsyncExecutor(context, log, hosts)
-
-def create_rsync_argument_parser(file):
-    parser = RsyncMain.create_argument_parser(file)
-    BaseMain.add_common_arguments(parser)
-    return parser
+    main = RsyncMain('tomahawk-rsync')
+    status = main.run()
+    err = stderr.stop().value()
+    assert status == EXPECTED['exit_status']
+    assert len(err.split('\n')) == 4
