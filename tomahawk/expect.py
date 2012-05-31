@@ -20,8 +20,7 @@ class CommandWithExpect(object):
     def __init__(
         self, command, command_args, login_password, sudo_password,
         timeout = DEFAULT_TIMEOUT, expect_delay = DEFAULT_EXPECT_DELAY,
-        debug_enabled = False, expect = None,
-        expect_out = cStringIO.StringIO()
+        debug_enabled = False, expect = None, expect_out = None
     ):
         self.login_password = login_password
         self.sudo_password = sudo_password
@@ -33,6 +32,8 @@ class CommandWithExpect(object):
             '[Pp]assword.*:',
             'パスワード', # TODO: japanese character expected as utf-8
         ]
+        if expect_out is None:
+            expect_out = cStringIO.StringIO()
         if expect is None:
             self.expect = pexpect.spawn(
                 command,
@@ -77,6 +78,8 @@ class CommandWithExpect(object):
                 self.log.debug("expect.EOF")
         except pexpect.TIMEOUT:
             self.log.debug("expect.TIMEOUT")
+            # TODO: test
+            #self.expect.close()
             raise TimeoutError("Execution is timed out after %d seconds" % (self.timeout))
         except pexpect.EOF:
             self.log.debug("expect.EOF")
