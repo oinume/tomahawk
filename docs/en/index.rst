@@ -31,6 +31,7 @@ Contents:
    install
    tomahawk
    tomahawk-rsync
+   recipes
 
 Indices and tables
 ==================
