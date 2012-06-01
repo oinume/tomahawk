@@ -46,7 +46,7 @@ setup(
     license = 'LGPL',
     author = __author__,
     author_email = __author_email__,
-    description = 'A simple ssh wrapper for executing commands for many hosts.',
+    description = 'A simple ssh wrapper to execute commands for many hosts.',
     long_description = get_long_description(),
     packages = [ 'tomahawk' ],
     scripts = [ os.path.join('bin', p) for p in [ 'tomahawk', 'tomahawk-rsync' ] ],
