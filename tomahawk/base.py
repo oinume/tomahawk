@@ -286,6 +286,18 @@ class BaseExecutor(object):
         # Free process pool
         self.terminate_processes()
 
+        if error_hosts_count > 0:
+            hosts = ''
+            for h in self.hosts:
+                if execution_info[h]['exit_status'] != 0:
+                    hosts += '  %s\n' % (h)
+            hosts = hosts.rstrip()
+            print >> err, "%s %s" % (
+                error_prefix,
+                create_failure_last_message(color, command, hosts)
+            )
+            return 1
+
         if options.get('verify_output'):
             has_different_output = False
             prev_output = None
@@ -300,24 +312,12 @@ class BaseExecutor(object):
             hosts = hosts.rstrip()
 
             if has_different_output:
-                print >> err, "%s Detected different command output." % (color.red(error_prefix))
-                for h in self.hosts:
-                    print >> err, "  %s: \"%s\"" % (h, execution_info[h]['command_output'])
+                print >> err, \
+                    "%s Detected different command output on following hosts.\n%s" \
+                    % (color.red(error_prefix), hosts)
                 return 3
             else:
                 print >> out, color.green("Verified output.")
-
-        if error_hosts_count > 0:
-            hosts = ''
-            for h in self.hosts:
-                if execution_info[h]['exit_status'] != 0:
-                    hosts += '  %s\n' % (h)
-            hosts = hosts.rstrip()
-            print >> err, "%s %s" % (
-                error_prefix,
-                create_failure_last_message(color, command, hosts)
-            )
-            return 1
 
         return 0
 
