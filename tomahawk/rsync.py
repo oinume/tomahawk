@@ -36,8 +36,10 @@ class RsyncMain(BaseMain):
     def __init__(self, file):
         super(RsyncMain, self).__init__(file)
         self.log.debug("options = " + str(self.options))
-        self.log.debug("source = " + str(self.options.source))
-        self.log.debug("destination = " + str(self.options.destination))
+        self.log.debug(
+            "source = %s, destination = %s" % \
+             (str(self.options.source), str(self.options.destination))
+        )
 
     def do_run(self):
         self.context = RsyncContext(

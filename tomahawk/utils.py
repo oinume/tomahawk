@@ -43,13 +43,14 @@ def get_options_from_conf(command):
             conf_path = path
             break
     if not conf_path:
-        return None
+        return [], None
     parser = ConfigParser.ConfigParser()
     parser.read(conf_path)
     value = parser.get(command, 'options')
     if not value:
-        return None
-    return value.strip()
+        return [], conf_path
+    import shlex
+    return shlex.split(value.strip()), conf_path
 
 def check_hosts(options, log, usage_func):
     if options.get('hosts') is not None and options.get('hosts_files') is not None:

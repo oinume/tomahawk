@@ -23,6 +23,7 @@ from tomahawk.constants import (
 from tomahawk.log import create_logger
 from tomahawk.utils import (
     check_hosts,
+    get_options_from_conf,
     read_login_password,
     read_login_password_from_stdin,
     read_sudo_password,
@@ -39,13 +40,17 @@ class BaseMain(object):
     def __init__(self, script_path):
         self.script_path = script_path
         self.arg_parser = self.create_argument_parser(script_path)
-        # TODO: read from .tomahawk.conf
+        conf_options, conf_path = get_options_from_conf(os.path.basename(script_path))
+        if conf_options:
+            sys.argv.extend(conf_options)
         self.options = self.arg_parser.parse_args()
         self.log = create_logger(
             None,
             self.options.debug or self.options.deep_debug,
             self.options.deep_debug
         )
+        if conf_options:
+            self.log.debug("Applying options %s from %s" % (str(conf_options), conf_path))
 
     def run(self):
         try:
