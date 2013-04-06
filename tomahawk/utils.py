@@ -54,7 +54,7 @@ def get_options_from_conf(command):
         return shlex.split(value.strip()), conf_path
     except ConfigParser.NoOptionError, e:
         # ConfigParser.NoOptionError: No option 'options' in section: 'tomahawk'
-        print >>sys.stderr, "%s. in '%s'" % (e, conf_path)
+        print >>sys.stderr, "[WARNING] %s. in '%s'" % (e, conf_path)
         return [], conf_path
 
 def check_hosts(options, log, usage_func):
