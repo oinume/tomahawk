@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import ConfigParser
 from getpass import getpass, getuser
-import sys
 import os
+import sys
+import shlex
 
 def shutdown_by_signal(signum, frame):
     print
@@ -45,12 +46,16 @@ def get_options_from_conf(command):
     if not conf_path:
         return [], None
     parser = ConfigParser.ConfigParser()
-    parser.read(conf_path)
-    value = parser.get(command, 'options')
-    if not value:
+    try:
+        parser.read(conf_path)
+        value = parser.get(command, 'options')
+        if not value:
+            return [], conf_path
+        return shlex.split(value.strip()), conf_path
+    except ConfigParser.NoOptionError, e:
+        # ConfigParser.NoOptionError: No option 'options' in section: 'tomahawk'
+        print >>sys.stderr, "%s. in '%s'" % (e, conf_path)
         return [], conf_path
-    import shlex
-    return shlex.split(value.strip()), conf_path
 
 def check_hosts(options, log, usage_func):
     if options.get('hosts') is not None and options.get('hosts_files') is not None:

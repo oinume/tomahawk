@@ -18,6 +18,23 @@ options = --verify-output
     finally:
         conf.close()
     conf_options, conf_path = get_options_from_conf('tomahawk')
-    print conf_options
+    #print conf_options
     assert conf_options == [ '--verify-output' ]
     assert conf_path == path
+
+def test_01_get_options_from_conf_no_options(tmpdir):
+    os.environ['HOME'] = str(tmpdir)
+    path = os.path.join(str(tmpdir), '.tomahawk.conf')
+    conf = open(path, 'w')
+    try:
+        conf.write("""
+[tomahawk]
+# options = --verify-output
+""".strip())
+    finally:
+        conf.close()
+    conf_options, conf_path = get_options_from_conf('tomahawk')
+    #print conf_options
+    assert conf_options == []
+    assert conf_path == path
+
