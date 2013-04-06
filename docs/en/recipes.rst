@@ -32,3 +32,19 @@ And then, diff 2 files with -V (--verify-output) option. ::
   [error] Detected different command output on following hosts.
   ...
 
+Omit command line options by .tomahawk.conf
+---------------------------------------------
+Since v0.6.0, you can omit command line options by a configuration file. If $HOME/.tomahawk.conf exists, tomahawk and tomahawk-rsync read command line options from $HOME/.tomahawk.conf.
+
+.tomahawk.conf is just ini file like below.::
+
+  [tomahawk]
+  options = --parallel 1
+  
+  [tomahawk-rsync]
+  options = --parallel 1
+
+That is equivalent to::
+
+  $ tomahawk --parallel 1
+  $ tomahawk-rsync --parallel 1
