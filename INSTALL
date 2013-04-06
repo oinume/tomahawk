@@ -1,9 +1,10 @@
 Requirements
-  - python >= 2.5
+  - python >= 2.4
   - argparse
   - multiprocessing
   - pexpect
-  - nose
+  - pytest 
+  - flexmock
 
 How to install
   tar xvzf tomahawk-x.y.z.tar.gz

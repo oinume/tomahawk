@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import ConfigParser
 from getpass import getpass, getuser
-import sys
 import os
+import sys
+import shlex
 
 def shutdown_by_signal(signum, frame):
     print
@@ -33,6 +35,27 @@ def read_sudo_password_from_stdin():
 
 def get_run_user():
     return getuser()
+
+def get_options_from_conf(command):
+    user_home = os.environ['HOME']
+    conf_path = None
+    for path in (os.path.join(user_home, '.tomahawk.conf'), '/etc/tomahawk.conf'):
+        if os.path.exists(path):
+            conf_path = path
+            break
+    if not conf_path:
+        return [], None
+    parser = ConfigParser.ConfigParser()
+    try:
+        parser.read(conf_path)
+        value = parser.get(command, 'options')
+        if not value:
+            return [], conf_path
+        return shlex.split(value.strip()), conf_path
+    except ConfigParser.NoOptionError, e:
+        # ConfigParser.NoOptionError: No option 'options' in section: 'tomahawk'
+        print >>sys.stderr, "%s. in '%s'" % (e, conf_path)
+        return [], conf_path
 
 def check_hosts(options, log, usage_func):
     if options.get('hosts') is not None and options.get('hosts_files') is not None:

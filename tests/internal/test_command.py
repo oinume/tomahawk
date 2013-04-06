@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import re
 import utils
 
@@ -235,7 +236,7 @@ def test_40_output_format(monkeypatch):
     status = main.run()
     out = stdout.stop().value().strip()
     assert status == 0
-    assert EXPECTED['command_output'] == out
+    assert out == EXPECTED['command_output']
 
 def test_41_output_format_newline(monkeypatch):
     """\n new line test"""
@@ -259,7 +260,7 @@ def test_41_output_format_newline(monkeypatch):
     main = CommandMain('tomahawk')
     status = main.run()
     assert status == 0
-    assert EXPECTED['command_output'] == stdout.stop().value().strip()
+    assert stdout.stop().value().strip() == EXPECTED['command_output']
 
 def test_42_output_format_no_newline(monkeypatch):
     """\\n no new line test"""
@@ -283,7 +284,7 @@ def test_42_output_format_no_newline(monkeypatch):
     main = CommandMain('tomahawk')
     status = main.run()
     assert status == 0
-    assert EXPECTED['command_output'] == stdout.stop().value().strip()
+    assert stdout.stop().value().strip() == EXPECTED['command_output']
 
 def test_50_parallel_adjustment(monkeypatch):
     stdout, stderr = utils.capture_stdout_stderr()
@@ -302,3 +303,58 @@ def test_50_parallel_adjustment(monkeypatch):
     main.run()
     assert main.context.options['parallel'] == 1
 
+def test_60_verify_output_ok(monkeypatch):
+    EXPECTED = {
+        'command': 'echo "hello world"',
+        'command_output': r'hello world',
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            hosts = 'localhost,127.0.0.1',
+            verify_output = True,
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 0, EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    out = stdout.stop().value().strip()
+    assert status == 0
+    assert out == """
+tomahawk@localhost % echo "hello world"
+hello world
+
+tomahawk@127.0.0.1 % echo "hello world"
+hello world
+
+Verified output.
+""".strip()
+
+def test_61_verify_output_ng(monkeypatch):
+    EXPECTED = {
+        'command': 'date',
+        'command_output': r'hello world',
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self):
+        return utils.create_command_namespace(
+            command = [ EXPECTED['command'] ],
+            hosts = 'localhost,127.0.0.1',
+            verify_output = True,
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return 0, str(datetime.datetime.now())
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    assert status != 0

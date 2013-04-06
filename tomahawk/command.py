@@ -91,8 +91,12 @@ class CommandMain(BaseMain):
             help='OBSOTED. Never prompt a password for sudo.'
         )
         parser.add_argument(
-            '--output-format', default=DEFAULT_COMMAND_OUTPUT_FORMAT,
+            '-F', '--output-format', default=DEFAULT_COMMAND_OUTPUT_FORMAT,
             help="Command output format. (default: '%s')" % (DEFAULT_COMMAND_OUTPUT_FORMAT.replace('%', '%%').replace('\n', '\\n'))
+        )
+        parser.add_argument(
+            '-V', '--verify-output', action='store_true',
+            help="Verify command output of all hosts."
         )
         cls.add_common_arguments(parser)
         return parser

@@ -104,10 +104,14 @@ Specifies ssh user. The default is a current logged in user.
 ^^^^^^^^^^^^^^^^^
 Specifies ssh options.
 
---output-format
-^^^^^^^^^^^^^^^
+-F, --output-format
+^^^^^^^^^^^^^^^^^^^
 Specifies command output format.
 The default is '${user}@${host} % ${command}\n${output}\n'
+
+-V, --verify-output
+^^^^^^^^^^^^^^^^^^^
+Verify command output of all hosts.
 
 
 ENVIRONMENT VARIABLES
