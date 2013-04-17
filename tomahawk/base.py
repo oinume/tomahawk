@@ -41,9 +41,10 @@ class BaseMain(object):
         self.script_path = script_path
         self.arg_parser = self.create_argument_parser(script_path)
         conf_options, conf_path = get_options_from_conf(os.path.basename(script_path))
+        args = sys.argv[1:]
         if conf_options:
-            sys.argv.extend(conf_options)
-        self.options = self.arg_parser.parse_args()
+            args = conf_options + sys.argv[1:]
+        self.options = self.arg_parser.parse_args(args)
         self.log = create_logger(
             None,
             self.options.debug or self.options.deep_debug,
