@@ -1,6 +1,6 @@
 .. -*- restructuredtext -*-
 
-.. image:: https://secure.travis-ci.org/oinume/tomahawk.png?branch=0.5-hotfix
+.. image:: https://secure.travis-ci.org/oinume/tomahawk.png?branch=0.6-hotfix
 
 Examples
 ========
@@ -28,7 +28,28 @@ Documentation
 =============
 See http://readthedocs.org/docs/tomahawk/en/latest/
 
-Bug report
-==========
+How to contribute
+=================
+
+Report a bug
+------------
 https://github.com/oinume/tomahawk/issues
 
+Send a patch
+------------
+Fork, modify code, add tests, run tests, send pull request.
+
+
+For developers
+==============
+Install tomahawk in develop mode.::
+
+  $ python setup.py develop
+
+Install following modules for testing.::
+
+  $ pip install flexmock>=0.8 pytest>=2.2 pytest-cov>=1.5
+
+Run tests::
+
+  $ py.test tests/internal/
