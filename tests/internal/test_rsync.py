@@ -33,7 +33,7 @@ def test_00_run(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_rsync_namespace(
             source = hello_file,
             destination = hello_file_copied,
@@ -56,7 +56,7 @@ def test_01_run_error(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_rsync_namespace(
             source = 'file_does_not_exist',
             destination = TMP_DIR,
@@ -79,7 +79,7 @@ def test_02_run_timeout(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_rsync_namespace(
             source = 'file_does_not_exist',
             destination = TMP_DIR,
@@ -103,7 +103,7 @@ def test_10_run_option_rsync_options(monkeypatch):
     stdout, stderr = utils.capture_stdout_stderr()
     hello_file_dry_run = os.path.join(TMP_DIR, 'hello.dry-run')
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_rsync_namespace(
             source = hello_file,
             destination = hello_file_copied,
@@ -132,7 +132,7 @@ def test_11_run_option_mirror_mode_pull(monkeypatch):
         if os.path.exists(path):
             os.remove(path)
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_rsync_namespace(
             source = hello_file,
             destination = TMP_DIR,
@@ -159,7 +159,7 @@ def test_21_run_option_continue_on_error(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_rsync_namespace(
             source = hello_file,
             destination = TMP_DIR,

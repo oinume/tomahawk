@@ -17,7 +17,7 @@ def test_00_run(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(command = [ EXPECTED['command'] ])
     monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
 
@@ -44,7 +44,7 @@ def test_01_run_error(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(command = [ EXPECTED['command'] ])
     monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
 
@@ -64,7 +64,7 @@ def test_02_run_timeout(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ], timeout = 1
         )
@@ -87,7 +87,7 @@ def test_03_run_escape_shell_chars(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             debug_enabled = True,
@@ -110,7 +110,7 @@ def test_10_run_option_host_files(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             hosts = 'localhost,localhost',
@@ -133,7 +133,7 @@ def test_20_run_option_continue_on_error(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             continue_on_error = True,
@@ -161,7 +161,7 @@ def test_21_run_option_parallel_continue_on_error(monkeypatch):
         'localhost', 'localhost', 'localhost', 'localhost',
         '127.0.0.1', '127.0.0.1', '127.0.0.1', '127.0.0.1',
     ]
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             continue_on_error = True,
@@ -198,7 +198,7 @@ def test_30_execute_option_ssh_options(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             ssh_options = '-c arcfour',
@@ -221,7 +221,7 @@ def test_40_output_format(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             output_format = r'${host} @ ${command}',
@@ -246,7 +246,7 @@ def test_41_output_format_newline(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             output_format = r"${host}\n${command}",
@@ -270,7 +270,7 @@ def test_42_output_format_no_newline(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             output_format = r'${host} \\n ${command}',
@@ -289,7 +289,7 @@ def test_42_output_format_no_newline(monkeypatch):
 def test_50_parallel_adjustment(monkeypatch):
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ 'uptime' ], parallel = 10
         )
@@ -310,7 +310,7 @@ def test_60_verify_output_ok(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             hosts = 'localhost,127.0.0.1',
@@ -343,7 +343,7 @@ def test_61_verify_output_ng(monkeypatch):
     }
     stdout, stderr = utils.capture_stdout_stderr()
 
-    def mock_parse_args(self):
+    def mock_parse_args(self, args):
         return utils.create_command_namespace(
             command = [ EXPECTED['command'] ],
             hosts = 'localhost,127.0.0.1',
