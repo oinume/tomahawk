@@ -135,6 +135,7 @@ class CommandExecutor(BaseExecutor):
         ssh_options = ''
         if options.get('ssh_options'):
             ssh_options = options['ssh_options'] + ' '
+        # TODO: Bug #41
         ssh_options += '-l ' + ssh_user
         if ssh_options.find('-T') == -1:
             # if '-T' isn't specified, turn 'pseudo-tty allocation' on
@@ -146,7 +147,9 @@ class CommandExecutor(BaseExecutor):
                 command_args = []
                 for option in ssh_options.split(' '):
                     #  remove left and right whitespaces
-                    command_args.append(option.strip())
+                    option = option.strip()
+                    if len(option) > 0:
+                        command_args.append(option)
 
                 command_args.append(host)
                 # Escape shell special chars

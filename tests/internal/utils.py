@@ -27,7 +27,7 @@ from tomahawk.constants import (
 
 def create_command_namespace(**kwargs):
     defaults = {
-        'command': [ '' ], 'continue_on_error': None,
+        'command': [ '' ], 'conf': None, 'continue_on_error': None,
         'debug': False, 'deep_debug': False,
         'delay': 0, 'expect_delay': 0.1,
         'hosts': 'localhost', 'profile': False,
@@ -40,7 +40,7 @@ def create_command_namespace(**kwargs):
 def create_rsync_namespace(**kwargs):
     defaults = {
         'source': None, 'destination': None,
-        'continue_on_error': None,
+        'conf': None, 'continue_on_error': None,
         'debug': False, 'deep_debug': False,
         'delay': 0, 'expect_delay': 0.1,
         'hosts': 'localhost', 'profile': False,
