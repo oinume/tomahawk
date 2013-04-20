@@ -66,7 +66,7 @@ class CommandMain(BaseMain):
             conflict_handler = 'resolve'
         )
         parser.add_argument(
-            'command', metavar='command', nargs='+',
+            'command', metavar='command', nargs='*',
             help='Command executed on remote hosts.',
         )
         parser.add_argument(
@@ -126,7 +126,7 @@ class CommandExecutor(BaseExecutor):
     """
     def execute(self, commands):
         if len(commands) == 0:
-            raise RuntimeError('1st argument "commands" length is 0')
+            raise RuntimeError("[error] Too few arguments")
 
         options = self.context.options
         #ssh = options.get('ssh') or 'ssh'

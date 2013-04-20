@@ -51,7 +51,6 @@ def create_rsync_namespace(**kwargs):
         kwargs.setdefault(k, v)
     return argparse.Namespace(**kwargs)
 
-
 def capture_stdout_stderr():
     o = StdoutCapture()
     e = StderrCapture()

@@ -40,18 +40,24 @@ class BaseMain(object):
     def __init__(self, script_path):
         self.script_path = script_path
         self.arg_parser = self.create_argument_parser(script_path)
-        conf_options, conf_path = get_options_from_conf(os.path.basename(script_path))
-        args = sys.argv[1:]
-        if conf_options:
+        self.options = self.arg_parser.parse_args(sys.argv[1:])
+        conf_options = None
+        if self.options.conf:
+            conf_options = get_options_from_conf(
+                os.path.basename(script_path),
+                self.options.conf
+            )
             args = conf_options + sys.argv[1:]
-        self.options = self.arg_parser.parse_args(args)
+            # Re-parse command line options because conf_options added
+            self.options = self.arg_parser.parse_args(args)
+
         self.log = create_logger(
             None,
             self.options.debug or self.options.deep_debug,
             self.options.deep_debug
         )
         if conf_options:
-            self.log.debug("Applying options %s from %s" % (str(conf_options), conf_path))
+            self.log.debug("Applying options %s from %s" % (str(conf_options), self.options.conf))
 
     def run(self):
         try:
@@ -133,6 +139,10 @@ class BaseMain(object):
         parser.add_argument(
             '--expect-delay', type=float, default=DEFAULT_EXPECT_DELAY,
             help='Expect delay time in seconds. (default: 0.05)'
+        )
+        parser.add_argument(
+            '-C', '--conf', metavar='FILE', default=None,
+            help='Configuration file path.'
         )
         parser.add_argument(
             '-D', '--debug', action='store_true', default=False,
