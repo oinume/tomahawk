@@ -65,8 +65,8 @@ If your machine has many cpu cores, --parallel 2 .. N might be faster.
 ^^^^^^^^^^^^^
 Specifies timeout seconds for a command.
 
---output-format
-^^^^^^^^^^^^^^^
+-F, --output-format
+^^^^^^^^^^^^^^^^^^^
 Specifies command output format.
 The default is '${user}@${host} % ${command}\n${output}\n'
 
@@ -82,6 +82,10 @@ Specifies rsync options. The default is '-av'
 ^^^^^^^^^^^^^^^^^
 Selection of 'push' or 'pull'.
 'pull' means copy files from remote to local. The default is 'push'.
+
+-C, --conf
+^^^^^^^^^^
+Specifies configuration file path.
 
 
 ENVIRONMENT VARIABLES

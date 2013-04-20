@@ -113,6 +113,9 @@ The default is '${user}@${host} % ${command}\n${output}\n'
 ^^^^^^^^^^^^^^^^^^^
 Verify command output of all hosts.
 
+-C, --conf
+^^^^^^^^^^
+Specifies configuration file path.
 
 ENVIRONMENT VARIABLES
 ---------------------
