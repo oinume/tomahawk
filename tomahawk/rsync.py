@@ -92,7 +92,7 @@ class RsyncMain(BaseMain):
             help='"push" or "pull". "pull" means copy files remote -> local (default: "push")'
         )
         parser.add_argument(
-            '--output-format', default=DEFAULT_RSYNC_OUTPUT_FORMAT,
+            '-F', '--output-format', default=DEFAULT_RSYNC_OUTPUT_FORMAT,
             help="rsync command output format. (default: '%s')" % (DEFAULT_RSYNC_OUTPUT_FORMAT.replace('%', '%%').replace('\n', '\\n'))
         )
 #       parser.add_argument(
