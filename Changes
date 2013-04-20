@@ -1,7 +1,10 @@
+0.6.0 2013-04-21T02:17:02+09:00
+  - Document: Add "For developers" section in README.rst
+
 0.6.0-rc1 2013-04-06T22:44:43+09:00
   - New feature: #36 --verify-output option
   - New feature: #37 A short-cut '-F' for --output-format option
-  - New feature: #39 Configuration file ($HOME/.tomahawk.conf)
+  - New feature: #39 -C/--conf: Specify a configuration file
   - Document: #38 tomahawk recipes in documentation
 
 0.5.2 2012-06-01T00:20:19+09:00
