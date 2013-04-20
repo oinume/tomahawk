@@ -185,9 +185,9 @@ class BaseExecutor(object):
         options = context.options
         if options.get('expect_timeout') is not None:
             options['timeout'] = options['expect_timeout']
-            log.warn("Option --expect-timeout is DUPLICATED. Use --timeout. (Will be deleted in v0.6.0)")
+            log.warn("Option --expect-timeout is DUPLICATED. Use --timeout. (Will be deleted in v0.7.0)")
         if options.get('no_sudo_password'):
-            log.warn("Option --no-sudo-password is OBSOLETED. (Will be deleted in v0.6.0)")
+            log.warn("Option --no-sudo-password is OBSOLETED. (Will be deleted in v0.7.0)")
 
         newline = False
         login_password = None
