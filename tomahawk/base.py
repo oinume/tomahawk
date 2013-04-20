@@ -334,7 +334,7 @@ class BaseExecutor(object):
                     % (color.red(error_prefix), hosts)
                 return 3
             else:
-                print >> out, color.green("Verified output.")
+                print >> out, color.green("Verified output of all hosts.")
 
         return 0
 

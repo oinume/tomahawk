@@ -333,7 +333,7 @@ hello world
 tomahawk@127.0.0.1 % echo "hello world"
 hello world
 
-Verified output.
+Verified output of all hosts.
 """.strip()
 
 def test_61_verify_output_ng(monkeypatch):
