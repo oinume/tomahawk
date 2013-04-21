@@ -85,7 +85,7 @@ Selection of 'push' or 'pull'.
 
 -C, --conf
 ^^^^^^^^^^
-Specifies configuration file path.
+Specifies configuration file path. For additional information, see :ref:`omit-command-line-options`
 
 
 ENVIRONMENT VARIABLES

@@ -20,24 +20,28 @@ You can speficy following variables.
 * ${command}
 * ${output}
 
-Checking a file in remote hosts is all the same
------------------------------------------------
-At first, copy a file to be compared to remote hosts. ::
+.. _checking-files-on-remote-hosts:
 
-  $ tomahawk-rsync -h <hosts> /usr/local/apache2/conf/httpd.conf /tmp/httpd.conf
+Checking files on remote hosts
+------------------------------
+Since v0.6.0, able to check files on remote hosts are all the same.
+Let's check httpd.conf is all the same with ``md5sum`` command. ::
 
-And then, diff 2 files with -V (--verify-output) option. ::
+  $ tomahawk -h <hosts> -V 'md5sum /usr/local/apache2/conf/httpd.conf'
 
-  $ tomahawk -h <hosts> -V 'diff /tmp/httpd.conf /usr/local/apache2/conf/httpd.conf 
+If output of some hosts are different, you'll get following errors. ::
+
   ...
   [error] Detected different command output on following hosts.
   ...
 
+.. _omit-command-line-options:
+
 Omit command line options by a configuration file.
 --------------------------------------------------
-Since v0.6.0, you can omit command line options by a configuration file. If ``-c/--conf`` option is specified, tomahawk and tomahawk-rsync read command line options from a configuration file.
+Since v0.6.0, you can omit command line options by a configuration file. If ``-c/--conf`` option is specified, tomahawk and tomahawk-rsync read command line options from a configuration file. It is good to define commonly-used options in a configuration file.
 
-Configuration file is just ini file like below.::
+Configuration file is just ini file like below. ::
 
   [tomahawk]
   options = --parallel 1
@@ -45,9 +49,8 @@ Configuration file is just ini file like below.::
   [tomahawk-rsync]
   options = --parallel 1
 
-That is equivalent to::
+That is equivalent to ::
 
   $ tomahawk --parallel 1
   $ tomahawk-rsync --parallel 1
 
-It is good to define commonly-used options in a configuration file.

@@ -107,15 +107,16 @@ Specifies ssh options.
 -F, --output-format
 ^^^^^^^^^^^^^^^^^^^
 Specifies command output format.
-The default is '${user}@${host} % ${command}\n${output}\n'
+The default is ``'${user}@${host} % ${command}\n${output}\n'``
 
 -V, --verify-output
 ^^^^^^^^^^^^^^^^^^^
 Verify command output of all hosts.
+For additional information, see :ref:`checking-files-on-remote-hosts`
 
 -C, --conf
 ^^^^^^^^^^
-Specifies configuration file path.
+Specifies configuration file path. For additional information, see :ref:`omit-command-line-options`
 
 ENVIRONMENT VARIABLES
 ---------------------
