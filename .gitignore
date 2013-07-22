@@ -2,6 +2,10 @@ TODO
 *.pyc
 tomahawk.egg-info/
 dist/
+docs/en/_build/
+htmlcov/
 tmp/hello*
 .coverage
 .tox
+.idea
+*.iml
