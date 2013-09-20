@@ -19,17 +19,11 @@
 0.5.0 2012-04-01T02:00:16+09:00
   - Nothing changed from 0.5.0-rc3
 
-0.5.0 2012-04-01T02:00:16+09:00
-  - Nothing changed from 0.5.0-rc3
-
 0.5.0-rc3 2012-03-24T00:35:28+09:00
   - More bug fixes
   - Removed option in 0.5.0-rc1 '--prompt-login-password' were back.
   - New feature: #16 New options --login-password-stdin, --sudo-password-stdin is now available
   - Change: #32 tomahawk now doesn't prompt sudo password even if 'sudo ...' command given. If -s/--prompt-sudo-password is given, tomahawk prompts sudo password.
-
-0.5.0-rc2 2012-03-13T20:54:27+09:00
-  - Bug fix: tomahawk doesn't stop completely when SIGINT(Ctrl-C) received 
 
 0.5.0-rc2 2012-03-13T20:54:27+09:00
   - Bug fix: tomahawk doesn't stop completely when SIGINT(Ctrl-C) received 
