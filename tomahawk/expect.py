@@ -2,6 +2,7 @@
 import cStringIO
 import pexpect
 import re
+from six import print_
 import sys
 import time
 from tomahawk.constants import (
@@ -60,7 +61,7 @@ class CommandWithExpect(object):
             if index in (0, 1, 2):
                 if password is None:
                     self.log.debug("Password is None")
-                    #print >> stderr, "[error] Password is empty. Use -l or -s"
+                    #print_('[error] Password is empty. Use -l or -s', file=stderr)
                     raise CommandError("Password is empty. Use -l/--prompt-login-password or --login-password-stdin.")
 
                 if index == 0:

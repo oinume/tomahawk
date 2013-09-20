@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import re
 import platform
+from six import print_
 import string
 import sys
 
@@ -74,8 +75,8 @@ class BaseMain(object):
             else:
                 return self.do_run()
         except KeyboardInterrupt:
-            print
-            print "Keyboard interrupt. exiting..."
+            print_()
+            print_('Keyboard interrupt. exiting...')
 
     def do_run(self):
         raise Exception("This is a template method implemented by sub-class")
@@ -89,9 +90,9 @@ class BaseMain(object):
 
         input = raw_input(message)
         if input == 'yes':
-            print
+            print_()
         else:
-            print "Command execution was cancelled."
+            print_('Command execution was cancelled.')
             sys.exit(0)
 
     @classmethod
@@ -208,7 +209,7 @@ class BaseExecutor(object):
             sudo_password = read_sudo_password_from_stdin()
 
         if newline:
-            print
+            print_()
 
         self.context = context
         self.log = log
@@ -273,31 +274,31 @@ class BaseExecutor(object):
                     output = re.sub(os.linesep + r'\Z', '', output)
 
                 if exit_status == 0:
-                    print >> out, output
+                    print_(output, file=out)
                 elif timeout_detail is not None:
-                    print >> out, "%s %s\n" % (
+                    print_('%s %s\n' % (
                         error_prefix,
                         create_timeout_message(color, output, timeout)
-                    )
+                    ), file=out)
                     execution_info[host]['timeout'] = True
                     error_hosts_count += 1
                     if self.raise_error:
-                        print >> err, "%s %s\n" % (
+                        print_('%s %s\n' % (
                             error_prefix,
                             create_timeout_raise_error_message(color, command, host, timeout)
-                        )
+                        ), file=err)
                         return 1
                 else:
-                    print >> out, "%s %s\n" % (
+                    print_('%s %s\n' % (
                         error_prefix,
                         create_failure_message(color, output, exit_status)
-                    )
+                    ), file=out)
                     error_hosts_count += 1
                     if self.raise_error:
-                        print >> err, "%s %s" % (
+                        print_('%s %s' % (
                             error_prefix,
                             create_failure_raise_error_message(color, command, host)
-                        )
+                        ), file=err)
                         return 1
         
         # Free process pool
@@ -309,10 +310,10 @@ class BaseExecutor(object):
                 if execution_info[h]['exit_status'] != 0:
                     hosts += '  %s\n' % (h)
             hosts = hosts.rstrip()
-            print >> err, "%s %s" % (
+            print_('%s %s' % (
                 error_prefix,
                 create_failure_last_message(color, command, hosts)
-            )
+            ), file=err)
             return 1
 
         if options.get('verify_output'):
@@ -329,12 +330,11 @@ class BaseExecutor(object):
             hosts = hosts.rstrip()
 
             if has_different_output:
-                print >> err, \
-                    "%s Detected different command output on following hosts.\n%s" \
-                    % (color.red(error_prefix), hosts)
+                print_("%s Detected different command output on following hosts.\n%s" \
+                    % (color.red(error_prefix), hosts), file=err)
                 return 3
             else:
-                print >> out, color.green("Verified output of all hosts.")
+                print_(color.green('Verified output of all hosts.'), file=out)
 
         return 0
 

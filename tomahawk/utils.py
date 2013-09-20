@@ -2,6 +2,7 @@
 import ConfigParser
 from getpass import getpass, getuser
 import os
+from six import print_
 import sys
 import shlex
 
@@ -48,13 +49,13 @@ def get_options_from_conf(command, conf_path):
         return shlex.split(value.strip())
     except ConfigParser.NoOptionError, e:
         # ConfigParser.NoOptionError: No option 'options' in section: 'tomahawk'
-        print >>sys.stderr, "[WARNING] %s. in '%s'" % (e, conf_path)
+        print_('[WARNING] %s. in "%s"' % (e, conf_path), file=sys.stderr)
         return []
 
 def check_hosts(options, log, usage_func):
     if options.get('hosts') is not None and options.get('hosts_files') is not None:
-        print >>sys.stderr, "Cannot specify both options --hosts and --hosts-files."
-        print >>sys.stderr, usage_func()
+        print_('Cannot specify both options --hosts and --hosts-files.', file=sys.stderr)
+        print_(usage_func(), file=sys.stderr)
         sys.exit(1)
 
     # initialize target hosts with --hosts or --hosts-files
@@ -76,11 +77,11 @@ def check_hosts(options, log, usage_func):
                         continue
                     hosts.append(host)
             except IOError, e:
-                print >> sys.stderr, "Failed to open '%s'. (%s)" % (file, e)
+                print_('Failed to open "%s". (%s)' % (file, e), file=sys.stderr)
                 sys.exit(4)
     else:
-        print >>sys.stderr, "Specify -h/--hosts or -f/--hosts-files option."
-        print >>sys.stderr, usage_func()
+        print_('Specify -h/--hosts or -f/--hosts-files option.', file=sys.stderr)
+        print_(usage_func(), file=sys.stderr)
         sys.exit(1)
 
     # Adjust parallel execution numbers with count of hosts
@@ -111,5 +112,5 @@ def check_required_command(command):
             exe = os.path.join(dir, command)
             if is_executable(exe):
                 return
-    print >>sys.stderr, "Program '%s' is not executable. Check installation." % (command)
+    print_('Program "%s" is not executable. Check installation.' % (command), file=sys.stderr)
     sys.exit(1)
