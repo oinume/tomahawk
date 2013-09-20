@@ -8,16 +8,7 @@ from tomahawk import (
 )
 
 def get_long_description():
-    file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.rst')
-    long_description = ''
-    try:
-        f = open(file)
-        long_description = ''.join(f.readlines())
-        f.close()
-    except IOError:
-        print 'Failed to open file "%s".' % (file)
-        f.close()
-    return long_description
+    return open(os.path.dirname(os.path.abspath(__file__)), 'README.rst').read()
 
 try:
     from setuptools import setup
@@ -26,14 +17,14 @@ except ImportError:
     from distutils.core import setup
 
 if sys.version_info < (2, 4):
-    print >>sys.stderr, "tomahawk requires at least Python 2.4 to run."
+    print('tomahawk requires at least Python 2.4 to run.')
     sys.exit(1)
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-install_requires = [ 'pexpect >= 2.4' ]
+install_requires = [ 'pexpect >= 2.4', 'six' ]
 if sys.version_info < (2, 6):
     install_requires.append('multiprocessing')
 if sys.version_info < (2, 7):
@@ -42,7 +33,7 @@ if sys.version_info < (2, 7):
 setup(
     name = 'tomahawk',
     version = __version__,
-    url = 'http://github.com/oinume/tomahawk/',
+    url = 'https://github.com/oinume/tomahawk/',
     license = 'LGPL',
     author = __author__,
     author_email = __author_email__,
@@ -68,6 +59,9 @@ setup(
         'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Clustering',
         'Topic :: System :: Systems Administration',
