@@ -1,4 +1,5 @@
-import cStringIO
+from six.moves import StringIO
+
 from flexmock import flexmock
 import pexpect
 import pytest
@@ -10,7 +11,7 @@ from tomahawk.constants import TimeoutError
 
 def test_00_execute():
     """Normal"""
-    expect_out = cStringIO.StringIO()
+    expect_out = StringIO()
     target = create_object(expect_out)
     expect_out.write("hello world\n")
     expect_out.write("Connection to localhost closed\n")
@@ -21,7 +22,7 @@ def test_00_execute():
 
 def test_01_execute_timeout():
     """Timeout"""
-    target = create_object(cStringIO.StringIO())
+    target = create_object(StringIO())
     flexmock(utils.MockPexpect) \
         .should_receive('expect') \
         .and_raise(pexpect.TIMEOUT, "Timed out")

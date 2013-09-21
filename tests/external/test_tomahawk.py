@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from six import print_
 from nose.tools import ok_
 import os
 import pexpect
+
 #import sys
 import utils
 
@@ -17,16 +19,14 @@ def test_06_prompt_sudo_password():
     )
     i = child.expect([ pexpect.EOF, pexpect.TIMEOUT, 'Enter a password.+' ])
     if i == 0: # EOF
-        print 'EOF'
-        print child.before
+        print_('EOF')
+        print_(child.before)
     elif i == 1: # timeout
-        print 'TIMEOUT'
-        #print child.before, child.after
+        print_('TIMEOUT')
         ok_(False, 'Failure: ')
     elif i == 2:
         child.sendline("tomahawk_test")
         child.expect(pexpect.EOF)
-        #print child.before
         ok_(True, "execute (prompt password)")
 
 
@@ -42,14 +42,14 @@ def test_10_confirm_execution_on_production():
     )
     i = child.expect([ pexpect.EOF, pexpect.TIMEOUT, 'Command "uptime" will be executed to 2 hosts.' ])
     if i == 0: # EOF
-        print 'EOF'
-        print child.before
+        print_('EOF')
+        print_(child.before)
     elif i == 1: # timeout
-        print 'TIMEOUT'
-        print child.before, child.after
+        print_('TIMEOUT')
+        print_(child.before, child.after)
         ok_(False, 'Failure: confirm_execution_on_production with "TOMAHAWK_ENV"')
     elif i == 2:
         child.sendline('yes')
         child.expect(pexpect.EOF)
-        print child.before
+        print_(child.before)
         ok_(True, 'confirm_execution_on_production with "TOMAHAWK_ENV"')

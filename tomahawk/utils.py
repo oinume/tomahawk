@@ -49,7 +49,7 @@ def get_options_from_conf(command, conf_path):
         if not value:
             return []
         return shlex.split(value.strip())
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         e = sys.exc_info()[1]
         # ConfigParser.NoOptionError: No option 'options' in section: 'tomahawk'
         print_('[WARNING] %s. in "%s"' % (e, conf_path), file=sys.stderr)

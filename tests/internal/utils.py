@@ -1,5 +1,5 @@
+from six.moves import StringIO
 import argparse
-import cStringIO
 import os
 import sys
 
@@ -33,7 +33,7 @@ def create_command_namespace(**kwargs):
         'hosts': 'localhost', 'profile': False,
         'ssh_user': 'tomahawk',  'timeout': DEFAULT_TIMEOUT
     }
-    for k, v in defaults.iteritems():
+    for k, v in defaults.items():
         kwargs.setdefault(k, v)
     return argparse.Namespace(**kwargs)
 
@@ -47,7 +47,7 @@ def create_rsync_namespace(**kwargs):
         'rsync_user': 'tomahawk',  'rsync_options': DEFAULT_RSYNC_OPTIONS,
         'timeout': DEFAULT_TIMEOUT,
     }
-    for k, v in defaults.iteritems():
+    for k, v in defaults.items():
         kwargs.setdefault(k, v)
     return argparse.Namespace(**kwargs)
 
@@ -59,7 +59,7 @@ def capture_stdout_stderr():
 
 class StdoutCapture(object):
     def __init__(self):
-        self.captured = cStringIO.StringIO()
+        self.captured = StringIO()
 
     def start(self):
         sys.stdout = self.captured
@@ -140,7 +140,7 @@ class MockCommandWithExpect(CommandWithExpect):
         self, command, command_args, login_password, sudo_password,
         timeout = DEFAULT_TIMEOUT, expect_delay = DEFAULT_EXPECT_DELAY,
         debug_enabled = False, expect = None,
-        expect_out = cStringIO.StringIO()
+        expect_out = StringIO()
     ):
         if expect is None:
             expect = MockPexpect(command, command_args, timeout)

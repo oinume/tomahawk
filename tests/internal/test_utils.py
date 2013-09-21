@@ -1,3 +1,4 @@
+from six import print_
 import os
 import utils
 utils.append_home_to_path(__file__)
@@ -17,7 +18,6 @@ options = --verify-output
     finally:
         conf.close()
     conf_options = get_options_from_conf('tomahawk', path)
-    #print conf_options
     assert conf_options == [ '--verify-output' ]
 
 def test_01_get_options_from_conf_no_options(tmpdir):
@@ -31,6 +31,5 @@ def test_01_get_options_from_conf_no_options(tmpdir):
     finally:
         conf.close()
     conf_options = get_options_from_conf('tomahawk', path)
-    #print conf_options
     assert conf_options == []
 
