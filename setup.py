@@ -8,7 +8,7 @@ from tomahawk import (
 )
 
 def get_long_description():
-    return open(os.path.dirname(os.path.abspath(__file__)), 'README.rst').read()
+    return open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.rst')).read()
 
 try:
     from setuptools import setup
@@ -24,7 +24,7 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-install_requires = [ 'pexpect >= 2.4', 'six' ]
+install_requires = [ 'pexpect-u >= 2.5.1', 'six' ]
 if sys.version_info < (2, 6):
     install_requires.append('multiprocessing')
 if sys.version_info < (2, 7):
