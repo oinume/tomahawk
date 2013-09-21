@@ -257,7 +257,8 @@ class BaseExecutor(object):
                 try:
                     exit_status, command_output = async_result.get(timeout = timeout)
                     self.log.debug("host = %s, exit_status = %d" % (host, exit_status))
-                except (TimeoutError, multiprocessing.TimeoutError), error:
+                except (TimeoutError, multiprocessing.TimeoutError):
+                    error = sys.exc_info()[1]
                     timeout_detail = str(error)
                     execution_info[host] = { 'timeout': 1 }
                 async_results.remove(dict)

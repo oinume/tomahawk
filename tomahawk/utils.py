@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-import ConfigParser
+from six import print_
+from six.moves import configparser
+
+#import ConfigParser
 from getpass import getpass, getuser
 import os
-from six import print_
 import sys
 import shlex
 
 def shutdown_by_signal(signum, frame):
-    print
-    print 'Shutting down by signal %d.' % signum;
+    print_()
+    print_('Shutting down by signal %d.' % signum)
     # TODO: this function called twice
-    sys.exit(signum);
+    sys.exit(signum)
 
 def read_login_password():
     password = None
@@ -40,14 +42,15 @@ def get_run_user():
 def get_options_from_conf(command, conf_path):
     if not os.path.exists(conf_path):
         return []
-    parser = ConfigParser.ConfigParser()
+    parser = configparser.ConfigParser()
     try:
         parser.read(conf_path)
         value = parser.get(command, 'options')
         if not value:
             return []
         return shlex.split(value.strip())
-    except ConfigParser.NoOptionError, e:
+    except ConfigParser.NoOptionError:
+        e = sys.exc_info()[1]
         # ConfigParser.NoOptionError: No option 'options' in section: 'tomahawk'
         print_('[WARNING] %s. in "%s"' % (e, conf_path), file=sys.stderr)
         return []
@@ -76,7 +79,8 @@ def check_hosts(options, log, usage_func):
                     if host == '' or host.startswith('#'):
                         continue
                     hosts.append(host)
-            except IOError, e:
+            except IOError:
+                e = sys.exc_info()[1]
                 print_('Failed to open "%s". (%s)' % (file, e), file=sys.stderr)
                 sys.exit(4)
     else:

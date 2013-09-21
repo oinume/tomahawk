@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import cStringIO
+from six import print_
+from six.moves import StringIO
+
 import pexpect
 import re
-from six import print_
 import sys
 import time
 from tomahawk.constants import (
@@ -34,7 +35,7 @@ class CommandWithExpect(object):
             'パスワード', # TODO: japanese character expected as utf-8
         ]
         if expect_out is None:
-            expect_out = cStringIO.StringIO()
+            expect_out = StringIO()
         if expect is None:
             self.expect = pexpect.spawn(
                 command,
@@ -84,8 +85,10 @@ class CommandWithExpect(object):
             raise TimeoutError("Execution is timed out after %d seconds" % (self.timeout))
         except pexpect.EOF:
             self.log.debug("expect.EOF")
-        except CommandError, e:
-            raise e, None, sys.exc_info()[2]
+        except CommandError:
+            e = sys.exc_info()[1]
+            #raise(e, None, sys.exc_info()[2])
+            raise e.with_traceback(sys.exc_info()[2])
 
         return self.get_status_and_output(self.expect, self.expect_out)
 
