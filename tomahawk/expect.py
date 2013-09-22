@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from six import print_
+from six import print_, reraise
 from six.moves import StringIO
 
 import pexpect
@@ -88,7 +88,7 @@ class CommandWithExpect(object):
         except CommandError:
             e = sys.exc_info()[1]
             #raise(e, None, sys.exc_info()[2])
-            raise e.with_traceback(sys.exc_info()[2])
+            reraise(*sys.exc_info)
 
         return self.get_status_and_output(self.expect, self.expect_out)
 
