@@ -30,6 +30,18 @@ if sys.version_info < (2, 6):
 if sys.version_info < (2, 7):
     install_requires.append('argparse')
 
+tests_require = [ 'flexmock', 'pytest', 'pytest-cov' ]
+
+requirements = open('requirements.txt', 'w')
+requirements.writelines("\n".join(install_requires))
+requirements.close()
+print('requirements.txt created.')
+
+requirements_dev = open('requirements-dev.txt', 'w')
+requirements_dev.writelines("\n".join(tests_require))
+requirements_dev.close()
+print('requirements-dev.txt created')
+
 setup(
     name = 'tomahawk',
     version = __version__,
@@ -44,7 +56,7 @@ setup(
     zip_safe = False,
     platforms = 'unix',
     install_requires = install_requires,
-    tests_require = [ 'flexmock', 'pytest', 'pytest-cov' ],
+    tests_require = tests_require,
     data_files = [
         ('man/man1', [ 'man/man1/tomahawk.1', 'man/man1/tomahawk-rsync.1' ])
     ],
