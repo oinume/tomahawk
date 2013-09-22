@@ -4,8 +4,9 @@ tomahawk.egg-info/
 dist/
 docs/en/_build/
 htmlcov/
-tmp/hello*
+tmp/
 .coverage
 .tox
 .idea
 *.iml
+junit-*.xml
