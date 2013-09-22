@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_true
+#from nose.tools import assert_equal, assert_true
 import os
 from subprocess import call, PIPE
 import utils
@@ -32,9 +32,6 @@ def test_03_mirror_mode_pull():
         stdout = PIPE, stderr = PIPE
     )
 
-    assert_equal(status, 0, "rsync (--mirror-mode=pull)")
+    assert status == 0
     for f in ('localhost__hello', '127.0.0.1__hello'):
-        assert_true(
-            os.path.exists(os.path.join(TMP_DIR, f)),
-            "rsync (--mirror-mode=pull:%s exists)" % (f)
-        )
+        assert os.path.exists(os.path.join(TMP_DIR, f))
