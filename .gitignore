@@ -10,3 +10,4 @@ tmp/
 .idea
 *.iml
 junit-*.xml
+.python-version
