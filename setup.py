@@ -26,10 +26,9 @@ if sys.argv[-1] == "publish":
 
 install_requires = [ "six" ]
 if sys.version_info < (2, 6):
-    install_requires.extend([ "multiprocessing", "pexpect >= 2.4" ])
+    install_requires.extend([ "multiprocessing", "pexpect==2.4" ])
 else:
-    install_requires.append("pexpect-u >= 2.5.1")
-
+    install_requires.append("pexpect>=3.0")
 if sys.version_info < (2, 7):
     install_requires.append("argparse")
 
