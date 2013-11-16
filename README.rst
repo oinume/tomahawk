@@ -1,6 +1,6 @@
 .. -*- restructuredtext -*-
 
-.. image:: https://secure.travis-ci.org/oinume/tomahawk.png?branch=0.6-hotfix
+.. image:: https://api.travis-ci.org/oinume/tomahawk.png?branch=hotfix/0.7
 
 Examples
 ========
