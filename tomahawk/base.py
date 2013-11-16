@@ -99,10 +99,14 @@ class BaseMain(object):
     def add_common_arguments(cls, parser):
         parser.add_argument(
             '-h', '--hosts', metavar='HOSTS',
+            help='DUPLICATED. Use -H. (Will be deleted in v0.8.0)',
+        )
+        parser.add_argument(
+            '-H', '--hosts', metavar='HOSTS',
             help='Host names for sending commands. (splited with ",")',
         )
         parser.add_argument(
-            '-f', '--hosts-files', metavar='HOST_FILE',
+            '-f', '--hosts-files', metavar='HOSTS_FILES',
             help='Hosts files which listed host names. (splited with ",")'
         )
         parser.add_argument(
