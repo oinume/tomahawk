@@ -130,10 +130,6 @@ class BaseMain(object):
             help='Specify expect timeout in seconds. (default: %d)' % (DEFAULT_TIMEOUT)
         )
         parser.add_argument(
-            '--expect-timeout', metavar='SECONDS', type=int,
-            help='DUPLICATED. Use --timeout'
-        )
-        parser.add_argument(
             '--expect-encoding', metavar='ENCODING', default=DEFAULT_EXPECT_ENCODING,
             help='Expect encoding for password prompt. (default: %s)' % (DEFAULT_EXPECT_ENCODING)
         )
@@ -188,12 +184,6 @@ class BaseExecutor(object):
             raise RuntimeError('Argument "hosts" length must be > 0')
 
         options = context.options
-        if options.get('expect_timeout') is not None:
-            options['timeout'] = options['expect_timeout']
-            log.warn("Option --expect-timeout is DUPLICATED. Use --timeout. (Will be deleted in v0.7.0)")
-        if options.get('no_sudo_password'):
-            log.warn("Option --no-sudo-password is OBSOLETED. (Will be deleted in v0.7.0)")
-
         newline = False
         login_password = None
         if 'login_password' in kwargs:

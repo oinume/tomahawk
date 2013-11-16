@@ -87,10 +87,6 @@ class CommandMain(BaseMain):
             help='Read a password for sudo from stdin.'
         )
         parser.add_argument(
-            '--no-sudo-password', action='store_true',
-            help='OBSOTED. Never prompt a password for sudo.'
-        )
-        parser.add_argument(
             '-F', '--output-format', default=DEFAULT_COMMAND_OUTPUT_FORMAT,
             help="Command output format. (default: '%s')" % (DEFAULT_COMMAND_OUTPUT_FORMAT.replace('%', '%%').replace('\n', '\\n'))
         )
