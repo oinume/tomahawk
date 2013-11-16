@@ -1,3 +1,8 @@
+0.7.0-rc 2013-11-16T19:14:00+09:00
+  - New feature: #42 Python3 support
+  - Change: #43 An alias of --hosts should be -H (not -h)
+  - Change: #44 Delete duplicated options --expect-timeout, --no-sudo-password
+
 0.6.0 2013-04-21T02:17:02+09:00
   - Document: Add "For developers" section in README.rst
 
