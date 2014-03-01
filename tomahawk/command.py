@@ -106,10 +106,16 @@ def _command(
     # Trap SIGINT(Ctrl-C) to quit executing a command
     signal.signal(signal.SIGINT, shutdown_by_signal)
 
-    return CommandWithExpect(
-        command, command_args, login_password, sudo_password,
-        timeout, expect_delay, debug_enabled
-    ).execute()
+    try:
+        return CommandWithExpect(
+            command, command_args, login_password, sudo_password,
+            timeout, expect_delay, debug_enabled
+        ).execute()
+    except:
+        from traceback import print_tb
+        print("""%s: %s""" % (sys.exc_info()[0], sys.exc_info()[1]))
+        print_tb(sys.exc_info()[2])
+        raise
 
 class CommandExecutor(BaseExecutor):
     """

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from six import print_, reraise
-from six.moves import StringIO
+#from six.moves import BytesIO, StringIO
+from six import BytesIO, StringIO
 
 import pexpect
 import re
@@ -30,12 +31,13 @@ class CommandWithExpect(object):
         self.expect_delay = expect_delay
         self.log = create_logger(None, debug_enabled)
         self.expect_patterns = [
-            '^Enter passphrase.+',
-            '[Pp]assword.*:',
-            'パスワード', # TODO: japanese character expected as utf-8
+            b'^Enter passphrase.+',
+            b'[Pp]assword.*:',
+            u'パスワード'.encode('utf-8'), # TODO: japanese character expected as utf-8
         ]
         if expect_out is None:
-            expect_out = StringIO()
+            #expect_out = StringIO()
+            expect_out = BytesIO()
         if expect is None:
             self.expect = pexpect.spawn(
                 command,
@@ -54,7 +56,6 @@ class CommandWithExpect(object):
         
         Returns: command result status, output string
         """
-
         try:
             index = self.expect.expect(self.expect_patterns)
             self.log.debug("expect index = %d" % (index))
@@ -88,8 +89,7 @@ class CommandWithExpect(object):
         except CommandError:
             e = sys.exc_info()[1]
             #raise(e, None, sys.exc_info()[2])
-            reraise(*sys.exc_info)
-
+            reraise(*sys.exc_info())
         return self.get_status_and_output(self.expect, self.expect_out)
 
     def get_status_and_output(self, child, expect_out):
@@ -104,7 +104,7 @@ class CommandWithExpect(object):
         self.log.debug("exit_status = %d" % exit_status)
 
         output_lines = []
-        expect_regexs = [ re.compile(p) for p in self.expect_patterns ]
+        expect_regexs = [ re.compile(p.decode('utf-8')) for p in self.expect_patterns ]
         expect_regexs.append(re.compile('Connection to .* closed'))
 
         passwords = []
@@ -112,7 +112,11 @@ class CommandWithExpect(object):
             passwords.append(self.login_password)
         if self.sudo_password:
             passwords.append(self.sudo_password)
-        for line in expect_out.getvalue().split('\n'):
+        #print("--- bytes ---")
+        #print(expect_out.getvalue())
+        lines = expect_out.getvalue().decode("utf-8").split('\n')
+        #for line in expect_out.getvalue().split('\n'):
+        for line in lines:
             line = line.strip('\r\n')
             if line == '' or line in passwords:
                 continue

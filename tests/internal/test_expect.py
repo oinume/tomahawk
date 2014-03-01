@@ -1,4 +1,4 @@
-from six.moves import StringIO
+from six import BytesIO
 
 from flexmock import flexmock
 import pexpect
@@ -11,10 +11,10 @@ from tomahawk.constants import TimeoutError
 
 def test_00_execute():
     """Normal"""
-    expect_out = StringIO()
+    expect_out = BytesIO()
     target = create_object(expect_out)
-    expect_out.write("hello world\n")
-    expect_out.write("Connection to localhost closed\n")
+    expect_out.write(b"hello world\n")
+    expect_out.write(b"Connection to localhost closed\n")
 
     status, output = target.execute()
     assert status == 0
@@ -22,7 +22,7 @@ def test_00_execute():
 
 def test_01_execute_timeout():
     """Timeout"""
-    target = create_object(StringIO())
+    target = create_object(BytesIO())
     flexmock(utils.MockPexpect) \
         .should_receive('expect') \
         .and_raise(pexpect.TIMEOUT, "Timed out")

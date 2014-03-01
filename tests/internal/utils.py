@@ -118,7 +118,8 @@ class MockPexpect(object):
 
     def sendline(self, s = ''):
         if self.logfile:
-            self.logfile.write(s + '\n')
+            self.logfile.write(s.encode('utf-8'))
+            self.logfile.write('\n'.encode('utf-8'))
         pass
 
     def send(self, s):
