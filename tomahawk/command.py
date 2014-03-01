@@ -127,12 +127,12 @@ class CommandExecutor(BaseExecutor):
         options = self.context.options
         #ssh = options.get('ssh') or 'ssh'
         
-        ssh_user = options.get('ssh_user') or getpass.getuser()
+        ssh_user = options.get('ssh_user') or ''
         ssh_options = ''
         if options.get('ssh_options'):
             ssh_options = options['ssh_options'] + ' '
-        # TODO: Bug #41
-        ssh_options += '-l ' + ssh_user
+        if ssh_user:
+            ssh_options += '-l ' + ssh_user
         if ssh_options.find('-T') == -1:
             # if '-T' isn't specified, turn 'pseudo-tty allocation' on
             ssh_options += ' -t'
@@ -176,7 +176,7 @@ class CommandExecutor(BaseExecutor):
             if exit_status == 0:
                 c = color.green(command)
             return output_format_template.safe_substitute({
-                'user': ssh_user,
+                'user': ssh_user or '[user]',
                 'host': host,
                 'command': c,
                 'output': command_output,

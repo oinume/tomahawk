@@ -96,6 +96,33 @@ def test_02_run_timeout(monkeypatch):
     assert status == EXPECTED['exit_status']
     assert re.search(r'timed out on host', err)
 
+
+def test_03_run_without_user(monkeypatch):
+    EXPECTED = {
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self, args):
+        return utils.create_rsync_namespace(
+            source=hello_file,
+            destination=hello_file_copied,
+            rsync_user=None
+        )
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        shutil.copyfile(hello_file, hello_file_copied)
+        return EXPECTED['exit_status'], ''
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = RsyncMain('tomahawk-rsync')
+    status = main.run()
+    assert status == EXPECTED['exit_status']
+    assert os.path.exists(hello_file_copied)
+    assert not re.search(r'rsync -av.*@', stdout.stop().value()) # test no user on output
+
+
 def test_10_run_option_rsync_options(monkeypatch):
     EXPECTED = {
         'exit_status': 0,

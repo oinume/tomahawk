@@ -132,7 +132,7 @@ class RsyncExecutor(BaseExecutor):
             raise RuntimeError('2nd argument "destination" must not be None')
 
         options = self.context.options
-        rsync_user = options.get('rsync_user') or getpass.getuser()
+        rsync_user = options.get('rsync_user') or ''
         rsync_options = options.get('rsync_options') or DEFAULT_RSYNC_OPTIONS
         mirror_mode = options.get('mirror_mode') or 'push'
         if mirror_mode not in ('push', 'pull'):
@@ -140,18 +140,20 @@ class RsyncExecutor(BaseExecutor):
 
         rsync_template = ''
         if mirror_mode == 'push':
-            rsync_template = 'rsync %s %s %s@%%s:%s' % (
-                rsync_options,
-                source,
-                rsync_user,
-                destination,
-            )
+            if rsync_user:
+                rsync_template = 'rsync %s %s %s@%%s:%s' % (
+                    rsync_options, source,
+                    rsync_user or '[user]', destination)
+            else:
+                rsync_template = 'rsync %s %s %%s:%s' % (
+                    rsync_options, source, destination)
         else:
-            rsync_template = 'rsync %s %s@%%s:%s %%s' % (
-                rsync_options,
-                rsync_user,
-                source,
-            )
+            if rsync_user:
+                rsync_template = 'rsync %s %s@%%s:%s %%s' % (
+                    rsync_options, rsync_user, source)
+            else:
+                rsync_template = 'rsync %s %%s:%s %%s' % (
+                    rsync_options, source)
 
         async_results = []
         for host in self.hosts:

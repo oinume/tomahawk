@@ -103,6 +103,39 @@ def test_03_run_escape_shell_chars(monkeypatch):
     o = stdout.stop().value().strip()
     assert o == "tomahawk@localhost % echo \\\\\n\\"
 
+
+def test_04_run_without_user(monkeypatch):
+    EXPECTED = {
+        'command': 'uptime',
+        'command_output': "0:40  up 1 day,  8:19, 4 users, load averages: 0.00 0.50 1.00",
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self, args):
+        return utils.create_command_namespace(
+            command=[EXPECTED['command']],
+            ssh_user=None,
+            ssh_options='-o User=tomahawk')
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return EXPECTED['exit_status'], EXPECTED['command_output']
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    o = stdout.stop().value()
+
+    assert status == 0
+    s = \
+"""[user]@localhost %% %(command)s
+%(command_output)s
+
+""" % EXPECTED
+    assert o == s
+
+
 def test_10_run_option_host_files(monkeypatch):
     EXPECTED = {
         'command': 'echo "hello world"',

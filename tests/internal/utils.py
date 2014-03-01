@@ -31,7 +31,7 @@ def create_command_namespace(**kwargs):
         'debug': False, 'deep_debug': False,
         'delay': 0, 'expect_delay': 0.1,
         'hosts': 'localhost', 'profile': False,
-        'ssh_user': 'tomahawk',  'timeout': DEFAULT_TIMEOUT
+        'ssh_user': 'tomahawk', 'timeout': DEFAULT_TIMEOUT
     }
     for k, v in defaults.items():
         kwargs.setdefault(k, v)
