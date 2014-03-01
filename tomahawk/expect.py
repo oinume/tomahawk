@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from six import print_, reraise
-#from six.moves import BytesIO, StringIO
 from six import BytesIO, StringIO
+from six import b, u
 
 import pexpect
 import re
@@ -31,9 +31,9 @@ class CommandWithExpect(object):
         self.expect_delay = expect_delay
         self.log = create_logger(None, debug_enabled)
         self.expect_patterns = [
-            b'^Enter passphrase.+',
-            b'[Pp]assword.*:',
-            u'パスワード'.encode('utf-8'), # TODO: japanese character expected as utf-8
+            b('^Enter passphrase.+'),
+            b('[Pp]assword.*:'),
+            u('パスワード').encode('utf-8'), # TODO: japanese character expected as utf-8
         ]
         if expect_out is None:
             #expect_out = StringIO()
