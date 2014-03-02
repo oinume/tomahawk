@@ -32,7 +32,10 @@ else:
 if sys.version_info < (2, 7):
     install_requires.append("argparse")
 
-tests_require = [ "flexmock", "pytest", "pytest-cov" ]
+tests_require = [
+    'flexmock', 'pytest', 'pytest-cov',
+    'sphinx', 'sphinx_rtd_theme', 
+]
 
 requirements = open("requirements.txt", "w")
 requirements.writelines("\n".join(install_requires))
