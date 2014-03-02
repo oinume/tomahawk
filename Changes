@@ -1,4 +1,7 @@
-0.7.0-rc 2013-11-16T19:14:00+09:00
+0.7.0 2014-03-02T17:00:00+09:00
+  - Bug fix: #41 Ignores User configuration on $HOME/.ssh/config
+
+0.7.0-rc1 2013-11-16T19:14:00+09:00
   - New feature: #42 Python3 support
   - Change: #43 An alias of --hosts should be -H (not -h)
   - Change: #44 Delete duplicated options --expect-timeout, --no-sudo-password
