@@ -50,10 +50,15 @@ Install tomahawk in develop mode. ::
 
   $ python setup.py develop
 
+  or
+
+  $ pip install -e .
+
 Install following modules for testing. ::
 
-  $ pip install flexmock>=0.8 pytest>=2.2 pytest-cov>=1.5
+  $ pip install requirements-dev.txt
 
-Run tests ::
+Run unit tests ::
 
   $ py.test tests/internal/
+
