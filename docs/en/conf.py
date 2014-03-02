@@ -107,7 +107,7 @@ try:
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-except:
+except ImportError:
     html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
