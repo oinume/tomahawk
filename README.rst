@@ -38,9 +38,16 @@ $ tomahawk-rsync -h host1,host2,host3 test.py /tmp/test.py
 
 See more usages: http://readthedocs.org/docs/tomahawk/en/latest/
 
+
 Documentation
 =============
 See http://readthedocs.org/docs/tomahawk/en/latest/
+
+
+Changes
+=======
+See https://github.com/oinume/tomahawk/blob/master/docs/en/changes.rst
+
 
 How to contribute
 =================

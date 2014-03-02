@@ -32,6 +32,7 @@ Contents:
    tomahawk
    tomahawk-rsync
    recipes
+   changes
 
 Indices and tables
 ==================
