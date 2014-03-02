@@ -1,6 +1,10 @@
 .. -*- restructuredtext -*-
 
 .. image:: https://api.travis-ci.org/oinume/tomahawk.png?branch=hotfix/0.7
+    :alt: Build status
+
+.. image:: https://pypip.in/d/tomahawk/badge.png
+    :alt: Downloads
 
 Examples
 ========
