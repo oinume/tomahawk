@@ -1,10 +1,20 @@
 .. -*- restructuredtext -*-
 
 .. image:: https://api.travis-ci.org/oinume/tomahawk.png?branch=hotfix/0.7
+    :target: https://pypi.python.org/pypi/tomahawk/
     :alt: Build status
 
+.. image:: https://pypip.in/v/tomahawk/badge.png
+    :target: https://pypi.python.org/pypi/tomahawk/
+    :alt: Latest Version
+
 .. image:: https://pypip.in/d/tomahawk/badge.png
+    :target: https://pypi.python.org/pypi/tomahawk/
     :alt: Downloads
+
+.. image:: https://pypip.in/license/tomahawk/badge.png
+    :target: https://pypi.python.org/pypi/tomahawk/
+    :alt: License
 
 Examples
 ========
