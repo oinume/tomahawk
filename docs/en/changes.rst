@@ -3,7 +3,7 @@ Changes
 
 0.7.1 <2014-04-17>
 ------------------
-* bug: #46 Cannot install latest `six' on Python 2.4
+* bug: #46 Cannot install latest `six' on Python 2.4 (Thanks @n0ts)
 * #47 Test various environments with Vagrant
 * #48 Wrong command line options in documentation
 
