@@ -24,11 +24,11 @@ if sys.argv[-1] == "publish":
     os.system("python setup.py sdist upload")
     sys.exit()
 
-install_requires = [ "six" ]
+install_requires = []
 if sys.version_info < (2, 6):
-    install_requires.extend([ "multiprocessing", "pexpect==2.4" ])
+    install_requires.extend([ "multiprocessing", "pexpect==2.4", "six==1.2.0" ])
 else:
-    install_requires.append("pexpect>=3.0")
+    install_requires.extend([ "six", "pexpect>=3.0" ])
 if sys.version_info < (2, 7):
     install_requires.append("argparse")
 
