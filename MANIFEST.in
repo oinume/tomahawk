@@ -1,4 +1,4 @@
-include AUTHORS COPYING Changes INSTALL LICENSE *.rst
+include AUTHORS COPYING INSTALL LICENSE *.rst
 recursive-include docs *.rst
 recursive-include man *.*
 
