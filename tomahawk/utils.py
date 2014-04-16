@@ -84,7 +84,7 @@ def check_hosts(options, log, usage_func):
                 print_('Failed to open "%s". (%s)' % (file, e), file=sys.stderr)
                 sys.exit(4)
     else:
-        print_('Specify -h/--hosts or -f/--hosts-files option.', file=sys.stderr)
+        print_('Specify -H/--hosts or -f/--hosts-files option.', file=sys.stderr)
         print_(usage_func(), file=sys.stderr)
         sys.exit(1)
 
