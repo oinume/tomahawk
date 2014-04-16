@@ -44,7 +44,7 @@ These programs follow the usual GNU command line syntax, with long options start
 A summary of options is included below.
 For a complete description, see the Info files.
 
--h, --hosts
+-H, --hosts
 ^^^^^^^^^^^
 Specifies host names for sending commands. You can specify multiple hosts with ','.
 
@@ -63,10 +63,6 @@ Format of hosts file is below. ::
 A line of starting with '#' disables a host.
 
 -l, --prompt-login-password
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-DUPLICATED. Use -P/--prompt-password. Will be deleted in v0.6.0
-
--P, --prompt-login-password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Prompts a password for ssh authentication at first. If the password is all the same between target hosts, you'll input a password just once.
 
@@ -91,10 +87,6 @@ If your machine has multiple cpu cores, --parallel 2 .. N might be faster.
 -t, --timeout
 ^^^^^^^^^^^^^
 Specifies timeout seconds for a command.
-
---expect-timeout
-^^^^^^^^^^^^^^^^
-DUPLICATED. Use t (-timeout) instead. Will be deleted in v0.6.0.
 
 -u, --ssh-user
 ^^^^^^^^^^^^^^
