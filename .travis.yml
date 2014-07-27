@@ -4,10 +4,10 @@ python:
   - "2.7"
   - "3.2"
   - "3.3"
+  - "3.4"
 install:
   - "pip install . --use-mirrors"
   - "pip install flexmock pytest pytest-cov"
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
 script:
   - py.test tests/internal
-
