@@ -28,13 +28,13 @@ install_requires = []
 if sys.version_info < (2, 6):
     install_requires.extend([ "multiprocessing", "pexpect==2.4", "six==1.2.0" ])
 else:
-    install_requires.extend([ "six", "pexpect>=3.0" ])
+    install_requires.extend([ "six", "pexpect==3.2" ])
 if sys.version_info < (2, 7):
     install_requires.append("argparse")
 
 tests_require = [
     'flexmock', 'pytest', 'pytest-cov',
-    'sphinx', 'sphinx_rtd_theme', 
+    'sphinx', 'sphinx_rtd_theme',
 ]
 
 requirements = open("requirements.txt", "w")
