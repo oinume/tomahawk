@@ -11,3 +11,6 @@ tmp/
 *.iml
 junit-*.xml
 .python-version
+.vagrant
+requirements.txt
+requirements-dev.txt
