@@ -1,6 +1,11 @@
 Changes
 =======
 
+0.7.2 <2014-07-27>
+------------------
+* bug: #50 pexpect-3.3 installation problem (ValueError: I/O operation on closed file)
+* #49 Add Python 3.4 support
+
 0.7.1 <2014-04-17>
 ------------------
 * bug: #46 Cannot install latest `six' on Python 2.4 (Thanks @n0ts)
