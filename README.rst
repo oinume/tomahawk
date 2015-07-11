@@ -1,7 +1,7 @@
 .. -*- restructuredtext -*-
 
-.. image:: https://api.travis-ci.org/oinume/tomahawk.png?branch=hotfix/0.7
-    :target: https://pypi.python.org/pypi/tomahawk/
+.. image:: https://img.shields.io/travis/oinume/tomahawk/hotfix/0.7.svg
+    :target: https://travis-ci.org/oinume/tomahawk
     :alt: Build status
 
 .. image:: https://img.shields.io/pypi/v/tomahawk.svg
