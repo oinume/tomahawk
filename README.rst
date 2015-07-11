@@ -4,15 +4,15 @@
     :target: https://pypi.python.org/pypi/tomahawk/
     :alt: Build status
 
-.. image:: https://pypip.in/v/tomahawk/badge.png
+.. image:: https://img.shields.io/pypi/v/tomahawk.svg
     :target: https://pypi.python.org/pypi/tomahawk/
     :alt: Latest Version
 
-.. image:: https://pypip.in/d/tomahawk/badge.png
+.. image:: https://img.shields.io/pypi/dm/tomahawk.svg
     :target: https://pypi.python.org/pypi/tomahawk/
     :alt: Downloads
 
-.. image:: https://pypip.in/license/tomahawk/badge.png
+.. image:: https://img.shields.io/github/license/oinume/tomahawk.svg
     :target: https://pypi.python.org/pypi/tomahawk/
     :alt: License
 
