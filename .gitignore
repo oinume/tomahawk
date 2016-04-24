@@ -14,6 +14,6 @@ junit-*.xml
 .vagrant
 requirements.txt
 requirements-dev.txt
-/venv
+/.venv
 .cache
 .coverage*
