@@ -1,6 +1,11 @@
 Changes
 =======
 
+0.7.3 <2016-04-24>
+------------------
+* #54 Add Python 3.5 support
+* #55 Fix line break problem when expect (Thanks @sekino)
+
 0.7.2 <2014-07-27>
 ------------------
 * bug: #50 pexpect-3.3 installation problem (ValueError: I/O operation on closed file)
