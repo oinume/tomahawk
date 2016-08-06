@@ -1,0 +1,10 @@
+version: "2"
+services:
+  centos6.6:
+    build:
+      context: .
+      dockerfile: dockerfile-centos6.6
+    volumes:
+      - ".:/var/lib/tomahawk"
+    working_dir: /var/lib/tomahawk
+    command: /bin/bash -c 'service sshd restart && pip install -e . && tomahawk -h localhost uptime'
