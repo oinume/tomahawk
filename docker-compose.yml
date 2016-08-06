@@ -7,4 +7,4 @@ services:
     volumes:
       - ".:/var/lib/tomahawk"
     working_dir: /var/lib/tomahawk
-    command: /bin/bash -c 'service sshd restart && pip install -e . && tomahawk -h localhost uptime'
+    command: /bin/bash -c 'service sshd restart && pip install -e . && tomahawk -h localhost "echo あ"'

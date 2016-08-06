@@ -3,6 +3,7 @@ import argparse
 import getpass
 import os
 import signal
+import six
 import sys
 import time
 
@@ -123,7 +124,7 @@ class CommandExecutor(BaseExecutor):
 
     Args:
     commands -- commands to execute.
-    
+
     Returns: when rsync succeeds, return 0. When errors, return 1
     """
     def execute(self, commands):
@@ -132,7 +133,7 @@ class CommandExecutor(BaseExecutor):
 
         options = self.context.options
         #ssh = options.get('ssh') or 'ssh'
-        
+
         ssh_user = options.get('ssh_user') or ''
         ssh_options = ''
         if options.get('ssh_options'):
@@ -181,10 +182,13 @@ class CommandExecutor(BaseExecutor):
             c = command
             if exit_status == 0:
                 c = color.green(command)
+            if six.PY2:
+                c = c.decode('utf-8')
+            #print("command_output: ", isinstance(command_output, unicode))
             return output_format_template.safe_substitute({
                 'user': ssh_user or '[user]',
                 'host': host,
-                'command': c,
+                'command': c, # 'command' is not unicode somehow...
                 'output': command_output,
             })
 

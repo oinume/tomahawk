@@ -1,3 +1,4 @@
+# coding: utf-8
 import argparse
 import datetime
 import re
@@ -130,6 +131,41 @@ def test_04_run_without_user(monkeypatch):
     assert status == 0
     s = \
 """[user]@localhost %% %(command)s
+%(command_output)s
+
+""" % EXPECTED
+    assert o == s
+
+
+def test_05_run_utf8_command(monkeypatch):
+    EXPECTED = {
+        'command': 'echo -n "あ"',
+        'command_output': u"あ",
+        'exit_status': 0,
+    }
+    stdout, stderr = utils.capture_stdout_stderr()
+
+    def mock_parse_args(self, args):
+        return utils.create_command_namespace(
+            command=[EXPECTED['command']],
+            ssh_user=None,
+            ssh_options='-o User=tomahawk')
+
+    monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', mock_parse_args)
+
+    def mock_execute(self):
+        return EXPECTED['exit_status'], EXPECTED['command_output']
+
+    monkeypatch.setattr(CommandWithExpect, 'execute', mock_execute)
+
+    main = CommandMain('tomahawk')
+    status = main.run()
+    o = stdout.stop().value()
+    #print(o)
+    EXPECTED['command_output'] = EXPECTED['command_output'].encode('utf-8')
+    assert status == 0
+    s = \
+        """[user]@localhost %% %(command)s
 %(command_output)s
 
 """ % EXPECTED

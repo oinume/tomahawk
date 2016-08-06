@@ -3,7 +3,7 @@ import multiprocessing
 import os
 import re
 import platform
-from six import print_
+from six import print_, PY2
 import string
 import sys
 
@@ -171,7 +171,7 @@ class BaseExecutor(object):
     def __init__(self, context, log, hosts=[], **kwargs):
         """
         Constructor
-        
+
         Args:
         context -- context
         log -- log
@@ -231,7 +231,13 @@ class BaseExecutor(object):
         hosts_count = len(self.hosts)
         finished = 0
         error_hosts_count = 0
-        output_format_template = string.Template(self.output_format(options.get('output_format', DEFAULT_COMMAND_OUTPUT_FORMAT)))
+        output_format = self.output_format(options.get('output_format', DEFAULT_COMMAND_OUTPUT_FORMAT))
+        #raise(BaseException("output_format: unicode: ", isinstance(output_format, unicode)))
+        if PY2:
+            output_format = output_format.decode('utf-8')
+        #print("output_format: ", isinstance(output_format, unicode))
+        #raise (BaseException("output_format: unicode: ", isinstance(output_format, unicode)))
+        output_format_template = string.Template(output_format)
         timeout = options.get('timeout', DEFAULT_TIMEOUT)
         error_prefix = color.red(color.bold('[error]')) # insert newline for error messages
 
@@ -269,6 +275,8 @@ class BaseExecutor(object):
                     output = re.sub(os.linesep + r'\Z', '', output)
 
                 if exit_status == 0:
+                    #print("output: ", isinstance(output, unicode))
+                    output = output.encode('utf-8')
                     print_(output, file=out)
                 elif timeout_detail is not None:
                     print_('%s %s\n' % (
@@ -295,7 +303,7 @@ class BaseExecutor(object):
                             create_failure_raise_error_message(color, command, host)
                         ), file=err)
                         return 1
-        
+
         # Free process pool
         self.terminate_processes()
 
