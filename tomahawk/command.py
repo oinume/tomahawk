@@ -183,12 +183,12 @@ class CommandExecutor(BaseExecutor):
             if exit_status == 0:
                 c = color.green(command)
             if six.PY2:
+                # 'command' is not unicode somehow...
                 c = c.decode(DEFAULT_EXPECT_ENCODING)
-            #print("command_output: ", isinstance(command_output, unicode))
             return output_format_template.safe_substitute({
                 'user': ssh_user or '[user]',
                 'host': host,
-                'command': c, # 'command' is not unicode somehow...
+                'command': c,
                 'output': command_output,
             })
 
