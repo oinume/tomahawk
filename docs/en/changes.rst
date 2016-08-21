@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.7.4 <2016-08-21>
+------------------
+* bug: #57 UnicodeEncodeError (Thanks @sekino for reporting)
+
 0.7.3 <2016-04-24>
 ------------------
 * #54 Add Python 3.5 support
