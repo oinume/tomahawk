@@ -1,7 +1,7 @@
 Changes
 =======
 
-0.7.4 <2016-08-21>
+0.7.4.1 <2016-08-21>
 ------------------
 * bug: #57 UnicodeEncodeError (Thanks @sekino for reporting)
 
