@@ -3,6 +3,7 @@ import argparse
 import getpass
 import os
 import signal
+import six
 import sys
 import time
 
@@ -11,7 +12,7 @@ from tomahawk.color import (
     create_coloring_object
 )
 from tomahawk.constants import (
-    DEFAULT_COMMAND_OUTPUT_FORMAT
+    DEFAULT_COMMAND_OUTPUT_FORMAT, DEFAULT_EXPECT_ENCODING
 )
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import (
@@ -123,7 +124,7 @@ class CommandExecutor(BaseExecutor):
 
     Args:
     commands -- commands to execute.
-    
+
     Returns: when rsync succeeds, return 0. When errors, return 1
     """
     def execute(self, commands):
@@ -132,7 +133,7 @@ class CommandExecutor(BaseExecutor):
 
         options = self.context.options
         #ssh = options.get('ssh') or 'ssh'
-        
+
         ssh_user = options.get('ssh_user') or ''
         ssh_options = ''
         if options.get('ssh_options'):
@@ -181,6 +182,9 @@ class CommandExecutor(BaseExecutor):
             c = command
             if exit_status == 0:
                 c = color.green(command)
+            if six.PY2:
+                # 'command' is not unicode somehow...
+                c = c.decode(DEFAULT_EXPECT_ENCODING)
             return output_format_template.safe_substitute({
                 'user': ssh_user or '[user]',
                 'host': host,
