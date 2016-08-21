@@ -3,7 +3,8 @@ import multiprocessing
 import os
 import re
 import platform
-from six import print_, PY2
+from six import print_
+import six
 import string
 import sys
 
@@ -232,10 +233,10 @@ class BaseExecutor(object):
         finished = 0
         error_hosts_count = 0
         output_format = self.output_format(options.get('output_format', DEFAULT_COMMAND_OUTPUT_FORMAT))
-        #raise(BaseException("output_format: unicode: ", isinstance(output_format, unicode)))
-        if PY2:
-            output_format = output_format.decode('utf-8')
-        #print("output_format: ", isinstance(output_format, unicode))
+        #print("type output_format: ", type(output_format))
+        if six.PY2:
+            output_format = output_format.decode(DEFAULT_EXPECT_ENCODING)
+        #print("type output_format: ", type(output_format))
         #raise (BaseException("output_format: unicode: ", isinstance(output_format, unicode)))
         output_format_template = string.Template(output_format)
         timeout = options.get('timeout', DEFAULT_TIMEOUT)
@@ -275,8 +276,9 @@ class BaseExecutor(object):
                     output = re.sub(os.linesep + r'\Z', '', output)
 
                 if exit_status == 0:
-                    #print("output: ", isinstance(output, unicode))
-                    output = output.encode('utf-8')
+                    #print("type output: ", type(output))
+                    if six.PY2:
+                        output = output.encode(DEFAULT_EXPECT_ENCODING)
                     print_(output, file=out)
                 elif timeout_detail is not None:
                     print_('%s %s\n' % (

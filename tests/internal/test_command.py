@@ -2,6 +2,7 @@
 import argparse
 import datetime
 import re
+import six
 import utils
 
 utils.append_home_to_path(__file__)
@@ -140,7 +141,7 @@ def test_04_run_without_user(monkeypatch):
 def test_05_run_utf8_command(monkeypatch):
     EXPECTED = {
         'command': 'echo -n "あ"',
-        'command_output': u"あ",
+        'command_output': six.u("あ"),
         'exit_status': 0,
     }
     stdout, stderr = utils.capture_stdout_stderr()
@@ -162,7 +163,8 @@ def test_05_run_utf8_command(monkeypatch):
     status = main.run()
     o = stdout.stop().value()
     #print(o)
-    EXPECTED['command_output'] = EXPECTED['command_output'].encode('utf-8')
+    if six.PY2:
+        EXPECTED['command_output'] = EXPECTED['command_output'].encode('utf-8')
     assert status == 0
     s = \
         """[user]@localhost %% %(command)s

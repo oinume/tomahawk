@@ -12,7 +12,7 @@ from tomahawk.color import (
     create_coloring_object
 )
 from tomahawk.constants import (
-    DEFAULT_COMMAND_OUTPUT_FORMAT
+    DEFAULT_COMMAND_OUTPUT_FORMAT, DEFAULT_EXPECT_ENCODING
 )
 from tomahawk.expect import CommandWithExpect
 from tomahawk.utils import (
@@ -183,7 +183,7 @@ class CommandExecutor(BaseExecutor):
             if exit_status == 0:
                 c = color.green(command)
             if six.PY2:
-                c = c.decode('utf-8')
+                c = c.decode(DEFAULT_EXPECT_ENCODING)
             #print("command_output: ", isinstance(command_output, unicode))
             return output_format_template.safe_substitute({
                 'user': ssh_user or '[user]',
