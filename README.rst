@@ -1,18 +1,18 @@
 .. -*- restructuredtext -*-
 
-.. image:: https://api.travis-ci.org/oinume/tomahawk.png?branch=hotfix/0.7
-    :target: https://pypi.python.org/pypi/tomahawk/
+.. image:: https://img.shields.io/travis/oinume/tomahawk/hotfix/0.7.svg
+    :target: https://travis-ci.org/oinume/tomahawk
     :alt: Build status
 
-.. image:: https://pypip.in/v/tomahawk/badge.png
+.. image:: https://img.shields.io/pypi/v/tomahawk.svg
     :target: https://pypi.python.org/pypi/tomahawk/
     :alt: Latest Version
 
-.. image:: https://pypip.in/d/tomahawk/badge.png
+.. image:: https://img.shields.io/pypi/dm/tomahawk.svg
     :target: https://pypi.python.org/pypi/tomahawk/
     :alt: Downloads
 
-.. image:: https://pypip.in/license/tomahawk/badge.png
+.. image:: https://img.shields.io/github/license/oinume/tomahawk.svg
     :target: https://pypi.python.org/pypi/tomahawk/
     :alt: License
 
