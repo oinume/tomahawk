@@ -4,15 +4,21 @@ services:
     build:
       context: .
       dockerfile: dockerfile-centos6.6
+    environment:
+      - LNAG=en_US.utf8
+      - LC_ALL=en_US.utf8
     volumes:
       - ".:/var/lib/tomahawk"
     working_dir: /var/lib/tomahawk
-    command: /bin/bash -c 'service sshd restart && pip install -e . && tomahawk -h localhost "echo あ"'
+    command: /bin/bash -c 'service sshd restart && && pip install -e . && tomahawk -h localhost "echo あ"'
   ubuntu16.04:
     build:
       context: .
       dockerfile: dockerfile-ubuntu16.04
+    environment:
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
     volumes:
       - ".:/var/lib/tomahawk"
     working_dir: /var/lib/tomahawk
-    command: /bin/bash -c 'service ssh restart && pip3 install -e . && tomahawk -h localhost "echo あ"'
+    command: /bin/bash -c 'service ssh restart && pip3 install --upgrade -e . && tomahawk -h localhost "echo あ"'
